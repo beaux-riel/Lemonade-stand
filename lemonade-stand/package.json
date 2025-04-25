@@ -2,6 +2,7 @@
   "name": "lemonade-stand",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://beaux-riel.github.io/Lemonade-stand/",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
     "@testing-library/dom": "^10.4.0",
@@ -24,7 +25,11 @@
     "preview": "vite preview --port 12000 --host 0.0.0.0",
     "test": "react-scripts test",
     "analyze": "vite build --mode analyze",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "scripts/deploy-github-pages.sh",
+    "predeploy": "npm run build",
+    "generate-sitemap": "node scripts/generate-sitemap.js",
+    "prebuild": "npm run generate-sitemap"
   },
   "eslintConfig": {
     "extends": [

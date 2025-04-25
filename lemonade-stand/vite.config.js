@@ -4,14 +4,29 @@ import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-// Get the repository name from environment or default to local development
+// Get the repository name from environment or package.json homepage
 const getBase = () => {
-  // For GitHub Pages deployment
+  // For GitHub Pages deployment via environment variable
   if (process.env.GITHUB_REPOSITORY) {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     return `/${repo}/`;
   }
-  // For local development
+  
+  // For GitHub Pages deployment via package.json homepage
+  try {
+    const packageJson = require('./package.json');
+    if (packageJson.homepage) {
+      const url = new URL(packageJson.homepage);
+      const pathSegments = url.pathname.split('/').filter(Boolean);
+      if (pathSegments.length > 0) {
+        return `/${pathSegments.join('/')}/`;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not parse homepage from package.json:', e);
+  }
+  
+  // For local development or custom domain
   return '/';
 };
 
