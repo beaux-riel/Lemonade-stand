@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { StandProvider } from '../contexts/StandContext';
 import { GeolocationProvider } from '../contexts/GeolocationContext';

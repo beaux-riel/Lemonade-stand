@@ -56,12 +56,12 @@ function App() {
                     <Route path="/register" element={<RegisterPage />} />
                     
                     {/* Protected routes */}
-                    <Route element={<ProtectedRoute />}>
-                      <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
-                      <Route path="/seller/stands/new" element={<SellerRegistrationPage />} />
-                      <Route path="/seller/stands/:id" element={<StandDetailPage />} />
-                      <Route path="/seller/stands/:standId/products/new" element={<ProductDetailPage />} />
-                      <Route path="/seller/stands/:standId/products/:productId" element={<ProductDetailPage />} />
+                    <Route path="/seller" element={<ProtectedRoute />}>
+                      <Route path="dashboard" element={<SellerDashboardPage />} />
+                      <Route path="stands/new" element={<SellerRegistrationPage />} />
+                      <Route path="stands/:id" element={<StandDetailPage />} />
+                      <Route path="stands/:standId/products/new" element={<ProductDetailPage />} />
+                      <Route path="stands/:standId/products/:productId" element={<ProductDetailPage />} />
                     </Route>
                     
                     {/* Development/testing routes */}
