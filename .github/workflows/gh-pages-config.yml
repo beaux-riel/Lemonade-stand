@@ -1,0 +1,28 @@
+name: GitHub Pages Configuration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - gh-pages
+
+jobs:
+  configure-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        with:
+          # Enable custom domain if CNAME exists
+          enablement: true
+          # Set the source branch to gh-pages
+          source_branch: gh-pages
+          # Set the source directory to the root
+          source_dir: /
+          # Enable HTTPS enforcement
+          enforce_https: true
+          # Enable custom 404 page
+          static_site_generator: true
