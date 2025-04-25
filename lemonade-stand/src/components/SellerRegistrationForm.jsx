@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from './ui';
 import { createStand, createProduct, uploadImage } from '../api/supabaseApi';
-import { getCurrentUser } from '../api/supabaseApi';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Geocode an address to get latitude and longitude
@@ -175,25 +175,19 @@ const SellerRegistrationForm = () => {
     ],
   });
 
-  // Get current user on component mount
+  // Use the auth context
+  const { user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  
+  // Set user from auth context
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await getCurrentUser();
-      if (error) {
-        console.error('Error fetching user:', error);
-        setError('You must be logged in to register as a seller.');
-        return;
-      }
-      
-      if (data?.user) {
-        setUser(data.user);
-      } else {
-        setError('You must be logged in to register as a seller.');
-      }
-    };
+    if (authLoading) return;
     
-    fetchUser();
-  }, []);
+    if (isAuthenticated && authUser) {
+      setUser(authUser);
+    } else {
+      setError('You must be logged in to register as a seller.');
+    }
+  }, [authUser, isAuthenticated, authLoading]);
 
   // Handle form input changes
   const handleInputChange = (e) => {
