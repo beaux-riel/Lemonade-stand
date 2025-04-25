@@ -79,13 +79,16 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
           weight: 1,
         }).addTo(map);
       }
-      
-      // Notify parent component about user location
-      if (onUserLocationFound) {
-        onUserLocationFound(latlng);
-      }
     }
-  }, [location, map, showUserLocation, onUserLocationFound]);
+  }, [location, map, showUserLocation]);
+  
+  // Separate useEffect for notifying parent to prevent infinite loops
+  useEffect(() => {
+    if (location && showUserLocation && onUserLocationFound) {
+      const latlng = { lat: location.lat, lng: location.lng };
+      onUserLocationFound(latlng);
+    }
+  }, [location, showUserLocation, onUserLocationFound]);
   
   // Use Leaflet's locate method as a fallback - optimized to reduce unnecessary work
   useEffect(() => {
@@ -126,10 +129,7 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
           }).addTo(map);
         }
         
-        // Notify parent component about user location
-        if (onUserLocationFound) {
-          onUserLocationFound(e.latlng);
-        }
+        // We've moved the notification to a separate useEffect to prevent infinite loops
       };
       
       const onLocationError = (e) => {
