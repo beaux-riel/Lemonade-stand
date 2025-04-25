@@ -47,9 +47,7 @@ jest.mock('leaflet', () => {
 
 // Mock react-leaflet
 jest.mock('react-leaflet', () => {
-  const ReactLeaflet = jest.requireActual('react-leaflet');
   return {
-    ...ReactLeaflet,
     MapContainer: ({ children }) => <div data-testid="map-container">{children}</div>,
     TileLayer: () => <div data-testid="tile-layer" />,
     Marker: ({ children }) => <div data-testid="map-marker">{children}</div>,
@@ -58,6 +56,8 @@ jest.mock('react-leaflet', () => {
       setView: jest.fn(),
       flyTo: jest.fn(),
     }),
+    useMapEvent: jest.fn(),
+    useMapEvents: jest.fn(),
   };
 });
 
