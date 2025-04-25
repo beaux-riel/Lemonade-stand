@@ -1,0 +1,7 @@
+{
+  "name": "cleanup-expired-stands",
+  "version": "1.0.0",
+  "description": "Cleanup expired lemonade stands",
+  "verify_jwt": false,
+  "cron": "0 * * * *"
+}

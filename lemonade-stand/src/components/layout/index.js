@@ -1,4 +1,5 @@
 import ResponsiveMapLayout from './ResponsiveMapLayout';
+import MainLayout from './MainLayout';
 
-export { ResponsiveMapLayout };
+export { ResponsiveMapLayout, MainLayout };
 export default ResponsiveMapLayout;

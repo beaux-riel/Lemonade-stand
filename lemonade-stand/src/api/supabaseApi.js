@@ -142,6 +142,50 @@ export const updateStand = async (standId, updates) => {
   return { data, error };
 };
 
+export const extendStandExpiration = async (standId, hoursToExtend = 24) => {
+  // First get the current stand to check its expiration time
+  const { data: stand, error: fetchError } = await supabase
+    .from('stands')
+    .select('expiration_time')
+    .eq('id', standId)
+    .single();
+    
+  if (fetchError) {
+    return { error: fetchError };
+  }
+  
+  // Calculate new expiration time
+  let newExpirationTime;
+  if (stand.expiration_time) {
+    // If expiration time exists and is in the future, extend from that time
+    const currentExpiration = new Date(stand.expiration_time);
+    const now = new Date();
+    
+    // If already expired, extend from current time
+    if (currentExpiration < now) {
+      newExpirationTime = new Date(now.getTime() + hoursToExtend * 60 * 60 * 1000);
+    } else {
+      // Otherwise extend from current expiration time
+      newExpirationTime = new Date(currentExpiration.getTime() + hoursToExtend * 60 * 60 * 1000);
+    }
+  } else {
+    // If no expiration time set, set it to current time + hours to extend
+    newExpirationTime = new Date(new Date().getTime() + hoursToExtend * 60 * 60 * 1000);
+  }
+  
+  // Update the stand with new expiration time
+  const { data, error } = await supabase
+    .from('stands')
+    .update({
+      expiration_time: newExpirationTime.toISOString(),
+      is_active: true // Ensure the stand is active when extending
+    })
+    .eq('id', standId)
+    .select();
+    
+  return { data, error };
+};
+
 export const deleteStand = async (standId) => {
   const { error } = await supabase
     .from('stands')

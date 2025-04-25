@@ -3,9 +3,9 @@ import { signIn, signUp, signOut } from '../../api/supabaseApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Form, Button, Alert } from '../ui';
 
-const AuthForm = () => {
+const AuthForm = ({ initialMode = 'login' }) => {
   const { user, isAuthenticated } = useAuth();
-  const [mode, setMode] = useState('login'); // 'login' or 'register'
+  const [mode, setMode] = useState(initialMode); // 'login' or 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
