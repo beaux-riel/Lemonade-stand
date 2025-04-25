@@ -4,6 +4,7 @@ import { Card, Button, Form, Alert, Loader } from '../ui';
 import ProductCard from './ProductCard';
 import StandCard from './StandCard';
 import { filterStandsByDistance } from '../../utils/distance';
+import { formatDistance, getProximityDescription } from '../../services/geolocationService';
 
 /**
  * StandListSidebar component for displaying and filtering lemonade stands
@@ -238,12 +239,19 @@ const StandListSidebar = ({
                       <h3 className="font-display text-lg">{stand.name}</h3>
                       {stand.distance !== null && stand.distance !== undefined && (
                         <span className="text-xs bg-white px-2 py-1 rounded-full">
-                          {stand.distance.toFixed(1)} miles
+                          {formatDistance(stand.distance, 'miles')}
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-700 line-clamp-2">{stand.description}</p>
-                    <p className="text-xs text-gray-600 mt-1">{stand.address}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-xs text-gray-600">{stand.address}</p>
+                      {stand.distance !== null && stand.distance !== undefined && (
+                        <span className="text-xs font-medium text-lemonade-blue-dark">
+                          {getProximityDescription(stand.distance)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useGeolocation } from '../../contexts/GeolocationContext';
 
 // Fix for default marker icons in react-leaflet
 // This is needed because the default markers use relative paths that don't work in React
@@ -53,29 +54,22 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
   const [accuracy, setAccuracy] = useState(null);
   const map = useMap();
   const locationCircleRef = useRef(null);
+  const { location, getLocation } = useGeolocation();
   
+  // Update position when location changes from context
   useEffect(() => {
-    if (!showUserLocation) {
-      if (locationCircleRef.current) {
-        locationCircleRef.current.remove();
-        locationCircleRef.current = null;
-      }
-      return;
-    }
-    
-    map.locate({ setView: true, maxZoom: 16 });
-    
-    const onLocationFound = (e) => {
-      setPosition([e.latlng.lat, e.latlng.lng]);
-      setAccuracy(e.accuracy);
+    if (location && showUserLocation) {
+      const latlng = { lat: location.lat, lng: location.lng };
+      setPosition([latlng.lat, latlng.lng]);
+      setAccuracy(location.accuracy || 0);
       
       // Create or update accuracy circle
       if (locationCircleRef.current) {
-        locationCircleRef.current.setLatLng(e.latlng);
-        locationCircleRef.current.setRadius(e.accuracy);
+        locationCircleRef.current.setLatLng(latlng);
+        locationCircleRef.current.setRadius(location.accuracy || 100);
       } else {
-        locationCircleRef.current = L.circle(e.latlng, {
-          radius: e.accuracy,
+        locationCircleRef.current = L.circle(latlng, {
+          radius: location.accuracy || 100,
           color: '#4285F4',
           fillColor: '#4285F4',
           fillOpacity: 0.1,
@@ -85,28 +79,71 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
       
       // Notify parent component about user location
       if (onUserLocationFound) {
-        onUserLocationFound(e.latlng);
+        onUserLocationFound(latlng);
       }
-    };
+    }
+  }, [location, map, showUserLocation, onUserLocationFound]);
+  
+  // Use Leaflet's locate method as a fallback
+  useEffect(() => {
+    if (!showUserLocation) {
+      if (locationCircleRef.current) {
+        locationCircleRef.current.remove();
+        locationCircleRef.current = null;
+      }
+      return;
+    }
     
-    const onLocationError = (e) => {
-      console.error('Error getting location:', e.message);
-      // You could show an error message to the user here
-    };
-    
-    map.on('locationfound', onLocationFound);
-    map.on('locationerror', onLocationError);
+    // If we don't have a location from context, try to get it using Leaflet
+    if (!location) {
+      map.locate({ setView: true, maxZoom: 16 });
+      
+      const onLocationFound = (e) => {
+        setPosition([e.latlng.lat, e.latlng.lng]);
+        setAccuracy(e.accuracy);
+        
+        // Create or update accuracy circle
+        if (locationCircleRef.current) {
+          locationCircleRef.current.setLatLng(e.latlng);
+          locationCircleRef.current.setRadius(e.accuracy);
+        } else {
+          locationCircleRef.current = L.circle(e.latlng, {
+            radius: e.accuracy,
+            color: '#4285F4',
+            fillColor: '#4285F4',
+            fillOpacity: 0.1,
+            weight: 1,
+          }).addTo(map);
+        }
+        
+        // Notify parent component about user location
+        if (onUserLocationFound) {
+          onUserLocationFound(e.latlng);
+        }
+      };
+      
+      const onLocationError = (e) => {
+        console.error('Error getting location from Leaflet:', e.message);
+        // Try to get location using our geolocation service
+        getLocation();
+      };
+      
+      map.on('locationfound', onLocationFound);
+      map.on('locationerror', onLocationError);
+      
+      return () => {
+        map.off('locationfound', onLocationFound);
+        map.off('locationerror', onLocationError);
+      };
+    }
     
     return () => {
-      map.off('locationfound', onLocationFound);
-      map.off('locationerror', onLocationError);
-      
       if (locationCircleRef.current) {
         locationCircleRef.current.remove();
         locationCircleRef.current = null;
       }
     };
-  }, [map, showUserLocation, onUserLocationFound]);
+  }, [map, showUserLocation, onUserLocationFound, location, getLocation]);
   
   return position ? (
     <Marker position={position} icon={userLocationIcon}>

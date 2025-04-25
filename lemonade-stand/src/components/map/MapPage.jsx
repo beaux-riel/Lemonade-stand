@@ -1,88 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import Map from './Map';
 import StandListSidebar from './StandListSidebar';
-import { Alert, Loader } from '../ui';
-import { sortStandsByDistance } from '../../utils/distance';
-import { getStands, subscribeToStands, unsubscribe } from '../../api/supabaseApi';
+import NearbyStandsList from './NearbyStandsList';
+import { Alert, Loader, Button } from '../ui';
+import { useGeolocation } from '../../contexts/GeolocationContext';
+import { useStands } from '../../contexts/StandContext';
+import { useNearbyStands } from '../../contexts/NearbyStandsContext';
 
 const MapPage = () => {
-  const [stands, setStands] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { stands, loading, error: standsError } = useStands();
+  const { location, getLocation, error: locationError } = useGeolocation();
+  const { nearbyStands } = useNearbyStands();
+  
   const [selectedStand, setSelectedStand] = useState(null);
   const [mapCenter, setMapCenter] = useState([40.7128, -74.0060]); // Default to NYC
   const [mapZoom, setMapZoom] = useState(13);
-  const [userLocation, setUserLocation] = useState(null);
+  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'nearby'
+  const [error, setError] = useState(null);
   
-  // Fetch stands from Supabase
+  // Set error from context errors
   useEffect(() => {
-    const fetchStands = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await getStands();
-        
-        if (error) {
-          throw new Error(error.message);
-        }
-        
-        setStands(data || []);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching stands:', err);
-        setError('Failed to load lemonade stands. Please try again later.');
-        setLoading(false);
-      }
-    };
-    
-    fetchStands();
-    
-    // Set up real-time subscription for new stands
-    const subscription = subscribeToStands((payload) => {
-      console.log('Real-time stand update:', payload);
-      
-      if (payload.eventType === 'INSERT') {
-        setStands(prevStands => [...prevStands, payload.new]);
-      } else if (payload.eventType === 'UPDATE') {
-        setStands(prevStands => 
-          prevStands.map(stand => 
-            stand.id === payload.new.id ? payload.new : stand
-          )
-        );
-        
-        // If the updated stand is the selected one, update the selection
-        if (selectedStand && selectedStand.id === payload.new.id) {
-          setSelectedStand(payload.new);
-        }
-      } else if (payload.eventType === 'DELETE') {
-        setStands(prevStands => 
-          prevStands.filter(stand => stand.id !== payload.old.id)
-        );
-        
-        // If the deleted stand is the selected one, clear the selection
-        if (selectedStand && selectedStand.id === payload.old.id) {
-          setSelectedStand(null);
-        }
-      }
-    });
-    
-    // Clean up subscription on unmount
-    return () => {
-      unsubscribe(subscription);
-    };
-  }, [selectedStand]);
-  
-  // Sort stands by distance when user location changes
-  useEffect(() => {
-    if (userLocation && stands.length > 0) {
-      const sortedStands = sortStandsByDistance(
-        [...stands], // Create a copy to avoid modifying the original array
-        userLocation.lat,
-        userLocation.lng,
-        'miles'
-      );
-      setStands(sortedStands);
+    if (standsError) {
+      setError(standsError);
+    } else if (locationError && activeTab === 'nearby') {
+      setError(locationError);
+    } else {
+      setError(null);
     }
-  }, [userLocation]);
+  }, [standsError, locationError, activeTab]);
   
   // Handle stand click
   const handleStandClick = (stand) => {
@@ -94,8 +39,8 @@ const MapPage = () => {
   // Handle closing stand details
   const handleCloseStand = () => {
     setSelectedStand(null);
-    if (userLocation) {
-      setMapCenter([userLocation.lat, userLocation.lng]);
+    if (location) {
+      setMapCenter([location.lat, location.lng]);
     } else {
       setMapCenter([40.7128, -74.0060]); // Default to NYC
     }
@@ -105,14 +50,17 @@ const MapPage = () => {
   // Handle user location found
   const handleUserLocationFound = (latlng) => {
     if (latlng && latlng.lat && latlng.lng) {
-      setUserLocation({
-        lat: latlng.lat,
-        lng: latlng.lng
-      });
-      
       // Center map on user location
       setMapCenter([latlng.lat, latlng.lng]);
     }
+  };
+  
+  // Get the stands to display based on active tab
+  const getDisplayedStands = () => {
+    if (activeTab === 'nearby') {
+      return nearbyStands;
+    }
+    return stands;
   };
   
   return (
@@ -129,7 +77,7 @@ const MapPage = () => {
         {/* Map */}
         <div className="lg:col-span-2">
           <Map
-            stands={stands}
+            stands={getDisplayedStands()}
             center={mapCenter}
             zoom={mapZoom}
             height="600px"
@@ -146,17 +94,50 @@ const MapPage = () => {
           )}
         </div>
         
-        {/* Stand list sidebar */}
-        <div className="h-[600px]">
-          <StandListSidebar
-            stands={stands}
-            loading={loading}
-            selectedStand={selectedStand}
-            onStandSelect={handleStandClick}
-            onStandClose={handleCloseStand}
-            userLocation={userLocation}
-            className="h-full"
-          />
+        {/* Sidebar with tabs */}
+        <div className="h-[600px] flex flex-col">
+          {/* Tab navigation */}
+          <div className="flex mb-4">
+            <Button
+              variant={activeTab === 'all' ? 'primary' : 'outline'}
+              className="flex-1 rounded-r-none"
+              onClick={() => setActiveTab('all')}
+            >
+              All Stands
+            </Button>
+            <Button
+              variant={activeTab === 'nearby' ? 'primary' : 'outline'}
+              className="flex-1 rounded-l-none"
+              onClick={() => {
+                setActiveTab('nearby');
+                if (!location) {
+                  getLocation();
+                }
+              }}
+            >
+              Near You
+            </Button>
+          </div>
+          
+          {/* Tab content */}
+          <div className="flex-grow">
+            {activeTab === 'all' ? (
+              <StandListSidebar
+                stands={stands}
+                loading={loading}
+                selectedStand={selectedStand}
+                onStandSelect={handleStandClick}
+                onStandClose={handleCloseStand}
+                userLocation={location}
+                className="h-full"
+              />
+            ) : (
+              <NearbyStandsList
+                onStandSelect={handleStandClick}
+                className="h-full"
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

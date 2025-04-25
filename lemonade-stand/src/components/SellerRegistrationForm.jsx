@@ -3,42 +3,8 @@ import { Form, Button, Alert } from './ui';
 import { createStand, createProduct, uploadImage } from '../api/supabaseApi';
 import { useAuth } from '../contexts/AuthContext';
 
-/**
- * Geocode an address to get latitude and longitude
- * @param {string} address - The address to geocode
- * @returns {Promise<{lat: number, lng: number} | null>} - The coordinates or null if geocoding failed
- */
-const geocodeAddress = async (address) => {
-  try {
-    // Using OpenStreetMap Nominatim API for geocoding
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-      {
-        headers: {
-          'Accept-Language': 'en',
-        },
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error('Geocoding request failed');
-    }
-    
-    const data = await response.json();
-    
-    if (data.length === 0) {
-      return null;
-    }
-    
-    return {
-      lat: parseFloat(data[0].lat),
-      lng: parseFloat(data[0].lon),
-    };
-  } catch (error) {
-    console.error('Error geocoding address:', error);
-    return null;
-  }
-};
+// Import the geocoding service
+import { getLocationFromAddress } from '../services/geolocationService';
 
 /**
  * Product form component for adding a product
@@ -226,7 +192,7 @@ const SellerRegistrationForm = () => {
     setGeocodingStatus(null);
   };
 
-  // Geocode the address
+  // Geocode the address using our geolocation service
   const handleGeocodeAddress = async () => {
     if (!formData.address.trim()) {
       setFormErrors((prev) => ({
@@ -237,27 +203,37 @@ const SellerRegistrationForm = () => {
     }
     
     setGeocodingStatus('loading');
-    const coordinates = await geocodeAddress(formData.address);
     
-    if (coordinates) {
-      setFormData((prev) => ({
-        ...prev,
-        location: coordinates,
-      }));
-      setGeocodingStatus('success');
+    try {
+      const coordinates = await getLocationFromAddress(formData.address);
       
-      // Clear error for address if it exists
-      if (formErrors.address) {
+      if (coordinates) {
+        setFormData((prev) => ({
+          ...prev,
+          location: coordinates,
+        }));
+        setGeocodingStatus('success');
+        
+        // Clear error for address if it exists
+        if (formErrors.address) {
+          setFormErrors((prev) => ({
+            ...prev,
+            address: null,
+          }));
+        }
+      } else {
+        setGeocodingStatus('error');
         setFormErrors((prev) => ({
           ...prev,
-          address: null,
+          address: 'Could not find coordinates for this address. Please try a different address.',
         }));
       }
-    } else {
+    } catch (error) {
+      console.error('Error geocoding address:', error);
       setGeocodingStatus('error');
       setFormErrors((prev) => ({
         ...prev,
-        address: 'Could not find coordinates for this address. Please try a different address.',
+        address: `Geocoding error: ${error.message}`,
       }));
     }
   };
