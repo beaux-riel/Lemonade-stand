@@ -4,6 +4,36 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Preload critical assets
+const preloadCriticalAssets = () => {
+  // Preload main CSS
+  const linkCss = document.createElement('link');
+  linkCss.rel = 'preload';
+  linkCss.as = 'style';
+  linkCss.href = '/styles/tailwind.css';
+  document.head.appendChild(linkCss);
+  
+  // Preload critical fonts
+  const fontUrls = [
+    '/fonts/lemonade-display.woff2',
+    '/fonts/lemonade-body.woff2'
+  ];
+  
+  fontUrls.forEach(url => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'font';
+    link.href = url;
+    link.type = 'font/woff2';
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+  });
+};
+
+// Execute preloading
+preloadCriticalAssets();
+
+// Create root with concurrent mode for better performance
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -11,7 +41,20 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// Send web vitals to analytics
+reportWebVitals(metric => {
+  // Log to console in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log(metric);
+  }
+  
+  // In production, you could send to an analytics service
+  if (process.env.NODE_ENV === 'production') {
+    // Example: send to analytics endpoint
+    // fetch('/api/analytics', {
+    //   method: 'POST',
+    //   body: JSON.stringify(metric),
+    //   headers: { 'Content-Type': 'application/json' }
+    // });
+  }
+});

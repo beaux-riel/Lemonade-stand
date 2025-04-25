@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import PropTypes from 'prop-types';
 import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
 });
 
 // Custom lemonade stand marker icon
-const lemonadeIcon = new L.Icon({
+const createLemonadeIcon = () => new L.Icon({
   iconUrl: '/images/markers/lemonade-marker.svg',
   iconSize: [40, 48],
   iconAnchor: [20, 48],
@@ -23,7 +23,7 @@ const lemonadeIcon = new L.Icon({
 });
 
 // Custom user location marker icon
-const userLocationIcon = new L.Icon({
+const createUserLocationIcon = () => new L.Icon({
   iconUrl: '/images/markers/user-location.svg',
   iconSize: [24, 24],
   iconAnchor: [12, 12],
@@ -48,13 +48,16 @@ MapViewUpdater.propTypes = {
   zoom: PropTypes.number,
 };
 
-// Component to handle user location
-const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
+// Component to handle user location - memoized to prevent unnecessary re-renders
+const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
   const [position, setPosition] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const map = useMap();
   const locationCircleRef = useRef(null);
   const { location, getLocation } = useGeolocation();
+  
+  // Memoize the icon creation
+  const icon = useMemo(() => createUserLocationIcon(), []);
   
   // Update position when location changes from context
   useEffect(() => {
@@ -84,7 +87,7 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
     }
   }, [location, map, showUserLocation, onUserLocationFound]);
   
-  // Use Leaflet's locate method as a fallback
+  // Use Leaflet's locate method as a fallback - optimized to reduce unnecessary work
   useEffect(() => {
     if (!showUserLocation) {
       if (locationCircleRef.current) {
@@ -96,7 +99,14 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
     
     // If we don't have a location from context, try to get it using Leaflet
     if (!location) {
-      map.locate({ setView: true, maxZoom: 16 });
+      // Use a more efficient locate method for mobile
+      map.locate({ 
+        setView: true, 
+        maxZoom: 16,
+        enableHighAccuracy: false, // Less battery usage on mobile
+        timeout: 10000, // Timeout after 10 seconds
+        maximumAge: 60000 // Allow cached positions up to 1 minute old
+      });
       
       const onLocationFound = (e) => {
         setPosition([e.latlng.lat, e.latlng.lng]);
@@ -145,8 +155,9 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
     };
   }, [map, showUserLocation, onUserLocationFound, location, getLocation]);
   
+  // Only render the marker if we have a position
   return position ? (
-    <Marker position={position} icon={userLocationIcon}>
+    <Marker position={position} icon={icon}>
       <Popup>
         <div>
           <h3 className="font-display text-base">Your Location</h3>
@@ -155,11 +166,72 @@ const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
       </Popup>
     </Marker>
   ) : null;
-};
+});
 
 UserLocationMarker.propTypes = {
   showUserLocation: PropTypes.bool,
   onUserLocationFound: PropTypes.func,
+};
+
+// Memoized StandMarker component to prevent unnecessary re-renders
+const StandMarker = memo(({ stand, onStandClick }) => {
+  // Memoize the icon creation
+  const icon = useMemo(() => createLemonadeIcon(), []);
+  
+  return (
+    <Marker
+      key={stand.id}
+      position={[stand.location_lat, stand.location_lng]}
+      icon={icon}
+      eventHandlers={{
+        click: () => {
+          if (onStandClick) {
+            onStandClick(stand);
+          }
+        },
+      }}
+    >
+      <Popup>
+        <div className="text-center">
+          <h3 className="font-display text-lg text-lemonade-yellow-dark">{stand.name}</h3>
+          {stand.image_url && (
+            <img 
+              src={stand.image_url} 
+              alt={stand.name}
+              className="w-32 h-32 object-cover mx-auto my-2 rounded-lg"
+              loading="lazy" // Add lazy loading for images
+            />
+          )}
+          <p className="text-sm">{stand.description}</p>
+          <p className="text-xs mt-2 text-gray-600">{stand.address}</p>
+          <button
+            className="mt-2 px-3 py-1 bg-lemonade-yellow text-gray-800 rounded-full text-sm font-display hover:bg-lemonade-yellow-dark"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onStandClick) {
+                onStandClick(stand);
+              }
+            }}
+          >
+            View Details
+          </button>
+        </div>
+      </Popup>
+    </Marker>
+  );
+});
+
+StandMarker.propTypes = {
+  stand: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    location_lat: PropTypes.number.isRequired,
+    location_lng: PropTypes.number.isRequired,
+    address: PropTypes.string,
+    image_url: PropTypes.string,
+  }).isRequired,
+  onStandClick: PropTypes.func,
 };
 
 /**
@@ -176,6 +248,9 @@ const Map = ({
   className = '',
   ...props
 }) => {
+  // Memoize the stands array to prevent unnecessary re-renders
+  const memoizedStands = useMemo(() => stands, [stands]);
+  
   return (
     <div 
       className={`rounded-xl overflow-hidden shadow-playful ${className}`}
@@ -187,6 +262,13 @@ const Map = ({
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
+        // Add performance optimizations for mobile
+        preferCanvas={true}
+        attributionControl={false}
+        minZoom={5}
+        maxZoom={18}
+        updateWhenZooming={false}
+        updateWhenIdle={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -205,45 +287,12 @@ const Map = ({
         />
         
         {/* Render lemonade stand markers */}
-        {stands.map((stand) => (
-          <Marker
-            key={stand.id}
-            position={[stand.location_lat, stand.location_lng]}
-            icon={lemonadeIcon}
-            eventHandlers={{
-              click: () => {
-                if (onStandClick) {
-                  onStandClick(stand);
-                }
-              },
-            }}
-          >
-            <Popup>
-              <div className="text-center">
-                <h3 className="font-display text-lg text-lemonade-yellow-dark">{stand.name}</h3>
-                {stand.image_url && (
-                  <img 
-                    src={stand.image_url} 
-                    alt={stand.name}
-                    className="w-32 h-32 object-cover mx-auto my-2 rounded-lg"
-                  />
-                )}
-                <p className="text-sm">{stand.description}</p>
-                <p className="text-xs mt-2 text-gray-600">{stand.address}</p>
-                <button
-                  className="mt-2 px-3 py-1 bg-lemonade-yellow text-gray-800 rounded-full text-sm font-display hover:bg-lemonade-yellow-dark"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (onStandClick) {
-                      onStandClick(stand);
-                    }
-                  }}
-                >
-                  View Details
-                </button>
-              </div>
-            </Popup>
-          </Marker>
+        {memoizedStands.map((stand) => (
+          <StandMarker 
+            key={stand.id} 
+            stand={stand} 
+            onStandClick={onStandClick} 
+          />
         ))}
       </MapContainer>
     </div>

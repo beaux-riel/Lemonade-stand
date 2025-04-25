@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import Map from './Map';
-import StandListSidebar from './StandListSidebar';
-import NearbyStandsList from './NearbyStandsList';
 import { Alert, Loader, Button } from '../ui';
 import { ResponsiveMapLayout } from '../layout';
 import { useGeolocation } from '../../contexts/GeolocationContext';
 import { useStands } from '../../contexts/StandContext';
 import { useNearbyStands } from '../../contexts/NearbyStandsContext';
+
+// Lazy load components that aren't needed immediately
+const StandListSidebar = lazy(() => import('./StandListSidebar'));
+const NearbyStandsList = lazy(() => import('./NearbyStandsList'));
 
 const MapPage = () => {
   const { stands, loading, error: standsError } = useStands();
@@ -56,19 +58,19 @@ const MapPage = () => {
     }
   };
   
-  // Get the stands to display based on active tab
-  const getDisplayedStands = () => {
+  // Memoize the displayed stands to prevent unnecessary re-renders
+  const displayedStands = useMemo(() => {
     if (activeTab === 'nearby') {
       return nearbyStands;
     }
     return stands;
-  };
+  }, [activeTab, nearbyStands, stands]);
   
   // Map component
   const mapComponent = (
     <>
       <Map
-        stands={getDisplayedStands()}
+        stands={displayedStands}
         center={mapCenter}
         zoom={mapZoom}
         height="calc(100vh - 200px)"
@@ -85,6 +87,16 @@ const MapPage = () => {
       )}
     </>
   );
+  
+  // Sidebar loading fallback
+  const SidebarLoadingFallback = () => (
+    <div className="flex items-center justify-center h-full">
+      <Loader size="md" variant="yellow" showLabel label="Loading..." />
+    </div>
+  );
+
+  // Memoize the stands data to prevent unnecessary re-renders
+  const memoizedStands = useMemo(() => stands, [stands]);
   
   // Sidebar component with tabs
   const sidebarComponent = (
@@ -112,24 +124,26 @@ const MapPage = () => {
         </Button>
       </div>
       
-      {/* Tab content */}
+      {/* Tab content with Suspense for lazy loading */}
       <div className="flex-grow">
-        {activeTab === 'all' ? (
-          <StandListSidebar
-            stands={stands}
-            loading={loading}
-            selectedStand={selectedStand}
-            onStandSelect={handleStandClick}
-            onStandClose={handleCloseStand}
-            userLocation={location}
-            className="h-full"
-          />
-        ) : (
-          <NearbyStandsList
-            onStandSelect={handleStandClick}
-            className="h-full"
-          />
-        )}
+        <Suspense fallback={<SidebarLoadingFallback />}>
+          {activeTab === 'all' ? (
+            <StandListSidebar
+              stands={memoizedStands}
+              loading={loading}
+              selectedStand={selectedStand}
+              onStandSelect={handleStandClick}
+              onStandClose={handleCloseStand}
+              userLocation={location}
+              className="h-full"
+            />
+          ) : (
+            <NearbyStandsList
+              onStandSelect={handleStandClick}
+              className="h-full"
+            />
+          )}
+        </Suspense>
       </div>
     </div>
   );
