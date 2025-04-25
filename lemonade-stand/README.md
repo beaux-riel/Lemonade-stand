@@ -1,4 +1,21 @@
-# Getting Started with Create React App
+# Lemonade Stand Application
+
+A web application for managing lemonade stands and their products. This project uses React for the frontend and Supabase for the backend.
+
+## Supabase Integration
+
+This project uses Supabase for:
+- User authentication
+- Database storage
+- File storage
+- Real-time updates
+
+For detailed setup instructions, see [SUPABASE_SETUP.md](./SUPABASE_SETUP.md).
+
+## Project Structure
+
+- `/src/api/supabaseApi.js` - API functions for interacting with Supabase
+- `/src/supabaseClient.js` - Supabase client configuration
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

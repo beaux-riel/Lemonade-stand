@@ -1,23 +1,17 @@
-import logo from './logo.svg';
+import React from 'react';
+import SupabaseTest from './components/SupabaseTest';
 import './styles/tailwind.css';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <header className="text-center">
-        <img src={logo} alt="logo" className="w-48 h-48 mx-auto mb-4"/>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 hover:text-blue-700"
-        >
-          Learn React
-        </a>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+      <header className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-yellow-600">Lemonade Stand</h1>
+        <p className="text-gray-600">A platform for managing lemonade stands and their products</p>
       </header>
+      <main className="w-full max-w-md">
+        <SupabaseTest />
+      </main>
     </div>
   );
 }
