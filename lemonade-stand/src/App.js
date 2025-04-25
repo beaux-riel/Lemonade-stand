@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import ComponentShowcase from './components/ComponentShowcase';
-import MapPage from './components/map/MapPage';
+import { MapPage } from './components/map';
 import { SellerRegistrationPage } from './components/forms';
-import SellerRegistrationForm from './components/SellerRegistrationForm';
 import { Button } from './components/ui';
 import './styles/tailwind.css';
 
