@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import ComponentShowcase from './components/ComponentShowcase';
 import MapPage from './components/map/MapPage';
+import { SellerRegistrationPage } from './components/forms';
 import SellerRegistrationForm from './components/SellerRegistrationForm';
 import { Button } from './components/ui';
 import './styles/tailwind.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState('map'); // 'map', 'showcase', or 'register'
+  const [currentView, setCurrentView] = useState('map'); // 'map', 'register', or 'showcase'
   
   return (
     <div className="min-h-screen bg-gray-100">
@@ -28,7 +29,7 @@ function App() {
                 variant={currentView === 'register' ? 'primary' : 'outline'} 
                 onClick={() => setCurrentView('register')}
               >
-                Register as Seller
+                Register Stand
               </Button>
               <Button 
                 variant={currentView === 'showcase' ? 'primary' : 'outline'} 
@@ -42,8 +43,8 @@ function App() {
       </header>
       <main className="pb-12">
         {currentView === 'map' && <MapPage />}
+        {currentView === 'register' && <SellerRegistrationPage />}
         {currentView === 'showcase' && <ComponentShowcase />}
-        {currentView === 'register' && <SellerRegistrationForm />}
       </main>
     </div>
   );
