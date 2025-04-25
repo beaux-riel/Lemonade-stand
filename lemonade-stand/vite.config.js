@@ -4,8 +4,20 @@ import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import { visualizer } from 'rollup-plugin-visualizer';
 
+// Get the repository name from environment or default to local development
+const getBase = () => {
+  // For GitHub Pages deployment
+  if (process.env.GITHUB_REPOSITORY) {
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+    return `/${repo}/`;
+  }
+  // For local development
+  return '/';
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: getBase(),
   plugins: [
     react(),
     splitVendorChunkPlugin(),

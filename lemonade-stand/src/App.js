@@ -1,5 +1,8 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Get the base URL from the import.meta.env (provided by Vite)
+const BASE_URL = import.meta.env.BASE_URL || '/';
 import { AuthProvider } from './contexts/AuthContext';
 import { StandProvider } from './contexts/StandContext';
 import { GeolocationProvider } from './contexts/GeolocationContext';
@@ -30,7 +33,7 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <Router>
+    <Router basename={BASE_URL}>
       <AuthProvider>
         <StandProvider>
           <GeolocationProvider>
