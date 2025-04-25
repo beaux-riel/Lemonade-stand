@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getStands, subscribeToStands, unsubscribe } from '../api/supabaseApi';
 
 // Create the context
-const StandContext = createContext(null);
+export const StandContext = createContext(null);
 
 // Provider component
 export const StandProvider = ({ children }) => {
@@ -90,4 +90,4 @@ export const useStands = () => {
   return context;
 };
 
-export default StandContext;
+// No default export to ensure compatibility with Fast Refresh

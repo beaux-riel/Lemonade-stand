@@ -4,7 +4,7 @@ import { useStands } from './StandContext';
 import { findNearbyStands } from '../services/geolocationService';
 
 // Create the context
-const NearbyStandsContext = createContext(null);
+export const NearbyStandsContext = createContext(null);
 
 // Provider component
 export const NearbyStandsProvider = ({ children }) => {
@@ -68,4 +68,4 @@ export const useNearbyStands = () => {
   return context;
 };
 
-export default NearbyStandsContext;
+// No default export to ensure compatibility with Fast Refresh
