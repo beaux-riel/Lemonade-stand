@@ -104,7 +104,7 @@ git commit -m "Deploy to GitHub Pages"
 
 # Force push to the gh-pages branch
 echo "Pushing to gh-pages branch..."
-git push -f "https://${GITHUB_TOKEN}@github.com/beaux-riel/Lemonade-stand.git" master:gh-pages
+git push -f "https://${GITHUB_TOKEN}@github.com/beaux-riel/Lemonade-stand.git" HEAD:gh-pages
 
 # Clean up
 echo "Cleaning up..."

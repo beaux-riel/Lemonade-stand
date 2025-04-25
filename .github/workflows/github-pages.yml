@@ -1,9 +1,10 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (Alternative)
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  # Disable automatic triggers to avoid conflicts with deploy.yml
+  # push:
+  #   branches: [ main ]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

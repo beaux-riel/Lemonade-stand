@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   test:
     name: Test
@@ -93,6 +99,7 @@ jobs:
           folder: lemonade-stand/dist
           branch: gh-pages
           clean: true
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Verify GitHub Pages Configuration
         run: |
