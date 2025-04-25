@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Button, Badge } from '../ui';
 import { formatDistance, getProximityDescription } from '../../services/geolocationService';
+import { getResponsiveImageUrl, createPlaceholderImage } from '../../utils/imageOptimization';
 
 /**
  * StandCard component for displaying lemonade stand information
@@ -38,11 +39,33 @@ const StandCard = ({
       <Card.Body>
         {stand.image_url && (
           <div className="relative w-full h-32 md:h-48 mb-4">
-            <img 
-              src={stand.image_url} 
-              alt={stand.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
+            {useMemo(() => {
+              // Get responsive image URL based on device width
+              const optimizedImageUrl = getResponsiveImageUrl(
+                stand.image_url, 
+                window.innerWidth < 768 ? 320 : 480
+              );
+              
+              // Create placeholder for fallback
+              const placeholderUrl = createPlaceholderImage(stand.name);
+              
+              return (
+                <img 
+                  src={optimizedImageUrl} 
+                  alt={stand.name}
+                  className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                  sizes="(max-width: 768px) 320px, 480px"
+                  onError={(e) => {
+                    // Fallback for image loading errors
+                    e.target.onerror = null;
+                    e.target.src = placeholderUrl;
+                  }}
+                />
+              );
+            }, [stand.image_url, stand.name])}
           </div>
         )}
         
