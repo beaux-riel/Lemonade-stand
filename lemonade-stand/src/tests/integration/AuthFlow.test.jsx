@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '../../test-utils';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import App from '../../App';
 import { signIn, signUp, signOut } from '../../api/supabaseApi';
 
