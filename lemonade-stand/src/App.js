@@ -10,7 +10,9 @@ import {
   HomePage, 
   LoginPage, 
   RegisterPage, 
-  SellerDashboardPage, 
+  SellerDashboardPage,
+  StandDetailPage,
+  ProductDetailPage,
   NotFoundPage 
 } from './pages';
 import { SellerRegistrationPage } from './components/forms';
@@ -36,7 +38,9 @@ function App() {
                   <Route element={<ProtectedRoute />}>
                     <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
                     <Route path="/seller/stands/new" element={<SellerRegistrationPage />} />
-                    <Route path="/seller/stands/:id" element={<div>Stand Detail Page (To be implemented)</div>} />
+                    <Route path="/seller/stands/:id" element={<StandDetailPage />} />
+                    <Route path="/seller/stands/:standId/products/new" element={<ProductDetailPage />} />
+                    <Route path="/seller/stands/:standId/products/:productId" element={<ProductDetailPage />} />
                   </Route>
                   
                   {/* Development/testing routes */}

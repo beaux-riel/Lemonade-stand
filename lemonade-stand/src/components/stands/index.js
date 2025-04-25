@@ -1,4 +1,5 @@
 import StandExpirationInfo from './StandExpirationInfo';
+import StandStatistics from './StandStatistics';
 
-export { StandExpirationInfo };
+export { StandExpirationInfo, StandStatistics };
 export default StandExpirationInfo;
