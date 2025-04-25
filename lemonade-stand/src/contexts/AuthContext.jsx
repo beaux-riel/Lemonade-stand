@@ -3,7 +3,7 @@ import { getCurrentUser, getSession } from '../api/supabaseApi';
 import supabase from '../supabaseClient';
 
 // Create the context
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 // Provider component
 export const AuthProvider = ({ children }) => {
@@ -79,4 +79,4 @@ export const useAuth = () => {
   return context;
 };
 
-export default AuthContext;
+// No default export to ensure compatibility with Fast Refresh

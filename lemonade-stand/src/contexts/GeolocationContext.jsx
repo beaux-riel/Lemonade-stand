@@ -7,7 +7,7 @@ import {
 } from '../services/geolocationService';
 
 // Create the context
-const GeolocationContext = createContext(null);
+export const GeolocationContext = createContext(null);
 
 // Provider component
 export const GeolocationProvider = ({ children }) => {
@@ -143,4 +143,4 @@ export const useGeolocation = () => {
   return context;
 };
 
-export default GeolocationContext;
+// No default export to ensure compatibility with Fast Refresh
