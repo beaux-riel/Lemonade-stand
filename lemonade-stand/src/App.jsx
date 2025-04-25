@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Get the base URL from the environment or default to '/'
 let BASE_URL = '/';
