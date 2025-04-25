@@ -48,7 +48,7 @@ MapViewUpdater.propTypes = {
 };
 
 // Component to handle user location
-const UserLocationMarker = ({ showUserLocation }) => {
+const UserLocationMarker = ({ showUserLocation, onUserLocationFound }) => {
   const [position, setPosition] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const map = useMap();
@@ -82,6 +82,11 @@ const UserLocationMarker = ({ showUserLocation }) => {
           weight: 1,
         }).addTo(map);
       }
+      
+      // Notify parent component about user location
+      if (onUserLocationFound) {
+        onUserLocationFound(e.latlng);
+      }
     };
     
     const onLocationError = (e) => {
@@ -101,7 +106,7 @@ const UserLocationMarker = ({ showUserLocation }) => {
         locationCircleRef.current = null;
       }
     };
-  }, [map, showUserLocation]);
+  }, [map, showUserLocation, onUserLocationFound]);
   
   return position ? (
     <Marker position={position} icon={userLocationIcon}>
@@ -117,6 +122,7 @@ const UserLocationMarker = ({ showUserLocation }) => {
 
 UserLocationMarker.propTypes = {
   showUserLocation: PropTypes.bool,
+  onUserLocationFound: PropTypes.func,
 };
 
 /**
@@ -129,6 +135,7 @@ const Map = ({
   height = '500px',
   showUserLocation = true,
   onStandClick,
+  onUserLocationFound,
   className = '',
   ...props
 }) => {
@@ -155,7 +162,10 @@ const Map = ({
         <MapViewUpdater center={center} zoom={zoom} />
         
         {/* Show user location if enabled */}
-        <UserLocationMarker showUserLocation={showUserLocation} />
+        <UserLocationMarker 
+          showUserLocation={showUserLocation} 
+          onUserLocationFound={onUserLocationFound}
+        />
         
         {/* Render lemonade stand markers */}
         {stands.map((stand) => (
@@ -220,6 +230,7 @@ Map.propTypes = {
   height: PropTypes.string,
   showUserLocation: PropTypes.bool,
   onStandClick: PropTypes.func,
+  onUserLocationFound: PropTypes.func,
   className: PropTypes.string,
 };
 

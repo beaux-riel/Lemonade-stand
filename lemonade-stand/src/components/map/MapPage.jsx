@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Map from './Map';
-import { Card, Button, Alert, Loader } from '../ui';
+import StandListSidebar from './StandListSidebar';
+import { Alert, Loader } from '../ui';
+import { sortStandsByDistance } from '../../utils/distance';
 
 // Sample data for lemonade stands
 const SAMPLE_STANDS = [
   {
     id: '1',
     name: 'Sunny Lemonade',
-    description: 'The best lemonade in town!',
+    description: 'The best lemonade in town! Made with fresh lemons and organic sugar.',
     location_lat: 40.7128,
     location_lng: -74.0060,
     address: '123 Main St, New York, NY',
@@ -16,7 +18,7 @@ const SAMPLE_STANDS = [
   {
     id: '2',
     name: 'Citrus Delight',
-    description: 'Organic lemonade made fresh daily',
+    description: 'Organic lemonade made fresh daily with a hint of mint.',
     location_lat: 40.7112,
     location_lng: -74.0055,
     address: '456 Park Ave, New York, NY',
@@ -25,11 +27,29 @@ const SAMPLE_STANDS = [
   {
     id: '3',
     name: 'Lemon Paradise',
-    description: 'Refreshing lemonade with a twist',
+    description: 'Refreshing lemonade with a twist! Try our signature flavors.',
     location_lat: 40.7135,
     location_lng: -74.0046,
     address: '789 Broadway, New York, NY',
     image_url: 'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+  },
+  {
+    id: '4',
+    name: 'Berry Lemonade',
+    description: 'Classic lemonade infused with fresh berries.',
+    location_lat: 40.7120,
+    location_lng: -74.0080,
+    address: '321 Berry St, New York, NY',
+    image_url: 'https://images.unsplash.com/photo-1497534446932-c925b458314e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+  },
+  {
+    id: '5',
+    name: 'Lemonade Express',
+    description: 'Quick and refreshing lemonade on the go!',
+    location_lat: 40.7150,
+    location_lng: -74.0070,
+    address: '555 Express Ave, New York, NY',
+    image_url: 'https://images.unsplash.com/photo-1556881286-fc6915169721?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
   }
 ];
 
@@ -40,6 +60,7 @@ const MapPage = () => {
   const [selectedStand, setSelectedStand] = useState(null);
   const [mapCenter, setMapCenter] = useState([40.7128, -74.0060]);
   const [mapZoom, setMapZoom] = useState(13);
+  const [userLocation, setUserLocation] = useState(null);
   
   // Simulate loading data from an API
   useEffect(() => {
@@ -60,6 +81,19 @@ const MapPage = () => {
     fetchStands();
   }, []);
   
+  // Sort stands by distance when user location changes
+  useEffect(() => {
+    if (userLocation && stands.length > 0) {
+      const sortedStands = sortStandsByDistance(
+        [...stands], // Create a copy to avoid modifying the original array
+        userLocation.lat,
+        userLocation.lng,
+        'miles'
+      );
+      setStands(sortedStands);
+    }
+  }, [userLocation, stands.length, stands]);
+  
   // Handle stand click
   const handleStandClick = (stand) => {
     setSelectedStand(stand);
@@ -67,10 +101,28 @@ const MapPage = () => {
     setMapZoom(16);
   };
   
+  // Handle closing stand details
+  const handleCloseStand = () => {
+    setSelectedStand(null);
+    if (userLocation) {
+      setMapCenter([userLocation.lat, userLocation.lng]);
+    } else {
+      setMapCenter([40.7128, -74.0060]); // Default to NYC
+    }
+    setMapZoom(13);
+  };
+  
   // Handle user location found
   const handleUserLocationFound = (latlng) => {
-    console.log('User location found:', latlng);
-    // You could find nearby stands here
+    if (latlng && latlng.lat && latlng.lng) {
+      setUserLocation({
+        lat: latlng.lat,
+        lng: latlng.lng
+      });
+      
+      // Center map on user location
+      setMapCenter([latlng.lat, latlng.lng]);
+    }
   };
   
   return (
@@ -104,105 +156,17 @@ const MapPage = () => {
           )}
         </div>
         
-        {/* Stand details or list */}
-        <div>
-          {selectedStand ? (
-            <Card variant="yellow" className="sticky top-4">
-              <Card.Header>
-                <h2 className="text-xl font-display">{selectedStand.name}</h2>
-              </Card.Header>
-              
-              {selectedStand.image_url && (
-                <img 
-                  src={selectedStand.image_url} 
-                  alt={selectedStand.name}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-              
-              <Card.Body>
-                <p className="mb-2">{selectedStand.description}</p>
-                
-                <div className="text-sm text-gray-600 mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  {selectedStand.address}
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="primary" 
-                    size="sm"
-                    onClick={() => {
-                      // This would open a details page in a real app
-                      alert(`View details for ${selectedStand.name}`);
-                    }}
-                  >
-                    View Menu
-                  </Button>
-                  
-                  <Button 
-                    variant="secondary" 
-                    size="sm"
-                    onClick={() => {
-                      // Open directions in Google Maps
-                      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedStand.location_lat},${selectedStand.location_lng}`;
-                      window.open(url, '_blank');
-                    }}
-                  >
-                    Get Directions
-                  </Button>
-                </div>
-              </Card.Body>
-              
-              <Card.Footer>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setSelectedStand(null)}
-                >
-                  Back to List
-                </Button>
-              </Card.Footer>
-            </Card>
-          ) : (
-            <Card>
-              <Card.Header>
-                <h2 className="text-xl font-display">Lemonade Stands</h2>
-              </Card.Header>
-              
-              <Card.Body>
-                {loading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader variant="yellow" />
-                  </div>
-                ) : stands.length > 0 ? (
-                  <div className="space-y-4">
-                    {stands.map(stand => (
-                      <div 
-                        key={stand.id} 
-                        className="p-3 bg-lemonade-yellow-light rounded-lg cursor-pointer hover:bg-lemonade-yellow-dark transition-colors"
-                        onClick={() => handleStandClick(stand)}
-                      >
-                        <h3 className="font-display text-lg">{stand.name}</h3>
-                        <p className="text-sm text-gray-700 line-clamp-2">{stand.description}</p>
-                        <p className="text-xs text-gray-600 mt-1">{stand.address}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p>No lemonade stands found in this area.</p>
-                )}
-              </Card.Body>
-              
-              <Card.Footer>
-                <p className="text-sm text-gray-600">
-                  Click on a stand to view details or see its location on the map.
-                </p>
-              </Card.Footer>
-            </Card>
-          )}
+        {/* Stand list sidebar */}
+        <div className="h-[600px]">
+          <StandListSidebar
+            stands={stands}
+            loading={loading}
+            selectedStand={selectedStand}
+            onStandSelect={handleStandClick}
+            onStandClose={handleCloseStand}
+            userLocation={userLocation}
+            className="h-full"
+          />
         </div>
       </div>
     </div>
