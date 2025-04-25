@@ -1,16 +1,18 @@
 import React from 'react';
-import SupabaseTest from './components/SupabaseTest';
+import ComponentShowcase from './components/ComponentShowcase';
 import './styles/tailwind.css';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-yellow-600">Lemonade Stand</h1>
-        <p className="text-gray-600">A platform for managing lemonade stands and their products</p>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-lemonade-yellow shadow-playful py-6 mb-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <h1 className="text-4xl font-display text-gray-800">Lemonade Stand</h1>
+          <p className="text-gray-700">A platform for managing lemonade stands and their products</p>
+        </div>
       </header>
-      <main className="w-full max-w-md">
-        <SupabaseTest />
+      <main>
+        <ComponentShowcase />
       </main>
     </div>
   );
