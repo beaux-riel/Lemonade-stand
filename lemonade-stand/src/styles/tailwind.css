@@ -1,7 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import component styles */
 @import './components.css';
 @import './map.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
