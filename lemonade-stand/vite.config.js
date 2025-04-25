@@ -34,7 +34,12 @@ const getBase = () => {
 export default defineConfig({
   base: getBase(),
   plugins: [
-    react(),
+    react({
+      // Add JSX runtime for React 19
+      jsxRuntime: 'automatic',
+      // Include all JSX files
+      include: '**/*.{jsx,js,ts,tsx}',
+    }),
     splitVendorChunkPlugin(),
     compression({
       algorithm: 'gzip',
