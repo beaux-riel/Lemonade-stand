@@ -93,3 +93,11 @@ jobs:
           folder: lemonade-stand/dist
           branch: gh-pages
           clean: true
+          
+      - name: Verify GitHub Pages Configuration
+        run: |
+          echo "GitHub Pages deployment completed. Please verify the site is working correctly."
+          echo "If you encounter a blank page, please check the GitHub repository settings:"
+          echo "1. Go to Settings > Pages"
+          echo "2. Ensure the source is set to 'Deploy from a branch'"
+          echo "3. Ensure the branch is set to 'gh-pages' and the folder is set to '/ (root)'"

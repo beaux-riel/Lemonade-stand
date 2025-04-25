@@ -39,6 +39,14 @@ jobs:
         run: |
           cd lemonade-stand
           npm run build
+        
+      # Copy the root index.html redirect file to the dist directory
+      - name: Ensure correct index.html
+        run: |
+          # Make sure the dist directory exists
+          mkdir -p lemonade-stand/dist
+          # Copy 404.html to the root of the dist directory
+          cp lemonade-stand/public/404.html lemonade-stand/dist/
           
       - name: Setup Pages
         uses: actions/configure-pages@v4

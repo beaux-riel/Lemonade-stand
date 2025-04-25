@@ -26,3 +26,25 @@ jobs:
           enforce_https: true
           # Enable custom 404 page
           static_site_generator: true
+          
+      # Verify index.html exists at the root
+      - name: Verify index.html
+        run: |
+          if [ ! -f "index.html" ]; then
+            echo "Creating index.html redirect file"
+            cat > index.html << 'EOL'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to Lemonade Stand</title>
+  <script>
+    window.location.href = "./index.html";
+  </script>
+</head>
+<body>
+  <p>If you are not redirected automatically, follow this <a href="./index.html">link to the Lemonade Stand application</a>.</p>
+</body>
+</html>
+EOL
+          fi
