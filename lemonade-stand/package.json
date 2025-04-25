@@ -29,7 +29,9 @@
     "deploy": "scripts/deploy-github-pages.sh",
     "predeploy": "npm run build",
     "generate-sitemap": "node scripts/generate-sitemap.js",
-    "prebuild": "npm run generate-sitemap"
+    "copy-sitemap": "node scripts/copy-sitemap.js",
+    "prebuild": "npm run generate-sitemap",
+    "postbuild": "npm run copy-sitemap"
   },
   "eslintConfig": {
     "extends": [

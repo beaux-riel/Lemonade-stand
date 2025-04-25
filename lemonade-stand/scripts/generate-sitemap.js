@@ -39,8 +39,22 @@ ${routes.map(route => `  <url>
   </url>`).join('\n')}
 </urlset>`;
 
+// Ensure the public directory exists
+const publicDir = path.resolve(__dirname, '../public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
 // Write the sitemap to the public directory
-const outputPath = path.resolve(__dirname, '../public/sitemap.xml');
+const outputPath = path.resolve(publicDir, 'sitemap.xml');
 fs.writeFileSync(outputPath, sitemap);
+
+// Also write to the dist directory if it exists (for direct deployment)
+const distDir = path.resolve(__dirname, '../dist');
+if (fs.existsSync(distDir)) {
+  const distOutputPath = path.resolve(distDir, 'sitemap.xml');
+  fs.writeFileSync(distOutputPath, sitemap);
+  console.log(`Sitemap also copied to ${distOutputPath}`);
+}
 
 console.log(`Sitemap generated at ${outputPath}`);
