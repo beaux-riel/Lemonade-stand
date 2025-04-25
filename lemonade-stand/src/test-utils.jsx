@@ -1,6 +1,6 @@
 import React from 'react';
 import { render as rtlRender } from '@testing-library/react';
-import { BrowserRouter } from 'react-router';
+import { MemoryRouter as Router } from 'react-router';
 import { AuthProvider } from './contexts/AuthContext';
 import { StandProvider } from './contexts/StandContext';
 import { GeolocationProvider } from './contexts/GeolocationContext';
@@ -224,13 +224,17 @@ function render(
     standContextValue = mockStandContextValues.empty,
     geolocationContextValue = mockGeolocationContextValues.default,
     nearbyStandsContextValue = mockNearbyStandsContextValues.empty,
+    wrapper: WrapperFromProps,
     ...renderOptions
   } = {}
 ) {
   function Wrapper({ children }) {
-    // Mock the context providers with our test values
-    return (
-      <BrowserRouter>
+    // Check if the UI already contains a Router
+    const hasRouter = ui.type && (ui.type.displayName === 'MemoryRouter' || ui.type.name === 'MemoryRouter');
+    
+    // If the UI already has a Router, don't wrap it in another one
+    if (hasRouter) {
+      return (
         <AuthProvider value={authContextValue}>
           <StandProvider value={standContextValue}>
             <GeolocationProvider value={geolocationContextValue}>
@@ -240,10 +244,27 @@ function render(
             </GeolocationProvider>
           </StandProvider>
         </AuthProvider>
-      </BrowserRouter>
+      );
+    }
+    
+    // Otherwise, wrap it in a Router
+    return (
+      <Router>
+        <AuthProvider value={authContextValue}>
+          <StandProvider value={standContextValue}>
+            <GeolocationProvider value={geolocationContextValue}>
+              <NearbyStandsProvider value={nearbyStandsContextValue}>
+                {children}
+              </NearbyStandsProvider>
+            </GeolocationProvider>
+          </StandProvider>
+        </AuthProvider>
+      </Router>
     );
   }
-  return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
+  
+  const FinalWrapper = WrapperFromProps || Wrapper;
+  return rtlRender(ui, { wrapper: FinalWrapper, ...renderOptions });
 }
 
 // Re-export everything from testing-library

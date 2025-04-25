@@ -1,4 +1,39 @@
-import { mockProducts } from '../../test-utils';
+// Define mock products directly here to avoid circular dependencies
+const mockProducts = [
+  {
+    id: 'product-1',
+    name: 'Classic Lemonade',
+    description: 'Our signature lemonade with the perfect balance of sweet and tart',
+    price: 3.99,
+    image_url: 'https://example.com/lemonade1.jpg',
+    stand_id: 'stand-1',
+    is_available: true,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z'
+  },
+  {
+    id: 'product-2',
+    name: 'Strawberry Lemonade',
+    description: 'Classic lemonade with fresh strawberry puree',
+    price: 4.99,
+    image_url: 'https://example.com/lemonade2.jpg',
+    stand_id: 'stand-1',
+    is_available: true,
+    created_at: '2023-01-02T00:00:00Z',
+    updated_at: '2023-01-02T00:00:00Z'
+  },
+  {
+    id: 'product-3',
+    name: 'Mint Lemonade',
+    description: 'Refreshing lemonade with fresh mint leaves',
+    price: 4.49,
+    image_url: null,
+    stand_id: 'stand-1',
+    is_available: false,
+    created_at: '2023-01-03T00:00:00Z',
+    updated_at: '2023-01-03T00:00:00Z'
+  }
+];
 
 // Authentication functions
 export const signUp = jest.fn().mockImplementation((email, password, fullName) => {

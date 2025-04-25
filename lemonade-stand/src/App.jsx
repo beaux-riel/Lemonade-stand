@@ -1,8 +1,17 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
 
-// Get the base URL from the import.meta.env (provided by Vite)
-const BASE_URL = import.meta.env.BASE_URL || '/';
+// Get the base URL from the environment or default to '/'
+let BASE_URL = '/';
+try {
+  // In production/development with Vite
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    BASE_URL = import.meta.env.BASE_URL || '/';
+  }
+} catch (e) {
+  // In test environment
+  BASE_URL = '/';
+}
 import { AuthProvider } from './contexts/AuthContext';
 import { StandProvider } from './contexts/StandContext';
 import { GeolocationProvider } from './contexts/GeolocationContext';

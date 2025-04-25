@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: |
           cd lemonade-stand
-          npm test -- --watchAll=false
+          ./scripts/run-tests.sh
           
   build:
     name: Build
