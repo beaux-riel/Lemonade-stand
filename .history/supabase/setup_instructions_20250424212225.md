@@ -49,7 +49,7 @@ After your project is created, you need to set up the database schema:
 3. Create a `.env` file in the frontend project root:
 
 ```
-VITE_SUPABASE_URL=your-project-url
+REACT_APP_SUPABASE_URL=your-project-url
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
