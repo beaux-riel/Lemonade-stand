@@ -72,7 +72,7 @@ export default defineConfig({
       output: {
         // Chunk files by type
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-react': ['react', 'react-dom', 'react-router'],
           'vendor-leaflet': ['leaflet', 'react-leaflet'],
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-ui': ['./src/components/ui/index.js'],
@@ -108,6 +108,6 @@ export default defineConfig({
     allowedHosts: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'leaflet', 'react-leaflet'],
+    include: ['react', 'react-dom', 'react-router', 'leaflet', 'react-leaflet'],
   },
 });

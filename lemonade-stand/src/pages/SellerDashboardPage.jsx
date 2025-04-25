@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserStands, createStand } from '../api/supabaseApi';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Button, Alert } from '../components/ui';
 
 /**

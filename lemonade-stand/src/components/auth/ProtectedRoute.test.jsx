@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '../../test-utils';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router';
 import ProtectedRoute from './ProtectedRoute';
 import { mockAuthContextValues } from '../../test-utils';
 
