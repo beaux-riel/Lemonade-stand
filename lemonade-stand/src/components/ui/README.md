@@ -2,6 +2,10 @@
 
 A bright, colorful, child-friendly UI component library for the Lemonade Stand application. This library provides reusable components with a playful design using a yellow, pink, and blue color palette.
 
+![Lemonade Stand UI](https://img.shields.io/badge/Lemonade%20Stand-UI%20Library-yellow)
+![React](https://img.shields.io/badge/React-19.1.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0-blue)
+
 ## Color Palette
 
 - **Yellow**: `#FFEB3B` (Primary)
@@ -376,6 +380,176 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 <Modal size="lg">...</Modal>
 <Modal size="xl">...</Modal>
 <Modal size="full">...</Modal>
+```
+
+## Pagination
+
+```jsx
+import { Pagination } from './components/ui';
+
+const [currentPage, setCurrentPage] = useState(1);
+
+<Pagination
+  currentPage={currentPage}
+  totalPages={10}
+  onPageChange={setCurrentPage}
+/>
+
+// Variants
+<Pagination variant="yellow" currentPage={1} totalPages={10} onPageChange={setPage} />
+<Pagination variant="blue" currentPage={1} totalPages={10} onPageChange={setPage} />
+<Pagination variant="pink" currentPage={1} totalPages={10} onPageChange={setPage} />
+
+// Sizes
+<Pagination size="sm" currentPage={1} totalPages={10} onPageChange={setPage} />
+<Pagination size="md" currentPage={1} totalPages={10} onPageChange={setPage} />
+<Pagination size="lg" currentPage={1} totalPages={10} onPageChange={setPage} />
+```
+
+## Progress
+
+```jsx
+import { Progress } from './components/ui';
+
+// Basic usage
+<Progress value={75} />
+
+// Variants
+<Progress value={75} variant="yellow" />
+<Progress value={75} variant="blue" />
+<Progress value={75} variant="pink" />
+<Progress value={75} variant="green" />
+<Progress value={75} variant="red" />
+
+// Sizes
+<Progress value={75} size="xs" />
+<Progress value={75} size="sm" />
+<Progress value={75} size="md" />
+<Progress value={75} size="lg" />
+<Progress value={75} size="xl" />
+
+// With labels
+<Progress value={75} showLabel />
+<Progress value={75} showLabel labelPosition="top" />
+<Progress value={75} showLabel labelPosition="right" />
+<Progress value={75} showLabel labelPosition="bottom" />
+<Progress value={75} showLabel labelPosition="left" />
+<Progress value={75} showLabel labelPosition="inside" size="lg" />
+
+// Variants
+<Progress value={75} striped />
+<Progress value={75} animated />
+<Progress value={75} rounded={false} />
+<Progress value={75} striped animated />
+```
+
+## Toggle
+
+```jsx
+import { Toggle } from './components/ui';
+
+const [checked, setChecked] = useState(false);
+
+<Toggle
+  checked={checked}
+  onChange={() => setChecked(!checked)}
+  label="Toggle me"
+/>
+
+// Variants
+<Toggle checked={checked} onChange={handleChange} variant="yellow" label="Yellow" />
+<Toggle checked={checked} onChange={handleChange} variant="blue" label="Blue" />
+<Toggle checked={checked} onChange={handleChange} variant="pink" label="Pink" />
+<Toggle checked={checked} onChange={handleChange} variant="green" label="Green" />
+
+// Sizes
+<Toggle checked={checked} onChange={handleChange} size="sm" label="Small" />
+<Toggle checked={checked} onChange={handleChange} size="md" label="Medium" />
+<Toggle checked={checked} onChange={handleChange} size="lg" label="Large" />
+
+// Label position
+<Toggle checked={checked} onChange={handleChange} labelPosition="right" label="Right" />
+<Toggle checked={checked} onChange={handleChange} labelPosition="left" label="Left" />
+
+// Disabled
+<Toggle checked={true} onChange={handleChange} disabled label="Disabled (On)" />
+<Toggle checked={false} onChange={handleChange} disabled label="Disabled (Off)" />
+```
+
+## Rating
+
+```jsx
+import { Rating } from './components/ui';
+
+const [value, setValue] = useState(3.5);
+
+<Rating
+  value={value}
+  onChange={setValue}
+  showValue
+/>
+
+// Variants
+<Rating value={3.5} variant="yellow" />
+<Rating value={3.5} variant="blue" />
+<Rating value={3.5} variant="pink" />
+<Rating value={3.5} variant="gold" />
+
+// Sizes
+<Rating value={3.5} size="sm" />
+<Rating value={3.5} size="md" />
+<Rating value={3.5} size="lg" />
+<Rating value={3.5} size="xl" />
+
+// Icons
+<Rating value={3.5} icon="star" />
+<Rating value={3.5} icon="heart" />
+<Rating value={3.5} icon="list" />
+
+// Precision
+<Rating value={3.5} precision={0.5} showValue />
+<Rating value={3.2} precision={0.1} showValue />
+
+// Read only
+<Rating value={3.5} readOnly />
+```
+
+## Dropdown
+
+```jsx
+import { Dropdown } from './components/ui';
+
+<Dropdown
+  trigger={<Button>Click me</Button>}
+>
+  <Dropdown.Item onClick={() => alert('Item 1 clicked')}>Item 1</Dropdown.Item>
+  <Dropdown.Item onClick={() => alert('Item 2 clicked')}>Item 2</Dropdown.Item>
+  <Dropdown.Item onClick={() => alert('Item 3 clicked')}>Item 3</Dropdown.Item>
+</Dropdown>
+
+// With header and divider
+<Dropdown trigger={<Button>Options</Button>}>
+  <Dropdown.Header>Menu</Dropdown.Header>
+  <Dropdown.Item>Edit</Dropdown.Item>
+  <Dropdown.Item>Duplicate</Dropdown.Item>
+  <Dropdown.Divider />
+  <Dropdown.Item>Archive</Dropdown.Item>
+  <Dropdown.Item>Delete</Dropdown.Item>
+</Dropdown>
+
+// Alignment
+<Dropdown trigger={<Button>Left</Button>} align="left">...</Dropdown>
+<Dropdown trigger={<Button>Center</Button>} align="center">...</Dropdown>
+<Dropdown trigger={<Button>Right</Button>} align="right">...</Dropdown>
+
+// Width
+<Dropdown trigger={<Button>Width</Button>} width="md">...</Dropdown>
+
+// Variants
+<Dropdown trigger={<Button>White</Button>} variant="white">...</Dropdown>
+<Dropdown trigger={<Button>Yellow</Button>} variant="yellow">...</Dropdown>
+<Dropdown trigger={<Button>Blue</Button>} variant="blue">...</Dropdown>
+<Dropdown trigger={<Button>Pink</Button>} variant="pink">...</Dropdown>
 ```
 
 ## Usage

@@ -5,13 +5,18 @@ import {
   Badge,
   Button,
   Card,
+  Dropdown,
   Form,
   Loader,
   Modal,
   Navigation,
+  Pagination,
+  Progress,
+  Rating,
   Tabs,
   TabItem,
   TabPanel,
+  Toggle,
   Tooltip
 } from './ui';
 
@@ -28,6 +33,19 @@ const ComponentShowcase = () => {
   
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // State for toggle
+  const [toggleState, setToggleState] = useState({
+    toggle1: false,
+    toggle2: true,
+    toggle3: false
+  });
+  
+  // State for rating
+  const [ratingValue, setRatingValue] = useState(3.5);
   
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -529,6 +547,404 @@ const ComponentShowcase = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+      </section>
+      
+      {/* Pagination */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-display text-lemonade-pink-dark mb-4">Pagination</h2>
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-display mb-2">Default Pagination</h3>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={10}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Color Variants</h3>
+            <div className="space-y-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+                variant="yellow"
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+                variant="blue"
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+                variant="pink"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Sizes</h3>
+            <div className="space-y-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+                size="sm"
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={10}
+                onPageChange={setCurrentPage}
+                size="lg"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Progress */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-display text-lemonade-pink-dark mb-4">Progress</h2>
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-display mb-2">Basic Progress</h3>
+            <div className="space-y-4">
+              <Progress value={25} />
+              <Progress value={50} />
+              <Progress value={75} />
+              <Progress value={100} />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Color Variants</h3>
+            <div className="space-y-4">
+              <Progress value={75} variant="yellow" />
+              <Progress value={75} variant="blue" />
+              <Progress value={75} variant="pink" />
+              <Progress value={75} variant="green" />
+              <Progress value={75} variant="red" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Sizes</h3>
+            <div className="space-y-4">
+              <Progress value={75} size="xs" />
+              <Progress value={75} size="sm" />
+              <Progress value={75} size="md" />
+              <Progress value={75} size="lg" />
+              <Progress value={75} size="xl" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">With Labels</h3>
+            <div className="space-y-4">
+              <Progress value={75} showLabel />
+              <Progress value={75} showLabel labelPosition="top" />
+              <Progress value={75} showLabel labelPosition="right" />
+              <Progress value={75} showLabel labelPosition="bottom" />
+              <Progress value={75} showLabel labelPosition="left" />
+              <Progress value={75} showLabel labelPosition="inside" size="lg" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Variants</h3>
+            <div className="space-y-4">
+              <Progress value={75} striped />
+              <Progress value={75} animated />
+              <Progress value={75} rounded={false} />
+              <Progress value={75} striped animated />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Toggle */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-display text-lemonade-pink-dark mb-4">Toggle</h2>
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-display mb-2">Basic Toggle</h3>
+            <div className="space-y-4">
+              <Toggle
+                checked={toggleState.toggle1}
+                onChange={() => setToggleState({ ...toggleState, toggle1: !toggleState.toggle1 })}
+                label="Toggle me"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Color Variants</h3>
+            <div className="space-y-4">
+              <Toggle
+                checked={toggleState.toggle1}
+                onChange={() => setToggleState({ ...toggleState, toggle1: !toggleState.toggle1 })}
+                label="Yellow Toggle"
+                variant="yellow"
+              />
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Blue Toggle"
+                variant="blue"
+              />
+              <Toggle
+                checked={toggleState.toggle3}
+                onChange={() => setToggleState({ ...toggleState, toggle3: !toggleState.toggle3 })}
+                label="Pink Toggle"
+                variant="pink"
+              />
+              <Toggle
+                checked={toggleState.toggle1}
+                onChange={() => setToggleState({ ...toggleState, toggle1: !toggleState.toggle1 })}
+                label="Green Toggle"
+                variant="green"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Sizes</h3>
+            <div className="space-y-4">
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Small Toggle"
+                size="sm"
+              />
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Medium Toggle"
+                size="md"
+              />
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Large Toggle"
+                size="lg"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Label Position</h3>
+            <div className="space-y-4">
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Label on Right"
+                labelPosition="right"
+              />
+              <Toggle
+                checked={toggleState.toggle2}
+                onChange={() => setToggleState({ ...toggleState, toggle2: !toggleState.toggle2 })}
+                label="Label on Left"
+                labelPosition="left"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Disabled</h3>
+            <div className="space-y-4">
+              <Toggle
+                checked={true}
+                onChange={() => {}}
+                label="Disabled Toggle (On)"
+                disabled
+              />
+              <Toggle
+                checked={false}
+                onChange={() => {}}
+                label="Disabled Toggle (Off)"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Rating */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-display text-lemonade-pink-dark mb-4">Rating</h2>
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-display mb-2">Basic Rating</h3>
+            <div className="space-y-4">
+              <Rating
+                value={ratingValue}
+                onChange={setRatingValue}
+                showValue
+              />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Color Variants</h3>
+            <div className="space-y-4">
+              <Rating value={3.5} variant="yellow" />
+              <Rating value={3.5} variant="blue" />
+              <Rating value={3.5} variant="pink" />
+              <Rating value={3.5} variant="gold" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Sizes</h3>
+            <div className="space-y-4">
+              <Rating value={3.5} size="sm" />
+              <Rating value={3.5} size="md" />
+              <Rating value={3.5} size="lg" />
+              <Rating value={3.5} size="xl" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Icons</h3>
+            <div className="space-y-4">
+              <Rating value={3.5} icon="star" />
+              <Rating value={3.5} icon="heart" />
+              <Rating value={3.5} icon="list" />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Precision</h3>
+            <div className="space-y-4">
+              <Rating value={3.5} precision={0.5} showValue />
+              <Rating value={3.2} precision={0.1} showValue />
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Read Only</h3>
+            <div className="space-y-4">
+              <Rating value={3.5} readOnly />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Dropdown */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-display text-lemonade-pink-dark mb-4">Dropdown</h2>
+        <div className="flex flex-wrap gap-8">
+          <div>
+            <h3 className="text-lg font-display mb-2">Basic Dropdown</h3>
+            <Dropdown
+              trigger={<Button>Click me</Button>}
+            >
+              <Dropdown.Item onClick={() => alert('Item 1 clicked')}>Item 1</Dropdown.Item>
+              <Dropdown.Item onClick={() => alert('Item 2 clicked')}>Item 2</Dropdown.Item>
+              <Dropdown.Item onClick={() => alert('Item 3 clicked')}>Item 3</Dropdown.Item>
+            </Dropdown>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">With Header and Divider</h3>
+            <Dropdown
+              trigger={<Button variant="secondary">Options</Button>}
+            >
+              <Dropdown.Header>Menu</Dropdown.Header>
+              <Dropdown.Item onClick={() => alert('Edit clicked')}>Edit</Dropdown.Item>
+              <Dropdown.Item onClick={() => alert('Duplicate clicked')}>Duplicate</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item onClick={() => alert('Archive clicked')}>Archive</Dropdown.Item>
+              <Dropdown.Item onClick={() => alert('Delete clicked')}>Delete</Dropdown.Item>
+            </Dropdown>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Alignment</h3>
+            <div className="flex gap-4">
+              <Dropdown
+                trigger={<Button size="sm">Left</Button>}
+                align="left"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+              
+              <Dropdown
+                trigger={<Button size="sm">Center</Button>}
+                align="center"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+              
+              <Dropdown
+                trigger={<Button size="sm">Right</Button>}
+                align="right"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Width</h3>
+            <Dropdown
+              trigger={<Button>Width</Button>}
+              width="md"
+            >
+              <Dropdown.Item>This is a wider dropdown menu</Dropdown.Item>
+              <Dropdown.Item>With more content</Dropdown.Item>
+            </Dropdown>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-display mb-2">Variants</h3>
+            <div className="flex gap-4">
+              <Dropdown
+                trigger={<Button size="sm">White</Button>}
+                variant="white"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+              
+              <Dropdown
+                trigger={<Button size="sm">Yellow</Button>}
+                variant="yellow"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+              
+              <Dropdown
+                trigger={<Button size="sm">Blue</Button>}
+                variant="blue"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+              
+              <Dropdown
+                trigger={<Button size="sm">Pink</Button>}
+                variant="pink"
+              >
+                <Dropdown.Item>Item 1</Dropdown.Item>
+                <Dropdown.Item>Item 2</Dropdown.Item>
+              </Dropdown>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
