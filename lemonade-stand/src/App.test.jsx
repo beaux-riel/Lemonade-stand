@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from './test-utils';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 
 test('renders the app with home page', () => {

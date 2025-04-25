@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPage } from '../components/map';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 /**
  * Home page component that displays the map of lemonade stands

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AuthForm } from '../components/auth';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 /**
  * Register page component
