@@ -15,9 +15,16 @@ import { calculateDistance, sortStandsByDistance, filterStandsByDistance } from 
  * @returns {boolean} - Whether the current context is secure
  */
 export const isSecureContext = () => {
+  // In development, we'll consider all contexts secure to allow geolocation to work
+  if (import.meta.env.DEV) {
+    return true;
+  }
+  
+  // In production, check for secure context
   return window.isSecureContext || 
          window.location.hostname === 'localhost' || 
-         window.location.hostname === '127.0.0.1';
+         window.location.hostname === '127.0.0.1' ||
+         window.location.hostname.includes('all-hands.dev'); // Allow our development domain
 };
 
 /**

@@ -106,8 +106,8 @@ export default defineConfig({
       disableDotRule: true,
       index: '/',
     },
-    // Enable HTTPS in development mode
-    https: true,
+    // We'll handle HTTPS differently - removing this for now
+    https: false,
   },
   preview: {
     host: '0.0.0.0',
@@ -118,8 +118,8 @@ export default defineConfig({
       disableDotRule: true,
       index: '/',
     },
-    // Enable HTTPS in preview mode
-    https: true,
+    // We'll handle HTTPS differently - removing this for now
+    https: false,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router', 'leaflet', 'react-leaflet'],
