@@ -11,6 +11,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useGeolocation } from "../../contexts/GeolocationContext";
+import { isSecureContext } from "../../services/geolocationService";
 
 // Fix for default marker icons in react-leaflet
 // This is needed because the default markers use relative paths that don't work in React
@@ -109,6 +110,12 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
       return;
     }
 
+    // Check if we're in a secure context before trying to get location
+    if (!isSecureContext()) {
+      console.warn("Geolocation is not available in insecure contexts (non-HTTPS)");
+      return;
+    }
+
     // If we don't have a location from context, try to get it using Leaflet
     if (!location) {
       // Use a more efficient locate method for mobile
@@ -143,8 +150,10 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
 
       const onLocationError = (e) => {
         console.error("Error getting location from Leaflet:", e.message);
-        // Try to get location using our geolocation service
-        getLocation();
+        // Only try to get location using our geolocation service if we're in a secure context
+        if (isSecureContext()) {
+          getLocation();
+        }
       };
 
       map.on("locationfound", onLocationFound);

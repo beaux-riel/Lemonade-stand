@@ -10,6 +10,17 @@ import { geocodeAddress, reverseGeocode } from '../utils/geocoding';
 import { calculateDistance, sortStandsByDistance, filterStandsByDistance } from '../utils/distance';
 
 /**
+ * Check if the current context is secure (HTTPS or localhost)
+ * 
+ * @returns {boolean} - Whether the current context is secure
+ */
+export const isSecureContext = () => {
+  return window.isSecureContext || 
+         window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1';
+};
+
+/**
  * Get the user's current location using the browser's Geolocation API
  * 
  * @returns {Promise<{lat: number, lng: number}>} - The user's coordinates
@@ -17,6 +28,12 @@ import { calculateDistance, sortStandsByDistance, filterStandsByDistance } from 
  */
 export const getCurrentLocation = () => {
   return new Promise((resolve, reject) => {
+    // Check if we're in a secure context
+    if (!isSecureContext()) {
+      reject(new Error('Geolocation requires a secure context (HTTPS)'));
+      return;
+    }
+    
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));
       return;
@@ -61,9 +78,14 @@ export const getCurrentLocation = () => {
  * 
  * @param {Function} callback - Function to call when location changes
  * @returns {number} - ID to use with clearWatch
- * @throws {Error} - If geolocation is not supported
+ * @throws {Error} - If geolocation is not supported or context is not secure
  */
 export const watchLocation = (callback) => {
+  // Check if we're in a secure context
+  if (!isSecureContext()) {
+    throw new Error('Geolocation requires a secure context (HTTPS)');
+  }
+  
   if (!navigator.geolocation) {
     throw new Error('Geolocation is not supported by your browser');
   }
