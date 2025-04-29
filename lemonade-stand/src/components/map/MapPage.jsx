@@ -52,7 +52,8 @@ const MapPage = () => {
   
   // Handle user location found
   const handleUserLocationFound = (latlng) => {
-    if (latlng && latlng.lat && latlng.lng) {
+    if (latlng && latlng.lat && latlng.lng && 
+        (mapCenter[0] !== latlng.lat || mapCenter[1] !== latlng.lng)) { // Only update if position has changed
       // Center map on user location
       setMapCenter([latlng.lat, latlng.lng]);
     }
