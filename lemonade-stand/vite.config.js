@@ -103,8 +103,8 @@ export default defineConfig({
     },
     // Add historyApiFallback for SPA routing
     historyApiFallback: true,
-    // We'll handle HTTPS differently - removing this for now
-    https: false,
+    // Enable HTTPS to fix geolocation issues
+    https: true,
   },
   preview: {
     host: '0.0.0.0',
@@ -112,8 +112,8 @@ export default defineConfig({
     allowedHosts: true,
     // Add historyApiFallback for SPA routing
     historyApiFallback: true,
-    // We'll handle HTTPS differently - removing this for now
-    https: false,
+    // Enable HTTPS to fix geolocation issues
+    https: true,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router', 'leaflet', 'react-leaflet'],

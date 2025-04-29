@@ -22,9 +22,11 @@ export const isSecureContext = () => {
   
   // In production, check for secure context
   return window.isSecureContext || 
+         window.location.protocol === 'https:' ||
          window.location.hostname === 'localhost' || 
          window.location.hostname === '127.0.0.1' ||
-         window.location.hostname.includes('all-hands.dev'); // Allow our development domain
+         window.location.hostname.includes('all-hands.dev') ||
+         window.location.hostname.includes('prod-runtime.all-hands.dev'); // Allow our development domains
 };
 
 /**

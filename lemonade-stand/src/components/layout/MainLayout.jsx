@@ -28,7 +28,7 @@ const MainLayout = ({ children }) => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center">
-              <h1 className="text-2xl md:text-4xl font-display text-gray-800">Lemonade Stand</h1>
+              <h1 className="text-2xl md:text-4xl font-display text-gray-800">Lemonade Map</h1>
             </Link>
             
             <nav className="hidden md:flex items-center space-x-6">
@@ -96,7 +96,7 @@ const MainLayout = ({ children }) => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h2 className="text-xl font-display">Lemonade Stand</h2>
+              <h2 className="text-xl font-display">Lemonade Map</h2>
               <p className="text-gray-400">Find and manage lemonade stands</p>
             </div>
             
@@ -114,7 +114,7 @@ const MainLayout = ({ children }) => {
           </div>
           
           <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
-            <p>&copy; {new Date().getFullYear()} Lemonade Stand. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Lemonade Map. All rights reserved.</p>
           </div>
         </div>
       </footer>
