@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import SellerRegistrationForm from './SellerRegistrationForm';
 import { Alert, Card } from '../ui';
+import { useAuth } from '../../contexts/AuthContext';
+import { createStand, createProduct, uploadStandImage, uploadProductImage } from '../../api/supabaseApi';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Seller Registration Page Component
@@ -10,6 +13,8 @@ const SellerRegistrationPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Handle form submission
   const handleSubmit = async (formData) => {
@@ -17,19 +22,61 @@ const SellerRegistrationPage = () => {
     setError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create the stand in Supabase
+      const standData = {
+        name: formData.name,
+        description: formData.description || '',
+        address: formData.address,
+        location_lat: formData.location_lat,
+        location_lng: formData.location_lng,
+        owner_id: user.id,
+        is_active: true
+      };
       
-      // In a real app, you would send the data to your API
-      console.log('Form submitted:', formData);
+      const { data: createdStand, error: standError } = await createStand(standData);
+      
+      if (standError) {
+        throw new Error(`Failed to create stand: ${standError.message}`);
+      }
+      
+      if (!createdStand || createdStand.length === 0) {
+        throw new Error('Failed to create stand: No data returned');
+      }
+      
+      const standId = createdStand[0].id;
+      
+      // Create products for the stand
+      for (const productData of formData.products) {
+        const newProduct = {
+          name: productData.name,
+          description: productData.description,
+          price: parseFloat(productData.price),
+          stand_id: standId,
+          is_available: true
+        };
+        
+        const { data: createdProduct, error: productError } = await createProduct(newProduct);
+        
+        if (productError) {
+          console.error('Error creating product:', productError);
+          continue;
+        }
+        
+        // Upload product image if available
+        if (productData.image && createdProduct && createdProduct.length > 0) {
+          const productId = createdProduct[0].id;
+          await uploadProductImage(productId, standId, user.id, productData.image);
+        }
+      }
       
       // Store the submitted data for display
       setSubmittedData(formData);
       
       // Show success message
       setSuccess(true);
+      console.log('Stand created successfully with ID:', standId);
     } catch (err) {
-      setError('Failed to register your stand. Please try again.');
+      setError('Failed to register your stand. Please try again. ' + err.message);
       console.error('Error submitting form:', err);
     } finally {
       setLoading(false);
@@ -103,12 +150,20 @@ const SellerRegistrationPage = () => {
             </Card.Body>
             
             <Card.Footer>
-              <button 
-                className="px-4 py-2 bg-lemonade-yellow text-gray-800 rounded-lg font-display hover:bg-lemonade-yellow-dark transition-colors"
-                onClick={handleReset}
-              >
-                Register Another Stand
-              </button>
+              <div className="flex space-x-4">
+                <button 
+                  className="px-4 py-2 bg-lemonade-yellow text-gray-800 rounded-lg font-display hover:bg-lemonade-yellow-dark transition-colors"
+                  onClick={handleReset}
+                >
+                  Register Another Stand
+                </button>
+                <button 
+                  className="px-4 py-2 bg-lemonade-blue text-white rounded-lg font-display hover:bg-lemonade-blue-dark transition-colors"
+                  onClick={() => navigate('/seller/dashboard')}
+                >
+                  Go to Dashboard
+                </button>
+              </div>
             </Card.Footer>
           </Card>
         </div>
