@@ -24,7 +24,7 @@ L.Icon.Default.mergeOptions({
 // Custom lemonade stand marker icon
 const createLemonadeIcon = () =>
   new L.Icon({
-    iconUrl: "/public/images/markers/lemonade-marker.svg",
+    iconUrl: "/images/markers/lemonade-marker.svg",
     iconSize: [40, 48],
     iconAnchor: [20, 48],
     popupAnchor: [0, -48],
