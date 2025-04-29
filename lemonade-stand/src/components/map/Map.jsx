@@ -80,15 +80,15 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
         }).addTo(map);
       }
     }
-  }, [location, map, showUserLocation]);
+  }, [position, map, showUserLocation]); // Use position instead of location to avoid circular dependency
   
   // Separate useEffect for notifying parent to prevent infinite loops
   useEffect(() => {
-    if (location && showUserLocation && onUserLocationFound) {
-      const latlng = { lat: location.lat, lng: location.lng };
+    if (position && onUserLocationFound) { // Use position instead of location to avoid circular dependency
+      const latlng = { lat: position[0], lng: position[1] };
       onUserLocationFound(latlng);
     }
-  }, [location, showUserLocation, onUserLocationFound]);
+  }, [position, showUserLocation, onUserLocationFound]);
   
   // Use Leaflet's locate method as a fallback - optimized to reduce unnecessary work
   useEffect(() => {
