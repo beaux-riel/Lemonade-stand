@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { signIn, signUp, signOut } from '../../api/supabaseApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { Form, Button, Alert } from '../ui';
+import { useNavigate } from 'react-router-dom';
 
 const AuthForm = ({ initialMode = 'login' }) => {
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState(initialMode); // 'login' or 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -43,6 +45,8 @@ const AuthForm = ({ initialMode = 'login' }) => {
         }
         
         setSuccess('Logged in successfully!');
+        // Redirect to dashboard after successful login
+        navigate('/seller/dashboard');
       } else {
         // Register
         const { data, error } = await signUp(
