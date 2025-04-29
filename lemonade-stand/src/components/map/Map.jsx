@@ -89,7 +89,7 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
         }).addTo(map);
       }
     }
-  }, [position, map, showUserLocation]); // Use position instead of location to avoid circular dependency
+  }, [location, map, showUserLocation]); // Use location instead of position to avoid circular dependency
   
   // Separate useEffect for notifying parent to prevent infinite loops
   useEffect(() => {
