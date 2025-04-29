@@ -64,7 +64,13 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
         throw new Error(error.message);
       }
       
-      setSuccess('Stand reopened successfully! Active until midnight today.');
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(23, 59, 59, 999);
+      
+      const hoursUntilMidnight = Math.round((midnight - now) / (1000 * 60 * 60));
+      
+      setSuccess(`Stand reopened successfully! Active for the next ${hoursUntilMidnight} hours (until midnight).`);
       
       // Call the onExtend callback with the updated stand data
       if (onExtend && data) {
@@ -107,6 +113,18 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
       hour: 'numeric',
       minute: 'numeric'
     });
+  };
+  
+  // Calculate if the stand expires today
+  const expiresLaterToday = () => {
+    if (!stand.expiration_time) return false;
+    
+    const now = new Date();
+    const expiration = new Date(stand.expiration_time);
+    
+    return now.getDate() === expiration.getDate() && 
+           now.getMonth() === expiration.getMonth() && 
+           now.getFullYear() === expiration.getFullYear();
   };
   
   return (
@@ -166,7 +184,9 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
           
           {!timeRemaining.expired && (
             <p className="text-gray-600 text-sm mt-1">
-              Expires at midnight: {formatExpirationDate(stand.expiration_time)}
+              {expiresLaterToday() 
+                ? `Expires tonight at midnight (${formatExpirationDate(stand.expiration_time)})` 
+                : `Expires at midnight: ${formatExpirationDate(stand.expiration_time)}`}
             </p>
           )}
         </div>
@@ -181,7 +201,9 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
             ? 'Processing...' 
             : timeRemaining.expired 
               ? 'Reopen Stand' 
-              : 'Active Until Midnight'
+              : expiresLaterToday()
+                ? 'Active Until Tonight'
+                : 'Active Until Midnight'
           }
         </Button>
       </div>
