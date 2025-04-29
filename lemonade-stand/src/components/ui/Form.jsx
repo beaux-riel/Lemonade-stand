@@ -330,6 +330,22 @@ Radio.propTypes = {
   className: PropTypes.string,
 };
 
+/**
+ * Form Text component for help text
+ */
+const FormText = ({ children, className = '', ...props }) => {
+  return (
+    <p className={`text-sm text-gray-600 mt-1 ${className}`} {...props}>
+      {children}
+    </p>
+  );
+};
+
+FormText.propTypes = {
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+};
+
 // Export all components
 Form.Group = FormGroup;
 Form.Label = FormLabel;
@@ -338,5 +354,6 @@ Form.Textarea = Textarea;
 Form.Select = Select;
 Form.Checkbox = Checkbox;
 Form.Radio = Radio;
+Form.Text = FormText;
 
 export default Form;
