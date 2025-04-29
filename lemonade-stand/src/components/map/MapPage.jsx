@@ -154,7 +154,7 @@ const MapPage = () => {
 
         <div>
           <h1 className="text-3xl font-display text-lemonade-blue-dark mb-2">
-            Find Lemonade Stands Near You
+            Discover Lemonade Stands Near You
           </h1>
           <p className="text-gray-600 mb-4">
             Browse the map to discover refreshing lemonade stands in your area
