@@ -13,7 +13,8 @@ import {
   uploadProductImage
 } from '../api/supabaseApi';
 import { StandExpirationInfo, StandStatistics } from '../components/stands';
-import { Button, Alert, Form, Tabs, Modal, Card } from '../components/ui';
+import { Button, Alert, Form, Tabs, Modal, Card, LoadingIndicator } from '../components/ui';
+import logger from '../utils/logger';
 
 /**
  * Stand Detail Page component for managing a specific stand
@@ -61,22 +62,50 @@ const StandDetailPage = () => {
     const fetchStandData = async () => {
       try {
         setLoading(true);
+        logger.info('Fetching stand data', { standId: id });
+        
+        // Check if user is available
+        if (!user || !user.id) {
+          logger.error('Authentication error', new Error('User not available or missing ID'), { 
+            standId: id, 
+            userExists: !!user 
+          });
+          setError('Authentication error. Please try logging in again.');
+          setLoading(false);
+          return;
+        }
         
         // Fetch stand details
+        logger.apiRequest(`stands/${id}`, 'GET');
         const { data: standData, error: standError } = await getStandById(id);
         
         if (standError) {
-          throw new Error(standError.message);
+          logger.apiError(`stands/${id}`, 'GET', standError);
+          throw new Error(`Failed to load stand: ${standError.message}`);
         }
         
         if (!standData) {
-          throw new Error('Stand not found');
+          logger.warn('Stand not found', { standId: id });
+          throw new Error('Stand not found. It may have been deleted.');
         }
+        
+        logger.apiResponse(`stands/${id}`, 'GET', { standExists: !!standData }, 200);
         
         // Check if user is the owner
         if (standData.owner_id !== user.id) {
+          logger.warn('Permission denied', { 
+            standId: id, 
+            standOwnerId: standData.owner_id, 
+            userId: user.id 
+          });
           throw new Error('You do not have permission to view this stand');
         }
+        
+        logger.info('Stand data loaded successfully', { 
+          standId: id, 
+          standName: standData.name,
+          isActive: standData.is_active
+        });
         
         setStand(standData);
         setFormData({
@@ -89,23 +118,34 @@ const StandDetailPage = () => {
         });
         
         // Fetch products
+        logger.apiRequest(`products?standId=${id}`, 'GET');
         const { data: productsData, error: productsError } = await getProducts(id);
         
         if (productsError) {
-          throw new Error(productsError.message);
+          logger.apiError(`products?standId=${id}`, 'GET', productsError);
+          throw new Error(`Failed to load products: ${productsError.message}`);
         }
+        
+        logger.apiResponse(`products?standId=${id}`, 'GET', { 
+          productCount: productsData?.length || 0 
+        }, 200);
         
         setProducts(productsData || []);
       } catch (err) {
-        console.error('Error fetching stand data:', err);
+        logger.error('Error fetching stand data', err, { standId: id });
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchStandData();
-  }, [id, user.id]);
+    // Only fetch data if user is available
+    if (user) {
+      fetchStandData();
+    } else {
+      logger.info('Waiting for user data before fetching stand', { standId: id });
+    }
+  }, [id, user]);
   
   // Handle form input change
   const handleInputChange = (e) => {
@@ -138,41 +178,75 @@ const StandDetailPage = () => {
     setError(null);
     setSuccess(null);
     
+    logger.info('Submitting stand update form', { 
+      standId: id, 
+      hasImageUpdate: !!imageFile 
+    });
+    
     try {
+      // Validate form data
+      if (!formData.name.trim()) {
+        throw new Error('Stand name is required');
+      }
+      
       // Update stand data
-      const { data, error } = await updateStand(id, formData);
+      logger.apiRequest(`stands/${id}`, 'PUT', { 
+        formData: { ...formData, name: formData.name.trim() } 
+      });
+      
+      const { data, error } = await updateStand(id, {
+        ...formData,
+        name: formData.name.trim()
+      });
       
       if (error) {
-        throw new Error(error.message);
+        logger.apiError(`stands/${id}`, 'PUT', error);
+        throw new Error(`Failed to update stand: ${error.message}`);
       }
+      
+      logger.apiResponse(`stands/${id}`, 'PUT', { success: true }, 200);
       
       // Upload image if selected
       if (imageFile) {
         setUploadingImage(true);
+        logger.info('Uploading stand image', { 
+          standId: id, 
+          imageSize: imageFile.size,
+          imageType: imageFile.type
+        });
+        
+        logger.apiRequest(`stands/${id}/image`, 'POST');
         const { error: uploadError } = await uploadStandImage(id, user.id, imageFile);
         
         if (uploadError) {
+          logger.apiError(`stands/${id}/image`, 'POST', uploadError);
           throw new Error(`Error uploading image: ${uploadError.message}`);
         }
         
+        logger.apiResponse(`stands/${id}/image`, 'POST', { success: true }, 200);
+        
         // Refresh stand data to get updated image URL
+        logger.apiRequest(`stands/${id}`, 'GET');
         const { data: refreshedData, error: refreshError } = await getStandById(id);
         
         if (refreshError) {
-          throw new Error(refreshError.message);
+          logger.apiError(`stands/${id}`, 'GET', refreshError);
+          throw new Error(`Error refreshing stand data: ${refreshError.message}`);
         }
         
+        logger.apiResponse(`stands/${id}`, 'GET', { success: true }, 200);
         setStand(refreshedData);
       } else {
         setStand(data[0]);
       }
       
+      logger.info('Stand updated successfully', { standId: id });
       setSuccess('Stand updated successfully!');
       setEditMode(false);
       setImageFile(null);
       setImagePreview(null);
     } catch (err) {
-      console.error('Error updating stand:', err);
+      logger.error('Error updating stand', err, { standId: id });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -183,20 +257,38 @@ const StandDetailPage = () => {
   // Handle stand deletion
   const handleDelete = async () => {
     setDeleting(true);
+    setError(null);
+    
+    logger.info('Deleting stand', { standId: id });
     
     try {
+      // Confirm user is the owner before deletion
+      if (!stand || stand.owner_id !== user.id) {
+        logger.warn('Unauthorized deletion attempt', { 
+          standId: id, 
+          userId: user.id,
+          standOwnerId: stand?.owner_id
+        });
+        throw new Error('You do not have permission to delete this stand');
+      }
+      
+      logger.apiRequest(`stands/${id}`, 'DELETE');
       const { error } = await deleteStand(id);
       
       if (error) {
-        throw new Error(error.message);
+        logger.apiError(`stands/${id}`, 'DELETE', error);
+        throw new Error(`Failed to delete stand: ${error.message}`);
       }
+      
+      logger.apiResponse(`stands/${id}`, 'DELETE', { success: true }, 200);
+      logger.info('Stand deleted successfully', { standId: id });
       
       // Redirect to dashboard
       navigate('/seller/dashboard', { 
         state: { message: 'Stand deleted successfully!' } 
       });
     } catch (err) {
-      console.error('Error deleting stand:', err);
+      logger.error('Error deleting stand', err, { standId: id });
       setError(err.message);
       setShowDeleteModal(false);
     } finally {
@@ -210,16 +302,29 @@ const StandDetailPage = () => {
     setError(null);
     setSuccess(null);
     
+    const newActiveState = !stand.is_active;
+    const action = newActiveState ? 'activate' : 'deactivate';
+    
+    logger.info(`Attempting to ${action} stand`, { 
+      standId: id, 
+      currentState: stand.is_active,
+      newState: newActiveState
+    });
+    
     try {
-      const newActiveState = !stand.is_active;
+      logger.apiRequest(`stands/${id}`, 'PATCH', { is_active: newActiveState });
       
       const { data, error } = await updateStand(id, {
         is_active: newActiveState
       });
       
       if (error) {
-        throw new Error(error.message);
+        logger.apiError(`stands/${id}`, 'PATCH', error);
+        throw new Error(`Failed to ${action} stand: ${error.message}`);
       }
+      
+      logger.apiResponse(`stands/${id}`, 'PATCH', { success: true }, 200);
+      logger.info(`Stand ${action}d successfully`, { standId: id });
       
       setStand({
         ...stand,
@@ -233,7 +338,7 @@ const StandDetailPage = () => {
       
       setSuccess(`Stand ${newActiveState ? 'activated' : 'deactivated'} successfully!`);
     } catch (err) {
-      console.error('Error toggling stand active state:', err);
+      logger.error(`Error ${action}ing stand`, err, { standId: id });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -248,8 +353,12 @@ const StandDetailPage = () => {
   if (loading && !stand) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lemonade-blue"></div>
+        <div className="flex flex-col justify-center items-center h-64">
+          <LoadingIndicator 
+            size="lg" 
+            variant="blue" 
+            message="Loading stand details..." 
+          />
         </div>
       </div>
     );
@@ -258,14 +367,40 @@ const StandDetailPage = () => {
   if (error && !stand) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Alert variant="error" className="mb-4">
-          {error}
-        </Alert>
-        <Link to="/seller/dashboard">
-          <Button variant="secondary">
-            Back to Dashboard
-          </Button>
-        </Link>
+        <div className="bg-white rounded-xl shadow-md p-6 mb-4">
+          <h2 className="text-2xl font-display text-lemonade-blue-dark mb-4">
+            Error Loading Stand
+          </h2>
+          <Alert 
+            variant="error" 
+            className="mb-6"
+            dismissible
+          >
+            {error}
+          </Alert>
+          <p className="text-gray-600 mb-6">
+            There was a problem loading the stand details. This could be due to:
+          </p>
+          <ul className="list-disc list-inside text-gray-600 mb-6">
+            <li>The stand may have been deleted</li>
+            <li>You may not have permission to view this stand</li>
+            <li>There might be a temporary server issue</li>
+            <li>Your session may have expired</li>
+          </ul>
+          <div className="flex space-x-3">
+            <Link to="/seller/dashboard">
+              <Button variant="primary">
+                Back to Dashboard
+              </Button>
+            </Link>
+            <Button 
+              variant="secondary"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
