@@ -151,7 +151,15 @@ const MapPage = () => {
   
   return (
     <div className="w-full">
-      <h1 className="text-2xl md:text-3xl font-display text-lemonade-blue-dark mb-4">Find Lemonade Stands</h1>
+
+        <div>
+          <h1 className="text-3xl font-display text-lemonade-blue-dark mb-2">
+            Find Lemonade Stands Near You
+          </h1>
+          <p className="text-gray-600 mb-4">
+            Browse the map to discover refreshing lemonade stands in your area
+          </p>
+        </div>
       
       {error && (
         <Alert variant="error" className="mb-4" dismissible onDismiss={() => setError(null)}>
