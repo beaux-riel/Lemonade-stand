@@ -149,11 +149,11 @@ export const updateStand = async (standId, updates) => {
   return { data, error };
 };
 
-export const extendStandExpiration = async (standId, hoursToExtend = 24) => {
+export const extendStandExpiration = async (standId) => {
   // First get the current stand to check its expiration time
   const { data: stand, error: fetchError } = await supabase
     .from('stands')
-    .select('expiration_time')
+    .select('expiration_time, is_active')
     .eq('id', standId)
     .single();
     
@@ -161,35 +161,31 @@ export const extendStandExpiration = async (standId, hoursToExtend = 24) => {
     return { error: fetchError };
   }
   
-  // Calculate new expiration time
-  let newExpirationTime;
-  if (stand.expiration_time) {
-    // If expiration time exists and is in the future, extend from that time
-    const currentExpiration = new Date(stand.expiration_time);
-    const now = new Date();
-    
-    // If already expired, extend from current time
-    if (currentExpiration < now) {
-      newExpirationTime = new Date(now.getTime() + hoursToExtend * 60 * 60 * 1000);
-    } else {
-      // Otherwise extend from current expiration time
-      newExpirationTime = new Date(currentExpiration.getTime() + hoursToExtend * 60 * 60 * 1000);
-    }
-  } else {
-    // If no expiration time set, set it to current time + hours to extend
-    newExpirationTime = new Date(new Date().getTime() + hoursToExtend * 60 * 60 * 1000);
-  }
+  const now = new Date();
+  const currentExpiration = stand.expiration_time ? new Date(stand.expiration_time) : null;
   
-  // Update the stand with new expiration time
-  const { data, error } = await supabase
-    .from('stands')
-    .update({
-      expiration_time: newExpirationTime.toISOString(),
-      is_active: true // Ensure the stand is active when extending
-    })
-    .eq('id', standId)
-    .select();
+  // If the stand is expired or inactive, use the reopen_stand function
+  if (!stand.is_active || (currentExpiration && currentExpiration < now)) {
+    const { data, error } = await supabase
+      .rpc('reopen_stand', { stand_id: standId })
+      .single();
     
+    return { data, error };
+  } else {
+    // If the stand is still active, just return the current stand data
+    return { 
+      data: [stand], 
+      message: "Stand is already active until midnight today." 
+    };
+  }
+};
+
+// Function to explicitly reopen a stand (for the reopen button)
+export const reopenStand = async (standId) => {
+  const { data, error } = await supabase
+    .rpc('reopen_stand', { stand_id: standId })
+    .single();
+  
   return { data, error };
 };
 
