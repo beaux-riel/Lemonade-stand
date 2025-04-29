@@ -17,6 +17,7 @@ A full-stack web application for managing lemonade stands and their products. Th
 - [Supabase Setup](#supabase-setup)
   - [Database Schema](#database-schema)
   - [Row Level Security](#row-level-security)
+  - [Setting Up Storage Buckets](#setting-up-storage-buckets)
 - [Usage](#usage)
   - [User Guide](#user-guide)
   - [Admin Guide](#admin-guide)
@@ -184,6 +185,8 @@ The Supabase backend includes:
 5. Choose a region close to your users
 6. Click "Create new project"
 
+> **Important**: After setting up your Supabase project, make sure to create the required storage buckets as described in the [Setting Up Storage Buckets](#setting-up-storage-buckets) section below. This is necessary for image uploads to work correctly.
+
 ### Database Schema
 
 The database consists of three main tables:
@@ -242,6 +245,39 @@ If you have the Supabase CLI installed:
 supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
+
+### Setting Up Storage Buckets
+
+The application requires the following storage buckets to be created in Supabase:
+
+1. `stand_images` - For storing lemonade stand images
+2. `product_images` - For storing product images
+3. `user_avatars` - For storing user profile pictures
+
+#### Option 1: Using the Supabase Dashboard
+
+1. Go to the Storage section in the Supabase Dashboard
+2. Click "Create a new bucket"
+3. Enter the bucket name (e.g., "stand_images")
+4. Check "Public bucket" to make the bucket publicly accessible
+5. Click "Create bucket"
+6. Repeat for the other required buckets
+
+#### Option 2: Using the Provided Script
+
+1. Get your Supabase URL and service role key from the Supabase Dashboard
+2. Run the provided script:
+
+```bash
+# Set environment variables
+export SUPABASE_URL=your-supabase-url
+export SUPABASE_SERVICE_KEY=your-service-role-key
+
+# Run the script
+node create-buckets-with-service-key.js
+```
+
+For detailed instructions, see [STORAGE_BUCKET_SETUP.md](STORAGE_BUCKET_SETUP.md).
 
 ## Usage
 
