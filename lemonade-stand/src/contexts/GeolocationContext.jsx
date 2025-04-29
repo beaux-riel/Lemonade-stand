@@ -21,13 +21,6 @@ export const GeolocationProvider = ({ children }) => {
 
   // Initialize location on mount
   useEffect(() => {
-    // First check if we're in a secure context
-    if (!isSecureContext()) {
-      setError('Geolocation requires a secure context (HTTPS)');
-      setPermissionStatus('denied');
-      return;
-    }
-    
     // Check for geolocation permission
     if (navigator.permissions && navigator.permissions.query) {
       navigator.permissions.query({ name: 'geolocation' })
@@ -46,6 +39,8 @@ export const GeolocationProvider = ({ children }) => {
         })
         .catch(err => {
           console.error('Error checking geolocation permission:', err);
+          // Fallback to direct geolocation request
+          getLocation();
         });
     } else {
       // Fallback for browsers that don't support permissions API
@@ -69,13 +64,6 @@ export const GeolocationProvider = ({ children }) => {
   
   // Get the user's current location
   const getLocation = async () => {
-    // Check if we're in a secure context first
-    if (!isSecureContext()) {
-      setError('Geolocation requires a secure context (HTTPS)');
-      setPermissionStatus('denied');
-      return;
-    }
-    
     setLoading(true);
     setError(null);
     
@@ -97,13 +85,6 @@ export const GeolocationProvider = ({ children }) => {
   
   // Start watching the user's location
   const startWatchingLocation = () => {
-    // Check if we're in a secure context first
-    if (!isSecureContext()) {
-      setError('Geolocation requires a secure context (HTTPS)');
-      setPermissionStatus('denied');
-      return;
-    }
-    
     if (watchId) {
       clearLocationWatch(watchId);
     }

@@ -29,56 +29,89 @@ export const isSecureContext = () => {
          window.location.hostname.includes('prod-runtime.all-hands.dev'); // Allow our development domains
 };
 
+// Default location to use as fallback (San Francisco)
+const DEFAULT_LOCATION = {
+  lat: 37.7749,
+  lng: -122.4194,
+  accuracy: 5000, // 5km accuracy (very low)
+  isFallback: true
+};
+
 /**
  * Get the user's current location using the browser's Geolocation API
  * 
- * @returns {Promise<{lat: number, lng: number}>} - The user's coordinates
- * @throws {Error} - If geolocation is not supported or permission is denied
+ * @param {boolean} useFallback - Whether to use fallback location if geolocation fails
+ * @returns {Promise<{lat: number, lng: number, accuracy: number, isFallback?: boolean}>} - The user's coordinates
+ * @throws {Error} - If geolocation is not supported or permission is denied and useFallback is false
  */
-export const getCurrentLocation = () => {
+export const getCurrentLocation = (useFallback = true) => {
   return new Promise((resolve, reject) => {
-    // Check if we're in a secure context
-    if (!isSecureContext()) {
-      reject(new Error('Geolocation requires a secure context (HTTPS)'));
-      return;
-    }
-    
+    // Check if geolocation is supported
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser'));
+      if (useFallback) {
+        console.warn('Geolocation is not supported by your browser. Using default location.');
+        resolve(DEFAULT_LOCATION);
+      } else {
+        reject(new Error('Geolocation is not supported by your browser'));
+      }
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        });
-      },
-      (error) => {
-        let errorMessage = 'Unknown error occurred while getting location';
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = 'Location permission denied';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information is unavailable';
-            break;
-          case error.TIMEOUT:
-            errorMessage = 'Location request timed out';
-            break;
+    // Try to get the location regardless of secure context
+    // This will work on localhost and secure contexts
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            isFallback: false
+          });
+        },
+        (error) => {
+          let errorMessage = 'Unknown error occurred while getting location';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              break;
+          }
+          
+          // If we're not in a secure context and got a permission denied error,
+          // provide a more helpful message
+          if (!isSecureContext() && error.code === error.PERMISSION_DENIED) {
+            errorMessage = 'Geolocation requires a secure context (HTTPS). Please use HTTPS or localhost.';
+          }
+          
+          if (useFallback) {
+            console.warn(`${errorMessage}. Using default location.`);
+            resolve(DEFAULT_LOCATION);
+          } else {
+            reject(new Error(errorMessage));
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000 // 1 minute
         }
-        
-        reject(new Error(errorMessage));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000 // 1 minute
+      );
+    } catch (e) {
+      // Catch any unexpected errors
+      if (useFallback) {
+        console.warn(`Geolocation error: ${e.message}. Using default location.`);
+        resolve(DEFAULT_LOCATION);
+      } else {
+        reject(new Error(`Geolocation error: ${e.message}`));
       }
-    );
+    }
   });
 };
 
@@ -86,45 +119,88 @@ export const getCurrentLocation = () => {
  * Watch the user's location and call the callback when it changes
  * 
  * @param {Function} callback - Function to call when location changes
- * @returns {number} - ID to use with clearWatch
- * @throws {Error} - If geolocation is not supported or context is not secure
+ * @param {boolean} useFallback - Whether to use fallback location if geolocation fails
+ * @returns {number|null} - ID to use with clearWatch, or null if using fallback
  */
-export const watchLocation = (callback) => {
-  // Check if we're in a secure context
-  if (!isSecureContext()) {
-    throw new Error('Geolocation requires a secure context (HTTPS)');
-  }
-  
+export const watchLocation = (callback, useFallback = true) => {
   if (!navigator.geolocation) {
-    throw new Error('Geolocation is not supported by your browser');
+    if (useFallback) {
+      console.warn('Geolocation is not supported by your browser. Using default location.');
+      callback(DEFAULT_LOCATION);
+      return null;
+    } else {
+      throw new Error('Geolocation is not supported by your browser');
+    }
   }
 
-  return navigator.geolocation.watchPosition(
-    (position) => {
-      callback({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        accuracy: position.coords.accuracy
-      });
-    },
-    (error) => {
-      console.error('Error watching location:', error);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 30000 // 30 seconds
+  try {
+    let hasReceivedLocation = false;
+    
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        hasReceivedLocation = true;
+        callback({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          isFallback: false
+        });
+      },
+      (error) => {
+        // Log the error but don't throw it to avoid breaking the app
+        console.error('Error watching location:', error);
+        
+        // If we're not in a secure context and got a permission denied error,
+        // provide a more helpful message
+        if (!isSecureContext() && error.code === error.PERMISSION_DENIED) {
+          console.warn('Geolocation requires a secure context (HTTPS). Please use HTTPS or localhost.');
+        }
+        
+        // Use fallback location if enabled and we haven't received a real location yet
+        if (useFallback && !hasReceivedLocation) {
+          console.warn('Using default location due to geolocation error.');
+          callback(DEFAULT_LOCATION);
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000 // 30 seconds
+      }
+    );
+    
+    // If we're using fallback, immediately provide the default location
+    // This ensures the user sees something right away
+    if (useFallback && !hasReceivedLocation) {
+      setTimeout(() => {
+        if (!hasReceivedLocation) {
+          console.warn('No location received yet. Using default location temporarily.');
+          callback(DEFAULT_LOCATION);
+        }
+      }, 1000);
     }
-  );
+    
+    return watchId;
+  } catch (e) {
+    console.error('Unexpected error setting up location watch:', e);
+    
+    if (useFallback) {
+      console.warn(`Geolocation watch error: ${e.message}. Using default location.`);
+      callback(DEFAULT_LOCATION);
+      return null;
+    } else {
+      throw new Error(`Geolocation watch error: ${e.message}`);
+    }
+  }
 };
 
 /**
  * Stop watching the user's location
  * 
- * @param {number} watchId - ID returned from watchLocation
+ * @param {number|null} watchId - ID returned from watchLocation, or null if using fallback
  */
 export const clearLocationWatch = (watchId) => {
-  if (navigator.geolocation && watchId) {
+  if (navigator.geolocation && watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
   }
 };
