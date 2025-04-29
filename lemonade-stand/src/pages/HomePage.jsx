@@ -87,7 +87,6 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-
         {/* Featured Stands Section (optional) */}
         {isAuthenticated && (
           <div className="mb-8">
@@ -122,14 +121,12 @@ const HomePage = () => {
             </div>
           </div>
         )}
-
         {/* Map Section */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
-          <div className="h-[500px] rounded-lg overflow-hidden">
-            <MapPage />
+          <div className="h-[120%] rounded-lg overflow-hidden p-4">
+            <MapPage mapHeight="100%" />
           </div>
         </div>
-
         {/* Community Impact Section */}
         <div className="bg-lemonade-blue-light text-white rounded-xl p-6 mb-8">
           <h2 className="text-2xl font-display font-bold mb-4">
@@ -150,7 +147,6 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-
         {/* Call to Action */}
         <div className="bg-yellow-100 rounded-xl p-6 text-center">
           <h2 className="text-2xl font-display font-bold text-lemonade-blue-dark mb-4">
@@ -177,51 +173,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12 py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-display font-bold text-lemonade-blue-dark">
-                Lemonade Map
-              </h3>
-              <p className="text-gray-600">
-                Helping kids learn business skills while bringing communities
-                together!
-              </p>
-            </div>
-            <div className="flex space-x-6">
-              <Link
-                to="/about"
-                className="text-gray-600 hover:text-lemonade-blue-dark"
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="text-gray-600 hover:text-lemonade-blue-dark"
-              >
-                Contact
-              </Link>
-              <Link
-                to="/privacy"
-                className="text-gray-600 hover:text-lemonade-blue-dark"
-              >
-                Privacy
-              </Link>
-              <a
-                href="https://github.com/beaux-riel/Lemonade-stand"
-                className="text-gray-600 hover:text-lemonade-blue-dark"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
