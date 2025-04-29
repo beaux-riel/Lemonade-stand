@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { extendStandExpiration } from '../../api/supabaseApi';
+import { extendStandExpiration, reopenStand } from '../../api/supabaseApi';
 import { Button, Alert } from '../ui';
 
 /**
@@ -51,27 +51,27 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
   
   const timeRemaining = calculateTimeRemaining();
   
-  // Handle extending the stand expiration
-  const handleExtend = async () => {
+  // Handle reopening an expired stand
+  const handleReopen = async () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
     
     try {
-      const { data, error } = await extendStandExpiration(stand.id);
+      const { data, error } = await reopenStand(stand.id);
       
       if (error) {
         throw new Error(error.message);
       }
       
-      setSuccess('Stand expiration extended successfully!');
+      setSuccess('Stand reopened successfully! Active until midnight today.');
       
       // Call the onExtend callback with the updated stand data
       if (onExtend && data) {
-        onExtend(data[0]);
+        onExtend(data);
       }
     } catch (err) {
-      console.error('Error extending stand expiration:', err);
+      console.error('Error reopening stand:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -87,15 +87,27 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
         </p>
         <Button
           variant="secondary"
-          onClick={handleExtend}
+          onClick={handleReopen}
           disabled={loading}
           size="sm"
         >
-          {loading ? 'Setting expiration...' : 'Set 24-hour expiration'}
+          {loading ? 'Setting expiration...' : 'Activate until midnight'}
         </Button>
       </div>
     );
   }
+  
+  // Format the expiration date to show date and time
+  const formatExpirationDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString(undefined, {
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'
+    });
+  };
   
   return (
     <div className={`rounded-lg p-4 mb-4 ${
@@ -154,22 +166,22 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
           
           {!timeRemaining.expired && (
             <p className="text-gray-600 text-sm mt-1">
-              Expires on: {new Date(stand.expiration_time).toLocaleString()}
+              Expires at midnight: {formatExpirationDate(stand.expiration_time)}
             </p>
           )}
         </div>
         
         <Button
           variant={timeRemaining.expired ? "primary" : "secondary"}
-          onClick={handleExtend}
+          onClick={handleReopen}
           disabled={loading}
           className="mt-3 md:mt-0"
         >
           {loading 
-            ? 'Extending...' 
+            ? 'Processing...' 
             : timeRemaining.expired 
-              ? 'Reactivate Stand' 
-              : 'Extend by 24 Hours'
+              ? 'Reopen Stand' 
+              : 'Active Until Midnight'
           }
         </Button>
       </div>

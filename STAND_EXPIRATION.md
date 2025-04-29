@@ -4,7 +4,7 @@ This document explains the stand expiration logic implemented in the Lemonade St
 
 ## Overview
 
-Lemonade stands are automatically hidden (deactivated) after 24 hours to ensure that the map only shows currently active stands. This is implemented using:
+Lemonade stands are automatically hidden (deactivated) at midnight on the day they are created to ensure that the map only shows currently active stands. Stand owners can reopen expired stands without needing to create new ones. This is implemented using:
 
 1. PostgreSQL functions and triggers
 2. Supabase Edge Functions with cron jobs
@@ -23,13 +23,14 @@ ADD COLUMN IF NOT EXISTS expiration_time TIMESTAMP WITH TIME ZONE;
 
 ### Automatic Expiration Setting
 
-When a new stand is created, a trigger automatically sets its expiration time to 24 hours from creation:
+When a new stand is created, a trigger automatically sets its expiration time to midnight of the current day:
 
 ```sql
 CREATE OR REPLACE FUNCTION set_stand_expiration_time()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.expiration_time := NEW.created_at + INTERVAL '24 hours';
+  -- Set expiration time to midnight of the current day (next day at 00:00:00)
+  NEW.expiration_time := (DATE_TRUNC('day', NEW.created_at) + INTERVAL '1 day')::TIMESTAMP WITH TIME ZONE;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -80,6 +81,26 @@ BEGIN
   
   GET DIAGNOSTICS affected_rows = ROW_COUNT;
   RETURN affected_rows;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### Reopen Stand Function
+
+A function is provided to reopen an expired stand:
+
+```sql
+CREATE OR REPLACE FUNCTION reopen_stand(stand_id UUID)
+RETURNS SETOF stands AS $$
+BEGIN
+  -- Set expiration time to midnight of the current day and reactivate the stand
+  RETURN QUERY
+  UPDATE public.stands
+  SET 
+    expiration_time = (DATE_TRUNC('day', NOW()) + INTERVAL '1 day')::TIMESTAMP WITH TIME ZONE,
+    is_active = true
+  WHERE id = stand_id
+  RETURNING *;
 END;
 $$ LANGUAGE plpgsql;
 ```
@@ -158,12 +179,12 @@ This sets up the function to run at the top of every hour.
 The frontend includes functions to interact with stand expiration:
 
 ```javascript
-// Extend a stand's expiration time
-export const extendStandExpiration = async (standId, hoursToExtend = 24) => {
-  // Get current stand data
+// Extend or reopen a stand
+export const extendStandExpiration = async (standId) => {
+  // First get the current stand to check its expiration time
   const { data: stand, error: fetchError } = await supabase
     .from('stands')
-    .select('expiration_time')
+    .select('expiration_time, is_active')
     .eq('id', standId)
     .single();
     
@@ -171,34 +192,31 @@ export const extendStandExpiration = async (standId, hoursToExtend = 24) => {
     return { error: fetchError };
   }
   
-  // Calculate new expiration time
-  let newExpirationTime;
-  if (stand.expiration_time) {
-    const currentExpiration = new Date(stand.expiration_time);
-    const now = new Date();
-    
-    if (currentExpiration < now) {
-      // If already expired, extend from current time
-      newExpirationTime = new Date(now.getTime() + hoursToExtend * 60 * 60 * 1000);
-    } else {
-      // Otherwise extend from current expiration time
-      newExpirationTime = new Date(currentExpiration.getTime() + hoursToExtend * 60 * 60 * 1000);
-    }
-  } else {
-    // If no expiration time set, set it to current time + hours to extend
-    newExpirationTime = new Date(new Date().getTime() + hoursToExtend * 60 * 60 * 1000);
-  }
+  const now = new Date();
+  const currentExpiration = stand.expiration_time ? new Date(stand.expiration_time) : null;
   
-  // Update the stand with new expiration time
-  const { data, error } = await supabase
-    .from('stands')
-    .update({
-      expiration_time: newExpirationTime.toISOString(),
-      is_active: true // Ensure the stand is active when extending
-    })
-    .eq('id', standId)
-    .select();
+  // If the stand is expired or inactive, use the reopen_stand function
+  if (!stand.is_active || (currentExpiration && currentExpiration < now)) {
+    const { data, error } = await supabase
+      .rpc('reopen_stand', { stand_id: standId })
+      .single();
     
+    return { data, error };
+  } else {
+    // If the stand is still active, just return the current stand data
+    return { 
+      data: [stand], 
+      message: "Stand is already active until midnight today." 
+    };
+  }
+};
+
+// Function to explicitly reopen a stand (for the reopen button)
+export const reopenStand = async (standId) => {
+  const { data, error } = await supabase
+    .rpc('reopen_stand', { stand_id: standId })
+    .single();
+  
   return { data, error };
 };
 ```
@@ -223,9 +241,9 @@ A `StandExpirationInfo` component is provided to display the expiration status a
 
 Stand owners can:
 
-1. See the remaining time until their stand expires
-2. Extend their stand's visibility by 24 hours
-3. Reactivate an expired stand
+1. See the remaining time until their stand expires (midnight of the current day)
+2. See that their stand is active until midnight
+3. Reopen an expired stand (which will make it active until midnight of the current day)
 
 ### For Developers
 
