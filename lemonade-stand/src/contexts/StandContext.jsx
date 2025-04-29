@@ -22,6 +22,8 @@ export const StandProvider = ({ children }) => {
           throw new Error(error.message);
         }
         
+        // Use active stands directly since we're filtering by is_active in the query
+        console.log('Active stands:', data);
         setStands(data || []);
       } catch (err) {
         console.error('Error fetching stands:', err);
@@ -37,13 +39,29 @@ export const StandProvider = ({ children }) => {
     const subscription = subscribeToStands((payload) => {
       console.log('Real-time stand update:', payload);
       
+      // Check if stand is expired
+      const isExpired = (stand) => {
+        return stand && stand.expiration_time && new Date(stand.expiration_time) <= new Date();
+      };
+      
       if (payload.eventType === 'INSERT') {
-        setStands(prevStands => [...prevStands, payload.new]);
+        // Only add if not expired
+        if (!isExpired(payload.new)) {
+          setStands(prevStands => [...prevStands, payload.new]);
+        }
       } else if (payload.eventType === 'UPDATE') {
         setStands(prevStands => 
-          prevStands.map(stand => 
-            stand.id === payload.new.id ? payload.new : stand
-          )
+          prevStands.map(stand => {
+            // If this is the updated stand
+            if (stand.id === payload.new.id) {
+              // If it's now expired, filter it out
+              if (isExpired(payload.new)) {
+                return null; // Will be filtered out below
+              }
+              return payload.new;
+            }
+            return stand;
+          }).filter(Boolean) // Remove null entries
         );
       } else if (payload.eventType === 'DELETE') {
         setStands(prevStands => 
