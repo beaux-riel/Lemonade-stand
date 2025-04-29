@@ -105,6 +105,13 @@ export const getStands = async () => {
     .from('stands')
     .select('*')
     .eq('is_active', true);
+  
+  if (error) {
+    console.error("Error fetching stands:", error);
+  } else {
+    console.log("Fetched stands:", data);
+  }
+  
   return { data, error };
 };
 
