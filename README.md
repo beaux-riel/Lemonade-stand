@@ -1,4 +1,4 @@
-# Lemonade Stand
+# Lemonade Map
 
 A full-stack web application for managing lemonade stands and their products. This project allows users to create and manage their own lemonade stands, add products, and view other stands on an interactive map.
 
