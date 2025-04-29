@@ -42,10 +42,7 @@ const ProductCard = ({ product, className = '', ...props }) => {
             ) : (
               <Badge variant="green" className="text-xs">Available</Badge>
             )}
-            
-            <button className="text-xs text-lemonade-blue hover:text-lemonade-blue-dark">
-              Add to Order
-            </button>
+
           </div>
         </div>
       </div>
