@@ -102,10 +102,7 @@ export default defineConfig({
       'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
     },
     // Add historyApiFallback for SPA routing
-    historyApiFallback: {
-      disableDotRule: true,
-      index: '/',
-    },
+    historyApiFallback: true,
     // We'll handle HTTPS differently - removing this for now
     https: false,
   },
@@ -114,10 +111,7 @@ export default defineConfig({
     port: 12000,
     allowedHosts: true,
     // Add historyApiFallback for SPA routing
-    historyApiFallback: {
-      disableDotRule: true,
-      index: '/',
-    },
+    historyApiFallback: true,
     // We'll handle HTTPS differently - removing this for now
     https: false,
   },

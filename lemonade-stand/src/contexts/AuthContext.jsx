@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getCurrentUser, getSession } from '../api/supabaseApi';
 import supabase from '../supabaseClient';
+import logger from '../utils/logger';
+import { LoadingIndicator } from '../components/ui';
 
 // Create the context
 export const AuthContext = createContext(null);
@@ -11,25 +13,52 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [initializing, setInitializing] = useState(true);
 
   // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
       try {
+        logger.info('Initializing authentication');
+        setInitializing(true);
+        
         // Get current session
-        const { data: sessionData } = await getSession();
+        const { data: sessionData, error: sessionError } = await getSession();
+        
+        if (sessionError) {
+          throw new Error(`Session error: ${sessionError.message}`);
+        }
+        
+        logger.authEvent('session_check', { 
+          hasSession: !!sessionData?.session,
+          sessionExpiry: sessionData?.session?.expires_at
+        });
+        
         setSession(sessionData?.session || null);
         
         // Get user data if session exists
         if (sessionData?.session) {
-          const { data: userData } = await getCurrentUser();
+          const { data: userData, error: userError } = await getCurrentUser();
+          
+          if (userError) {
+            throw new Error(`User data error: ${userError.message}`);
+          }
+          
+          logger.authEvent('user_loaded', { 
+            userId: userData?.user?.id,
+            email: userData?.user?.email
+          });
+          
           setUser(userData?.user || null);
+        } else {
+          logger.authEvent('no_session');
         }
       } catch (err) {
-        console.error('Error initializing auth:', err);
+        logger.error('Error initializing auth', err, { source: 'AuthContext.initAuth' });
         setError(err.message);
       } finally {
         setLoading(false);
+        setInitializing(false);
       }
     };
 
@@ -38,13 +67,29 @@ export const AuthProvider = ({ children }) => {
     // Set up auth state change listener
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
+        logger.authEvent(event, { sessionExists: !!session });
         setSession(session);
         
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          const { data } = await getCurrentUser();
-          setUser(data?.user || null);
+          try {
+            const { data, error: userError } = await getCurrentUser();
+            
+            if (userError) {
+              throw new Error(`Failed to get user data: ${userError.message}`);
+            }
+            
+            logger.authEvent('user_updated', { 
+              userId: data?.user?.id,
+              email: data?.user?.email
+            });
+            
+            setUser(data?.user || null);
+          } catch (err) {
+            logger.error('Error updating user data', err, { event });
+            setError(err.message);
+          }
         } else if (event === 'SIGNED_OUT') {
+          logger.authEvent('signed_out');
           setUser(null);
         }
       }
@@ -53,6 +98,7 @@ export const AuthProvider = ({ children }) => {
     // Clean up subscription
     return () => {
       if (authListener && authListener.subscription) {
+        logger.info('Cleaning up auth subscription');
         authListener.subscription.unsubscribe();
       }
     };
@@ -64,8 +110,23 @@ export const AuthProvider = ({ children }) => {
     session,
     loading,
     error,
+    setError,
     isAuthenticated: !!user,
+    clearError: () => setError(null)
   };
+
+  // Show a full-screen loader during initial authentication
+  if (initializing) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingIndicator 
+          size="lg" 
+          variant="blue" 
+          message="Authenticating..." 
+        />
+      </div>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

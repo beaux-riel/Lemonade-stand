@@ -7,6 +7,7 @@ export { default as Card } from './Card';
 export { default as Dropdown } from './Dropdown';
 export { default as Form } from './Form';
 export { default as Loader } from './Loader';
+export { default as LoadingIndicator } from './LoadingIndicator';
 export { default as Modal } from './Modal';
 export { default as Navigation } from './Navigation';
 export { default as Pagination } from './Pagination';
