@@ -250,15 +250,15 @@ supabase db push
 
 The application requires the following storage buckets to be created in Supabase:
 
-1. `stand_images` - For storing lemonade stand images
-2. `product_images` - For storing product images
-3. `user_avatars` - For storing user profile pictures
+1. `stand-images` - For storing lemonade stand images
+2. `product-images` - For storing product images
+3. `user-avatars` - For storing user profile pictures
 
 #### Option 1: Using the Supabase Dashboard
 
 1. Go to the Storage section in the Supabase Dashboard
 2. Click "Create a new bucket"
-3. Enter the bucket name (e.g., "stand_images")
+3. Enter the bucket name (e.g., "stand-images")
 4. Check "Public bucket" to make the bucket publicly accessible
 5. Click "Create bucket"
 6. Repeat for the other required buckets

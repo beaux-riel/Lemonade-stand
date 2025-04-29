@@ -30,9 +30,9 @@ After your project is created, you need to set up the database schema:
 
 1. Go to Storage in the Supabase Dashboard
 2. Create three new buckets:
-   - `stand_images`
-   - `product_images`
-   - `user_avatars`
+   - `stand-images`
+   - `product-images`
+   - `user-avatars`
 3. For each bucket, set the privacy to "Public"
 
 ## 4. Configure Authentication

@@ -1,4 +1,4 @@
-import supabase from '../supabaseClient';
+import supabase from "../supabaseClient";
 
 // Authentication functions
 export const signUp = async (email, password, fullName) => {
@@ -54,87 +54,87 @@ export const getSession = async () => {
 // User profile functions
 export const getUserProfile = async (userId) => {
   const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
+    .from("users")
+    .select("*")
+    .eq("id", userId)
     .single();
   return { data, error };
 };
 
 export const updateUserProfile = async (userId, updates) => {
   const { data, error } = await supabase
-    .from('users')
+    .from("users")
     .update(updates)
-    .eq('id', userId)
+    .eq("id", userId)
     .select();
   return { data, error };
 };
 
 export const uploadUserAvatar = async (userId, file) => {
   // Get file extension
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const filePath = `${userId}.${fileExt}`;
-  
+
   const { data, error } = await supabase.storage
-    .from('user_avatars')
+    .from("user-avatars")
     .upload(filePath, file, {
-      cacheControl: '3600',
+      cacheControl: "3600",
       upsert: true,
     });
-    
+
   if (error) {
     return { error };
   }
-  
+
   // Get the public URL
   const { data: urlData } = supabase.storage
-    .from('user_avatars')
+    .from("user-avatars")
     .getPublicUrl(filePath);
-    
+
   // Update user profile with avatar URL
   const { data: userData, error: userError } = await updateUserProfile(userId, {
     avatar_url: urlData.publicUrl,
   });
-  
+
   return { data: userData, error: userError };
 };
 
 // Stand functions
 export const getStands = async () => {
   const { data, error } = await supabase
-    .from('stands')
-    .select('*')
-    .eq('is_active', true);
-  
+    .from("stands")
+    .select("*")
+    .eq("is_active", true);
+
   if (error) {
     console.error("Error fetching stands:", error);
   } else {
     console.log("Fetched stands:", data);
   }
-  
+
   return { data, error };
 };
 
 export const getStandById = async (standId) => {
   const { data, error } = await supabase
-    .from('stands')
-    .select('*, products(*)')
-    .eq('id', standId)
+    .from("stands")
+    .select("*, products(*)")
+    .eq("id", standId)
     .single();
   return { data, error };
 };
 
 export const getUserStands = async (userId) => {
   const { data, error } = await supabase
-    .from('stands')
-    .select('*')
-    .eq('owner_id', userId);
+    .from("stands")
+    .select("*")
+    .eq("owner_id", userId);
   return { data, error };
 };
 
 export const createStand = async (standData) => {
   const { data, error } = await supabase
-    .from('stands')
+    .from("stands")
     .insert([standData])
     .select();
   return { data, error };
@@ -142,9 +142,9 @@ export const createStand = async (standData) => {
 
 export const updateStand = async (standId, updates) => {
   const { data, error } = await supabase
-    .from('stands')
+    .from("stands")
     .update(updates)
-    .eq('id', standId)
+    .eq("id", standId)
     .select();
   return { data, error };
 };
@@ -152,30 +152,32 @@ export const updateStand = async (standId, updates) => {
 export const extendStandExpiration = async (standId) => {
   // First get the current stand to check its expiration time
   const { data: stand, error: fetchError } = await supabase
-    .from('stands')
-    .select('expiration_time, is_active')
-    .eq('id', standId)
+    .from("stands")
+    .select("expiration_time, is_active")
+    .eq("id", standId)
     .single();
-    
+
   if (fetchError) {
     return { error: fetchError };
   }
-  
+
   const now = new Date();
-  const currentExpiration = stand.expiration_time ? new Date(stand.expiration_time) : null;
-  
+  const currentExpiration = stand.expiration_time
+    ? new Date(stand.expiration_time)
+    : null;
+
   // If the stand is expired or inactive, use the reopen_stand function
   if (!stand.is_active || (currentExpiration && currentExpiration < now)) {
     const { data, error } = await supabase
-      .rpc('reopen_stand', { stand_id: standId })
+      .rpc("reopen_stand", { stand_id: standId })
       .single();
-    
+
     return { data, error };
   } else {
     // If the stand is still active, just return the current stand data
-    return { 
-      data: [stand], 
-      message: "Stand is already active until midnight today." 
+    return {
+      data: [stand],
+      message: "Stand is already active until midnight today.",
     };
   }
 };
@@ -183,72 +185,69 @@ export const extendStandExpiration = async (standId) => {
 // Function to explicitly reopen a stand (for the reopen button)
 export const reopenStand = async (standId) => {
   const { data, error } = await supabase
-    .rpc('reopen_stand', { stand_id: standId })
+    .rpc("reopen_stand", { stand_id: standId })
     .single();
-  
+
   return { data, error };
 };
 
 export const deleteStand = async (standId) => {
-  const { error } = await supabase
-    .from('stands')
-    .delete()
-    .eq('id', standId);
+  const { error } = await supabase.from("stands").delete().eq("id", standId);
   return { error };
 };
 
 export const uploadStandImage = async (standId, userId, file) => {
   // Create a unique file path
   const timestamp = Date.now();
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const filePath = `${userId}/${standId}/${timestamp}.${fileExt}`;
-  
+
   const { data, error } = await supabase.storage
-    .from('stand_images')
+    .from("stand-images")
     .upload(filePath, file, {
-      cacheControl: '3600',
+      cacheControl: "3600",
       upsert: true,
     });
-    
+
   if (error) {
     return { error };
   }
-  
+
   // Get the public URL
   const { data: urlData } = supabase.storage
-    .from('stand_images')
+    .from("stand-images")
     .getPublicUrl(filePath);
-    
+
   // Update stand with image URL
   const { data: standData, error: standError } = await updateStand(standId, {
     image_url: urlData.publicUrl,
   });
-  
+
   return { data: standData, error: standError };
 };
 
 // Product functions
 export const getProducts = async (standId) => {
   const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('stand_id', standId)
-    .eq('is_available', true);
+    .from("products")
+    .select("*")
+    .eq("stand_id", standId)
+    .eq("is_available", true);
   return { data, error };
 };
 
 export const getAllProducts = async () => {
   const { data, error } = await supabase
-    .from('products')
-    .select('*, stands(*)')
-    .eq('is_available', true)
-    .eq('stands.is_active', true);
+    .from("products")
+    .select("*, stands(*)")
+    .eq("is_available", true)
+    .eq("stands.is_active", true);
   return { data, error };
 };
 
 export const createProduct = async (productData) => {
   const { data, error } = await supabase
-    .from('products')
+    .from("products")
     .insert([productData])
     .select();
   return { data, error };
@@ -256,48 +255,51 @@ export const createProduct = async (productData) => {
 
 export const updateProduct = async (productId, updates) => {
   const { data, error } = await supabase
-    .from('products')
+    .from("products")
     .update(updates)
-    .eq('id', productId)
+    .eq("id", productId)
     .select();
   return { data, error };
 };
 
 export const deleteProduct = async (productId) => {
   const { error } = await supabase
-    .from('products')
+    .from("products")
     .delete()
-    .eq('id', productId);
+    .eq("id", productId);
   return { error };
 };
 
 export const uploadProductImage = async (productId, standId, userId, file) => {
   // Create a unique file path
   const timestamp = Date.now();
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split(".").pop();
   const filePath = `${userId}/${standId}/${productId}/${timestamp}.${fileExt}`;
-  
+
   const { data, error } = await supabase.storage
-    .from('product_images')
+    .from("product-images")
     .upload(filePath, file, {
-      cacheControl: '3600',
+      cacheControl: "3600",
       upsert: true,
     });
-    
+
   if (error) {
     return { error };
   }
-  
+
   // Get the public URL
   const { data: urlData } = supabase.storage
-    .from('product_images')
+    .from("product-images")
     .getPublicUrl(filePath);
-    
+
   // Update product with image URL
-  const { data: productData, error: productError } = await updateProduct(productId, {
-    image_url: urlData.publicUrl,
-  });
-  
+  const { data: productData, error: productError } = await updateProduct(
+    productId,
+    {
+      image_url: urlData.publicUrl,
+    }
+  );
+
   return { data: productData, error: productError };
 };
 
@@ -306,7 +308,7 @@ export const uploadImage = async (bucket, filePath, file) => {
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(filePath, file, {
-      cacheControl: '3600',
+      cacheControl: "3600",
       upsert: true,
     });
   return { data, error };
@@ -318,42 +320,48 @@ export const getImageUrl = (bucket, filePath) => {
 };
 
 export const deleteImage = async (bucket, filePath) => {
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([filePath]);
+  const { error } = await supabase.storage.from(bucket).remove([filePath]);
   return { error };
 };
 
 // Real-time subscriptions
 export const subscribeToStands = (callback) => {
   const subscription = supabase
-    .channel('public:stands')
-    .on('postgres_changes', { 
-      event: '*', 
-      schema: 'public', 
-      table: 'stands',
-      filter: 'is_active=eq.true'
-    }, (payload) => {
-      callback(payload);
-    })
+    .channel("public:stands")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "stands",
+        filter: "is_active=eq.true",
+      },
+      (payload) => {
+        callback(payload);
+      }
+    )
     .subscribe();
-    
+
   return subscription;
 };
 
 export const subscribeToProducts = (standId, callback) => {
   const subscription = supabase
     .channel(`public:products:stand_id=eq.${standId}`)
-    .on('postgres_changes', { 
-      event: '*', 
-      schema: 'public', 
-      table: 'products',
-      filter: `stand_id=eq.${standId}`
-    }, (payload) => {
-      callback(payload);
-    })
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "products",
+        filter: `stand_id=eq.${standId}`,
+      },
+      (payload) => {
+        callback(payload);
+      }
+    )
     .subscribe();
-    
+
   return subscription;
 };
 

@@ -12,9 +12,9 @@ Error uploading image: Bucket not found
 
 This error occurs because the application is trying to upload images to Supabase storage buckets that don't exist yet. The application requires the following storage buckets:
 
-1. `stand_images` - For storing lemonade stand images
-2. `product_images` - For storing product images
-3. `user_avatars` - For storing user profile pictures
+1. `stand-images` - For storing lemonade stand images
+2. `product-images` - For storing product images
+3. `user-avatars` - For storing user profile pictures
 
 ## Solution
 
@@ -26,16 +26,17 @@ Follow these steps to create the required storage buckets in your Supabase proje
 2. Select your project
 3. Navigate to "Storage" in the left sidebar
 4. Click "Create a new bucket"
-5. Enter "stand_images" as the bucket name
+5. Enter "stand-images" as the bucket name
 6. Check "Public bucket" to make the bucket publicly accessible
 7. Click "Create bucket"
-8. Repeat steps 4-7 for "product_images" and "user_avatars" buckets
+8. Repeat steps 4-7 for "product-images" and "user-avatars" buckets
 
 ### Option 2: Using the Supabase Management API
 
 If you prefer to create the buckets programmatically, you can use the Supabase Management API with your service role key:
 
 1. Get your Supabase URL and service role key from the Supabase Dashboard:
+
    - Go to Project Settings > API
    - Copy the URL and service role key (not the anon/public key)
 
@@ -43,11 +44,11 @@ If you prefer to create the buckets programmatically, you can use the Supabase M
 
 ```javascript
 // create-buckets-with-service-key.js
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require("@supabase/supabase-js");
 
 // Replace these with your actual Supabase project values
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseServiceKey = 'YOUR_SERVICE_ROLE_KEY'; // Use service role key, not anon key
+const supabaseUrl = "YOUR_SUPABASE_URL";
+const supabaseServiceKey = "YOUR_SERVICE_ROLE_KEY"; // Use service role key, not anon key
 
 // Create Supabase client with admin privileges
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -56,25 +57,28 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 async function createBucketIfNotExists(bucketName) {
   try {
     // Check if bucket exists
-    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-    
+    const { data: buckets, error: listError } =
+      await supabase.storage.listBuckets();
+
     if (listError) {
       console.error(`Error listing buckets: ${listError.message}`);
       return;
     }
-    
-    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-    
+
+    const bucketExists = buckets.some((bucket) => bucket.name === bucketName);
+
     if (bucketExists) {
       console.log(`Bucket '${bucketName}' already exists.`);
     } else {
       // Create the bucket
       const { data, error } = await supabase.storage.createBucket(bucketName, {
-        public: true // Make the bucket public
+        public: true, // Make the bucket public
       });
-      
+
       if (error) {
-        console.error(`Error creating bucket '${bucketName}': ${error.message}`);
+        console.error(
+          `Error creating bucket '${bucketName}': ${error.message}`
+        );
       } else {
         console.log(`Bucket '${bucketName}' created successfully.`);
       }
@@ -86,14 +90,14 @@ async function createBucketIfNotExists(bucketName) {
 
 // Main function to create all required buckets
 async function createAllBuckets() {
-  console.log('Creating storage buckets in Supabase...');
-  
+  console.log("Creating storage buckets in Supabase...");
+
   // Create the required buckets
-  await createBucketIfNotExists('stand_images');
-  await createBucketIfNotExists('product_images');
-  await createBucketIfNotExists('user_avatars');
-  
-  console.log('Bucket creation process completed.');
+  await createBucketIfNotExists("stand-images");
+  await createBucketIfNotExists("product-images");
+  await createBucketIfNotExists("user-avatars");
+
+  console.log("Bucket creation process completed.");
 }
 
 // Run the script
@@ -101,6 +105,7 @@ createAllBuckets();
 ```
 
 3. Run the script:
+
 ```bash
 node create-buckets-with-service-key.js
 ```
@@ -110,20 +115,23 @@ node create-buckets-with-service-key.js
 If you have the Supabase CLI installed:
 
 1. Log in to the Supabase CLI:
+
 ```bash
 supabase login
 ```
 
 2. Link to your project:
+
 ```bash
 supabase link --project-ref YOUR_PROJECT_REF
 ```
 
 3. Create the buckets:
+
 ```bash
-supabase storage create-bucket stand_images --public
-supabase storage create-bucket product_images --public
-supabase storage create-bucket user_avatars --public
+supabase storage create-bucket stand-images --public
+supabase storage create-bucket product-images --public
+supabase storage create-bucket user-avatars --public
 ```
 
 ## Verifying the Fix

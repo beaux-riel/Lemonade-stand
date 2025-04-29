@@ -95,17 +95,17 @@ file_size_limit = "50MiB"
 # enabled = true
 
 # Configure storage buckets
-[storage.buckets.stand_images]
+[storage.buckets.stand-images]
 public = true
 file_size_limit = "10MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
 
-[storage.buckets.product_images]
+[storage.buckets.product-images]
 public = true
 file_size_limit = "5MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
 
-[storage.buckets.user_avatars]
+[storage.buckets.user-avatars]
 public = true
 file_size_limit = "2MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
