@@ -36,16 +36,12 @@ const ProductCard = ({ product, className = '', ...props }) => {
             <p className="text-gray-700 text-xs sm:text-sm line-clamp-3">{product.description}</p>
           )}
 
-          <div className="flex justify-between items-center mt-2">
+          <div className="flex justify-start items-center mt-2">
             {product.is_available === false ? (
               <Badge variant="red" className="text-xs">Sold Out</Badge>
             ) : (
               <Badge variant="green" className="text-xs">Available</Badge>
             )}
-            
-            <button className="text-xs text-lemonade-blue hover:text-lemonade-blue-dark">
-              Add to Order
-            </button>
           </div>
         </div>
       </div>
