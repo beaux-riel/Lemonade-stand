@@ -45,24 +45,33 @@ export const StandProvider = ({ children }) => {
             stand.id === payload.new.id ? payload.new : stand
           )
         );
-        
-        // If the updated stand is the selected one, update the selection
-        if (selectedStand && selectedStand.id === payload.new.id) {
-          setSelectedStand(payload.new);
-        }
       } else if (payload.eventType === 'DELETE') {
         setStands(prevStands => 
           prevStands.filter(stand => stand.id !== payload.old.id)
         );
-        
-        // If the deleted stand is the selected one, clear the selection
-        if (selectedStand && selectedStand.id === payload.old.id) {
-          setSelectedStand(null);
-        }
       }
     });
     
     // Clean up subscription on unmount
+    return () => {
+      unsubscribe(subscription);
+    };
+  }, []); // No dependencies to avoid unnecessary refetching
+  
+  // Handle selected stand updates separately
+  useEffect(() => {
+    const handleRealtimeUpdates = (payload) => {
+      if (!selectedStand) return;
+      
+      if (payload.eventType === 'UPDATE' && selectedStand.id === payload.new.id) {
+        setSelectedStand(payload.new);
+      } else if (payload.eventType === 'DELETE' && selectedStand.id === payload.old.id) {
+        setSelectedStand(null);
+      }
+    };
+    
+    const subscription = subscribeToStands(handleRealtimeUpdates);
+    
     return () => {
       unsubscribe(subscription);
     };
