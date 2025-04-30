@@ -104,7 +104,7 @@ git commit -m "Deploy to GitHub Pages"
 
 # Force push to the gh-pages branch
 echo "Pushing to gh-pages branch..."
-git push -f "https://${GITHUB_TOKEN}@github.com/beaux-riel/Lemonade-stand.git" HEAD:gh-pages
+git push -f "https://${GITHUB_TOKEN}@github.com/beaux-riel/Lemonade-map.git" HEAD:gh-pages
 
 # Clean up
 echo "Cleaning up..."
@@ -112,7 +112,7 @@ cd ..
 rm -rf tmp-deploy
 
 echo "Deployment complete!"
-echo "Your site should be available at https://beaux-riel.github.io/Lemonade-stand/"
+echo "Your site should be available at https://beaux-riel.github.io/Lemonade-map/"
 echo "If you encounter a blank page, please check the GitHub repository settings:"
 echo "1. Go to Settings > Pages"
 echo "2. Ensure the source is set to 'Deploy from a branch'"

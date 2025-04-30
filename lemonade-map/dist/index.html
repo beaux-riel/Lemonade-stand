@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="./logo192.png" />
     <link rel="manifest" href="./manifest.json" />
     <title>Lemonade Stand</title>
-    
+
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -28,23 +28,49 @@
       // When the single page app is loaded further down in this file,
       // the correct url will be waiting in the browser's history for
       // the single page app to route accordingly.
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash
           );
         }
-      }(window.location))
+      })(window.location);
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
-    <script type="module" crossorigin src="/Lemonade-stand/assets/js/index-BtuY4TKD.js"></script>
-    <link rel="modulepreload" crossorigin href="/Lemonade-stand/assets/js/vendor-react-CDe1t649.js">
-    <link rel="modulepreload" crossorigin href="/Lemonade-stand/assets/js/vendor-ui-Db6t6WVF.js">
-    <link rel="modulepreload" crossorigin href="/Lemonade-stand/assets/js/vendor-supabase-BUo_ywwZ.js">
-    <link rel="stylesheet" crossorigin href="/Lemonade-stand/assets/css/index-DzgyTcQH.css">
+    <script
+      type="module"
+      crossorigin
+      src="/Lemonade-map/assets/js/index-BtuY4TKD.js"
+    ></script>
+    <link
+      rel="modulepreload"
+      crossorigin
+      href="/Lemonade-map/assets/js/vendor-react-CDe1t649.js"
+    />
+    <link
+      rel="modulepreload"
+      crossorigin
+      href="/Lemonade-map/assets/js/vendor-ui-Db6t6WVF.js"
+    />
+    <link
+      rel="modulepreload"
+      crossorigin
+      href="/Lemonade-map/assets/js/vendor-supabase-BUo_ywwZ.js"
+    />
+    <link
+      rel="stylesheet"
+      crossorigin
+      href="/Lemonade-map/assets/css/index-DzgyTcQH.css"
+    />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

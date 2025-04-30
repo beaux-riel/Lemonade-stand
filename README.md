@@ -3,6 +3,7 @@
 A full-stack web application for managing lemonade stands and their products. This project allows users to create and manage their own lemonade stands, add products, and view other stands on an interactive map.
 
 ![Lemonade Stand Banner](/lemonade-map/public/banner.png)
+![Lemonade Stand Banner](/lemonade-map/public/banner.png)
 
 ## Table of Contents
 
@@ -96,13 +97,14 @@ Visit the live application: [Lemonade Map App](https://beaux-riel.github.io/Lemo
 The application follows a modern architecture pattern with a clear separation of concerns:
 
 ![Architecture Diagram](/lemonade-map/public/architecture.png)
+![Architecture Diagram](/lemonade-map/public/architecture.png)
 
 ### Frontend Architecture
 
 The React application is structured as follows:
 
 ```
-/lemonade-stand
+/lemonade-map
 ├── public/            # Static assets
 ├── src/
 │   ├── api/           # API functions for Supabase
@@ -150,19 +152,19 @@ The Supabase backend includes:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/beaux-riel/Lemonade-stand.git
-   cd Lemonade-stand
+   git clone https://github.com/beaux-riel/Lemonade-map.git
+   cd Lemonade-map
    ```
 
 2. Install frontend dependencies:
    ```bash
-   cd lemonade-stand
+   cd lemonade-map
    npm install
    ```
 
 ### Environment Setup
 
-1. Create a `.env` file in the `lemonade-stand` directory:
+1. Create a `.env` file in the `lemonade-map` directory:
 
    ```bash
    cp .env.example .env
@@ -385,7 +387,7 @@ The application includes several performance optimizations:
 - **Caching** - Effective use of browser caching
 - **Compression** - Gzip and Brotli compression
 
-For detailed information, see [PERFORMANCE_OPTIMIZATIONS.md](lemonade-stand/PERFORMANCE_OPTIMIZATIONS.md).
+For detailed information, see [PERFORMANCE_OPTIMIZATIONS.md](lemonade-map/PERFORMANCE_OPTIMIZATIONS.md).
 
 ## Testing
 
@@ -398,11 +400,11 @@ The project includes a comprehensive testing suite:
 Run tests with:
 
 ```bash
-cd lemonade-stand
+cd lemonade-map
 npm test
 ```
 
-For detailed information, see [TESTING.md](lemonade-stand/TESTING.md).
+For detailed information, see [TESTING.md](lemonade-map/TESTING.md).
 
 ## Contributing
 

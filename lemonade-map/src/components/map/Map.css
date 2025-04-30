@@ -1,5 +1,5 @@
 /* Import Leaflet CSS */
-@import 'leaflet/dist/leaflet.css';
+@import "leaflet/dist/leaflet.css";
 
 /* Map container */
 .lemonade-map-container {
@@ -8,14 +8,16 @@
   min-height: 400px;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Custom popup styles */
 .lemonade-map-popup .leaflet-popup-content-wrapper {
   background-color: white;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 0;
   overflow: hidden;
 }
@@ -31,14 +33,14 @@
 }
 
 .lemonade-map-popup .leaflet-popup-close-button {
-  color: #64B5F6;
+  color: #64b5f6;
   font-size: 16px;
   padding: 8px;
   z-index: 10;
 }
 
 /* Custom marker styles */
-.lemonade-stand-marker {
+.lemonade-map-marker {
   width: 40px;
   height: 50px;
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
@@ -82,7 +84,7 @@
 .lemonade-map-control-button svg {
   width: 20px;
   height: 20px;
-  color: #64B5F6;
+  color: #64b5f6;
 }
 
 /* Stand popup content */
@@ -91,13 +93,13 @@
 }
 
 .stand-popup-header {
-  background-color: #FFEB3B;
+  background-color: #ffeb3b;
   padding: 12px 16px;
 }
 
 .stand-popup-header h3 {
   margin: 0;
-  font-family: 'Fredoka One', cursive;
+  font-family: "Fredoka One", cursive;
   color: #333;
   font-size: 1.2rem;
 }
@@ -148,7 +150,7 @@
   .lemonade-map-container {
     min-height: 300px;
   }
-  
+
   .lemonade-map-popup .leaflet-popup-content {
     width: 200px !important;
   }

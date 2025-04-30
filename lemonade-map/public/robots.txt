@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://beaux-riel.github.io/Lemonade-stand/sitemap.xml
+Sitemap: https://beaux-riel.github.io/Lemonade-map/sitemap.xml

@@ -11761,7 +11761,7 @@ const Rp = ({ children: t }) => {
     });
   },
   Up = {
-    BASE_URL: "/Lemonade-stand/",
+    BASE_URL: "/Lemonade-map/",
     DEV: !1,
     MODE: "production",
     PROD: !0,
@@ -11772,7 +11772,7 @@ const Rp = ({ children: t }) => {
   };
 let Vp = "/";
 try {
-  void 0 !== import.meta && Up && (Vp = "/Lemonade-stand/");
+  void 0 !== import.meta && Up && (Vp = "/Lemonade-map/");
 } catch (tm) {
   Vp = "/";
 }

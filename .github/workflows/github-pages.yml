@@ -23,24 +23,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'lemonade-map/package-lock.json'
-          
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "lemonade-map/package-lock.json"
+
       - name: Install dependencies
         run: |
           cd lemonade-map
           npm ci
-          
+
       - name: Build (includes sitemap generation)
         run: |
           cd lemonade-map
           npm run build
-        
+
       # Copy the root index.html redirect file to the dist directory
       - name: Ensure correct index.html
         run: |
@@ -48,15 +48,15 @@ jobs:
           mkdir -p lemonade-map/dist
           # Copy 404.html to the root of the dist directory
           cp lemonade-map/public/404.html lemonade-map/dist/
-          
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'lemonade-map/dist'
-          
+          path: "lemonade-map/dist"
+
   deploy:
     environment:
       name: github-pages

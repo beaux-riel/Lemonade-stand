@@ -6,9 +6,9 @@ This document outlines the configuration for deploying the Lemonade Stand applic
 
 The application is configured to be deployed to GitHub Pages with the following settings:
 
-1. **Base URL**: The application is configured to work with the GitHub Pages URL structure (`https://beaux-riel.github.io/Lemonade-stand/`).
+1. **Base URL**: The application is configured to work with the GitHub Pages URL structure (`https://beaux-riel.github.io/Lemonade-map/`).
 
-2. **Custom Domain**: If you want to use a custom domain, the CNAME file is already set up with a placeholder domain (`lemonade-stand.example.com`). You'll need to update this with your actual domain.
+2. **Custom Domain**: If you want to use a custom domain, the CNAME file is already set up with a placeholder domain (`lemonade-map.example.com`). You'll need to update this with your actual domain.
 
 3. **Routing**: The application uses client-side routing with React Router, which is configured to work with GitHub Pages through special handling in the 404.html file.
 
@@ -41,6 +41,7 @@ your-custom-domain.com
 ```
 
 2. Configure your domain's DNS settings:
+
    - For an apex domain (e.g., `example.com`), create A records pointing to GitHub Pages IP addresses:
      ```
      185.199.108.153
@@ -62,6 +63,7 @@ your-custom-domain.com
 1. **404 Errors on Page Refresh**: If you encounter 404 errors when refreshing pages, ensure that the 404.html file is properly configured and that the GitHub Pages source is set to the `gh-pages` branch.
 
 2. **Custom Domain Not Working**: If your custom domain is not working, check:
+
    - DNS propagation (can take up to 48 hours)
    - Correct DNS records
    - CNAME file in the repository
@@ -75,6 +77,7 @@ your-custom-domain.com
 ### Getting Help
 
 If you encounter issues with GitHub Pages deployment:
+
 1. Check the GitHub Actions logs for detailed error messages
 2. Review GitHub Pages documentation: https://docs.github.com/en/pages
 3. Ensure your repository has the correct permissions for GitHub Actions
