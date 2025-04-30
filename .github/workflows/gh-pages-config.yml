@@ -21,19 +21,4 @@ jobs:
         run: |
           if [ ! -f "index.html" ]; then
             echo "Creating index.html redirect file"
-            cat << 'EOF' > index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Redirecting to Lemonade Map</title>
-  <script>
-    window.location.href = "./lemonade-map/";
-  </script>
-</head>
-<body>
-  <p>If you are not redirected automatically, follow this <a href="./lemonade-map/">link to the Lemonade Map application</a>.</p>
-</body>
-</html>
-EOF
-          fi
+            cat << 'EOF' > index.html<!DOCTYPE html><html lang="en"><head>  <meta charset="utf-8">  <title>Redirecting to Lemonade Map</title>  <script>    window.location.href = "./lemonade-map/";  </script></head><body>  <p>If you are not redirected automatically, follow this <a href="./lemonade-map/">link to the Lemonade Map application</a>.</p></body></html>EOF          fi

@@ -2,7 +2,7 @@
   "name": "lemonade-map",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://www.lemonademap.com/",
+  "homepage": "https://lemonademap.com/",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
     "@testing-library/dom": "^10.4.0",
