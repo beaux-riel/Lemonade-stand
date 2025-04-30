@@ -68,9 +68,9 @@ A full-stack web application for managing lemonade stands and their products. Th
 
 ## Live Demo
 
-Visit the live application: [Lemonade Stand App](https://beaux-riel.github.io/Lemonade-stand/)
+Visit the live application: [Lemonade Map App](https://beaux-riel.github.io/Lemonade-Map/)
 
-![Lemonade Stand App Screenshot](/lemonade-stand/public/app_screenshot.png)
+![Lemonade Map App Screenshot](/lemonade-map/public/app_screenshot.png)
 
 ## Technology Stack
 
@@ -95,7 +95,7 @@ Visit the live application: [Lemonade Stand App](https://beaux-riel.github.io/Le
 
 The application follows a modern architecture pattern with a clear separation of concerns:
 
-![Architecture Diagram](/lemonade-stand/public/architecture.png)
+![Architecture Diagram](/lemonade-map/public/architecture.png)
 
 ### Frontend Architecture
 
