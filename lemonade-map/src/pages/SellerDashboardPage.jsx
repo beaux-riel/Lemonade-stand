@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserStands, createStand, getAllProducts, getProducts } from '../api/supabaseApi';
+import { getUserStands, createStand, getAllProducts, getProducts, updateProduct } from '../api/supabaseApi';
 import { Link } from 'react-router-dom';
-import { Button, Alert, Tabs, Card } from '../components/ui';
+import { Button, Alert, Tabs, Card, Form, Modal } from '../components/ui';
 
 /**
  * Seller Dashboard page component
@@ -14,7 +14,17 @@ const SellerDashboardPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [activeTab, setActiveTab] = useState('stands');
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [quickEditProduct, setQuickEditProduct] = useState(null);
+  const [productFormData, setProductFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    is_available: true
+  });
+  const [saving, setSaving] = useState(false);
   
   // Fetch user's stands and products
   useEffect(() => {
@@ -70,6 +80,93 @@ const SellerDashboardPage = () => {
     fetchData();
   }, [user.id]);
   
+  // Handle quick edit for product availability
+  const handleQuickAvailabilityToggle = async (product) => {
+    setSaving(true);
+    try {
+      const { data, error } = await updateProduct(product.id, {
+        is_available: !product.is_available
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      // Update the product in the state
+      setProducts(prevProducts => 
+        prevProducts.map(p => p.id === product.id ? {...p, is_available: !p.is_available} : p)
+      );
+      
+      setSuccess(`Product "${product.name}" is now ${!product.is_available ? 'available' : 'unavailable'}`);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError(`Failed to update product: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Open quick edit modal for a product
+  const openQuickEdit = (product) => {
+    setQuickEditProduct(product);
+    setProductFormData({
+      price: product.price,
+      is_available: product.is_available
+    });
+  };
+  
+  // Handle quick edit form input change
+  const handleQuickEditInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setProductFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+  
+  // Save quick edit changes
+  const saveQuickEdit = async () => {
+    if (!quickEditProduct) return;
+    
+    setSaving(true);
+    try {
+      // Validate price
+      const price = parseFloat(productFormData.price);
+      if (isNaN(price) || price <= 0) {
+        throw new Error('Please enter a valid price');
+      }
+      
+      const { data, error } = await updateProduct(quickEditProduct.id, {
+        price,
+        is_available: productFormData.is_available
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      // Update the product in the state
+      setProducts(prevProducts => 
+        prevProducts.map(p => p.id === quickEditProduct.id ? 
+          {...p, price, is_available: productFormData.is_available} : p)
+      );
+      
+      setSuccess(`Product "${quickEditProduct.name}" updated successfully`);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+      
+      // Close the modal
+      setQuickEditProduct(null);
+    } catch (err) {
+      setError(`Failed to update product: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -89,6 +186,17 @@ const SellerDashboardPage = () => {
           onDismiss={() => setError(null)}
         >
           {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert 
+          variant="success" 
+          className="mb-6"
+          dismissible
+          onDismiss={() => setSuccess(null)}
+        >
+          {success}
         </Alert>
       )}
       
@@ -273,20 +381,33 @@ const SellerDashboardPage = () => {
                       ${parseFloat(product.price).toFixed(2)}
                     </p>
                     <div className="flex justify-between items-center">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        product.is_available 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {product.is_available ? 'Available' : 'Unavailable'}
-                      </span>
-
-                      <Link
-                        to={`/seller/stands/${product.stand_id}/products/${product.id}`}
-                        className="text-lemonade-blue hover:underline"
+                      <button
+                        onClick={() => handleQuickAvailabilityToggle(product)}
+                        disabled={saving}
+                        className={`px-2 py-1 rounded-full text-xs cursor-pointer hover:opacity-80 ${
+                          product.is_available 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
                       >
-                        Edit →
-                      </Link>
+                        {product.is_available ? 'Available' : 'Unavailable'}
+                      </button>
+
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => openQuickEdit(product)}
+                          className="text-lemonade-blue hover:underline"
+                          disabled={saving}
+                        >
+                          Quick Edit
+                        </button>
+                        <Link
+                          to={`/seller/stands/${product.stand_id}/products/${product.id}`}
+                          className="text-lemonade-blue hover:underline"
+                        >
+                          Full Edit →
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -294,6 +415,78 @@ const SellerDashboardPage = () => {
             </div>
           )}
         </div>
+      )}
+      
+      {/* Quick Edit Product Modal */}
+      {quickEditProduct && (
+        <Modal
+          isOpen={!!quickEditProduct}
+          onClose={() => setQuickEditProduct(null)}
+          title={`Quick Edit: ${quickEditProduct.name}`}
+        >
+          <div className="p-6">
+            <Form onSubmit={(e) => { e.preventDefault(); saveQuickEdit(); }}>
+              <Form.Group>
+                <Form.Label htmlFor="price" required>
+                  Price ($)
+                </Form.Label>
+                <Form.Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={productFormData.price}
+                  onChange={handleQuickEditInputChange}
+                  placeholder="Enter price"
+                  required
+                />
+              </Form.Group>
+              
+              <Form.Group>
+                <div className="flex items-center">
+                  <Form.Checkbox
+                    id="is_available"
+                    name="is_available"
+                    checked={productFormData.is_available}
+                    onChange={handleQuickEditInputChange}
+                  />
+                  <Form.Label htmlFor="is_available" className="ml-2 mb-0">
+                    Product is available
+                  </Form.Label>
+                </div>
+                <Form.Text>
+                  Unavailable products are not shown to customers.
+                </Form.Text>
+              </Form.Group>
+              
+              <div className="flex justify-end space-x-3 mt-4">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setQuickEditProduct(null)}
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+                
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={saving}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </Form>
+            
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Need to make more changes? <Link to={`/seller/stands/${quickEditProduct.stand_id}/products/${quickEditProduct.id}`} className="text-lemonade-blue hover:underline">Go to full edit page</Link>
+              </p>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
