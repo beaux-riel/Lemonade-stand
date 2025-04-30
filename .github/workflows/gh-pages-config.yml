@@ -30,22 +30,7 @@ jobs:
         run: |
           if [ ! -f "index.html" ]; then
             echo "Creating index.html redirect file"
-            cat << 'EOF' > index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Lemonade Map</title>
-  <meta http-equiv="refresh" content="0;url=/Lemonade-Map/" />
-</head>
-<body>
-  <p>
-    If you are not redirected automatically, follow this
-    <a href="/Lemonade-Map/">link to the Lemonade Map application</a>.
-  </p>
-</body>
-</html>
-EOF
+            cat << 'EOF' > index.html<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Lemonade Map</title><meta http-equiv="refresh" content="0;url=/Lemonade-Map/" /></head><body><p>If you are not redirected automatically, follow this<a href="/Lemonade-Map/">link to the Lemonade Map application</a>.</p></body></html>EOF
           fi
           
           # Create .nojekyll file to disable Jekyll processing
