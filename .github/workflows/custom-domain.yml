@@ -30,10 +30,32 @@ jobs:
       - name: Ensure CNAME file exists
         run: |
           echo "lemonademap.com" > CNAME
+          
+          # Create or update index.html if it doesn't exist
+          if [ ! -f "index.html" ]; then
+            cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/Lemonade-map/">
+  <script>window.location.href = "/Lemonade-map/";</script>
+</head>
+<body>
+  <p>
+    If you are not redirected automatically, follow this
+    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
+  </p>
+</body>
+</html>
+EOF
+          fi
+          
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add CNAME
-          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
+          git add CNAME index.html
+          git commit -m "Update GitHub Pages configuration files" || echo "No changes to commit"
           git push
       
       - name: Update GitHub Pages settings

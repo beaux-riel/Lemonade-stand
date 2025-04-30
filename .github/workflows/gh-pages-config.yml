@@ -6,15 +6,25 @@ on:
     branches:
       - gh-pages
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   configure-pages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: gh-pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       # Verify index.html exists at the root
       - name: Verify index.html
@@ -27,6 +37,7 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Redirecting to Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/Lemonade-map/">
   <script>window.location.href = "/Lemonade-map/";</script>
 </head>
 <body>
@@ -44,3 +55,12 @@ EOF
         run: |
           echo "lemonademap.com" > CNAME
           echo "Created CNAME file with domain: lemonademap.com"
+          
+      # Commit changes if any were made
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add index.html CNAME
+          git commit -m "Update GitHub Pages configuration files" || echo "No changes to commit"
+          git push
