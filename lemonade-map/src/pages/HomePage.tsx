@@ -70,11 +70,11 @@ const HomePage: React.FC = () => {
                 </div>
 
                 {/* Logo */}
-                <div className="mt-6 md:mt-0 md:ml-6 flex-shrink-0">
+                <div className="mt-6 md:mt-0 md:ml-6 flex-shrink-0 mx-auto">
                   <img
                     src={LemonadeMapLogo}
                     alt="Lemonade Map Logo"
-                    className="w-64 h-64 object-contain"
+                    className="w-64 h-64 object-contain mx-auto"
                   />
                 </div>
               </div>
