@@ -31,6 +31,9 @@ jobs:
         run: |
           echo "lemonademap.com" > CNAME
           
+          # Create .nojekyll file to disable Jekyll processing
+          touch .nojekyll
+          
           # Create or update index.html if it doesn't exist
           if [ ! -f "index.html" ]; then
             cat << 'EOF' > index.html
@@ -38,23 +41,28 @@ jobs:
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Redirecting to Lemonade Map</title>
-  <script>window.location.href = "/Lemonade-map/";</script>
+  <title>Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/" />
 </head>
 <body>
   <p>
     If you are not redirected automatically, follow this
-    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
+    <a href="/">link to the Lemonade Map application</a>.
   </p>
 </body>
 </html>
 EOF
           fi
           
+          # Copy 404.html if it doesn't exist
+          if [ ! -f "404.html" ]; then
+            cp ../lemonade-map/public/404.html ./404.html || echo "Could not copy 404.html"
+          fi
+          
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git add CNAME index.html
-          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
+          git add CNAME index.html .nojekyll 404.html || git add CNAME index.html .nojekyll
+          git commit -m "Update custom domain configuration" || echo "No changes to commit"
           git push
       
       - name: Update GitHub Pages settings
