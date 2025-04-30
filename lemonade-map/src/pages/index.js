@@ -5,6 +5,7 @@ import SellerDashboardPage from './SellerDashboardPage';
 import StandDetailPage from './StandDetailPage';
 import ProductDetailPage from './ProductDetailPage';
 import NotFoundPage from './NotFoundPage';
+import AboutPage from './AboutPage';
 
 export {
   HomePage,
@@ -13,5 +14,6 @@ export {
   SellerDashboardPage,
   StandDetailPage,
   ProductDetailPage,
-  NotFoundPage
+  NotFoundPage,
+  AboutPage
 };
