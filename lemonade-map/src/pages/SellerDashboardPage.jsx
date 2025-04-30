@@ -202,17 +202,15 @@ const SellerDashboardPage = () => {
       
       {/* Tabs */}
       <Tabs
-        activeTab={activeTab}
-        onChange={setActiveTab}
-        tabs={[
-          { id: 'stands', label: 'My Stands' },
-          { id: 'products', label: 'My Products' }
-        ]}
+        defaultTab={activeTab === 'products' ? 1 : 0}
+        onChange={(index) => setActiveTab(index === 0 ? 'stands' : 'products')}
         className="mb-6"
-      />
-      
-      {/* Stands Tab */}
-      {activeTab === 'stands' && (
+      >
+        <Tabs.Item>My Stands</Tabs.Item>
+        <Tabs.Item>My Products</Tabs.Item>
+        
+        <Tabs.Panel>
+          {/* Stands Tab Content */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-display text-lemonade-blue-dark">
@@ -281,10 +279,10 @@ const SellerDashboardPage = () => {
             </div>
           )}
         </div>
-      )}
-      
-      {/* Products Tab */}
-      {activeTab === 'products' && (
+        </Tabs.Panel>
+        
+        <Tabs.Panel>
+          {/* Products Tab Content */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-display text-lemonade-blue-dark">
@@ -415,7 +413,8 @@ const SellerDashboardPage = () => {
             </div>
           )}
         </div>
-      )}
+        </Tabs.Panel>
+      </Tabs>
       
       {/* Quick Edit Product Modal */}
       {quickEditProduct && (

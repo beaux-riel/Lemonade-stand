@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { extendStandExpiration, reopenStand } from '../../api/supabaseApi';
 import { Button, Alert } from '../ui';
 
@@ -13,6 +13,8 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const timerRef = useRef(null);
   
   // Calculate time remaining until expiration
   const calculateTimeRemaining = () => {
@@ -30,6 +32,7 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
     // Calculate hours and minutes remaining
     const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
     
     let timeString = '';
     if (diffHrs > 0) {
@@ -39,17 +42,43 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
       if (diffHrs > 0) timeString += ' and ';
       timeString += `${diffMins} minute${diffMins !== 1 ? 's' : ''}`;
     }
+    if (diffHrs === 0 && diffMins === 0) {
+      timeString = `${diffSecs} second${diffSecs !== 1 ? 's' : ''}`;
+    }
     
     return { 
       expired: false, 
       timeString,
       hours: diffHrs,
       minutes: diffMins,
+      seconds: diffSecs,
       critical: diffHrs === 0 && diffMins < 30 // Less than 30 minutes remaining
     };
   };
   
-  const timeRemaining = calculateTimeRemaining();
+  // Update time remaining every second
+  useEffect(() => {
+    // Initial calculation
+    setTimeRemaining(calculateTimeRemaining());
+    
+    // Set up timer to update every second
+    timerRef.current = setInterval(() => {
+      const newTimeRemaining = calculateTimeRemaining();
+      setTimeRemaining(newTimeRemaining);
+      
+      // If expired, clear the interval
+      if (newTimeRemaining && newTimeRemaining.expired) {
+        clearInterval(timerRef.current);
+      }
+    }, 1000);
+    
+    // Clean up on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [stand.expiration_time]);
   
   // Handle reopening an expired stand
   const handleReopen = async () => {
@@ -169,37 +198,43 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
             Stand Visibility Status
           </h3>
           
-          <p className={`${
-            timeRemaining.expired 
-              ? 'text-red-600' 
-              : timeRemaining.critical
-                ? 'text-orange-600'
-                : 'text-blue-600'
-          }`}>
-            {timeRemaining.expired 
-              ? 'This stand has expired and is no longer visible to the public.' 
-              : `Time remaining: ${timeRemaining.timeString}`
-            }
-          </p>
-          
-          {!timeRemaining.expired && (
-            <p className="text-gray-600 text-sm mt-1">
-              {expiresLaterToday() 
-                ? `Expires tonight at midnight (${formatExpirationDate(stand.expiration_time)})` 
-                : `Expires at midnight: ${formatExpirationDate(stand.expiration_time)}`}
+          {timeRemaining && timeRemaining.expired ? (
+            <p className="text-red-600">
+              This stand has expired and is no longer visible to the public.
             </p>
+          ) : (
+            <>
+              <div className={`flex items-center ${
+                timeRemaining && timeRemaining.critical
+                  ? 'text-orange-600'
+                  : 'text-blue-600'
+              }`}>
+                <span className="text-lg font-semibold mr-2">Countdown:</span>
+                <div className="bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-200">
+                  <span className="font-mono text-lg">
+                    {timeRemaining ? timeRemaining.timeString : 'Calculating...'}
+                  </span>
+                </div>
+              </div>
+              
+              <p className="text-gray-600 text-sm mt-2">
+                {expiresLaterToday() 
+                  ? `Expires tonight at midnight (${formatExpirationDate(stand.expiration_time)})` 
+                  : `Expires at midnight: ${formatExpirationDate(stand.expiration_time)}`}
+              </p>
+            </>
           )}
         </div>
         
         <Button
-          variant={timeRemaining.expired ? "primary" : "secondary"}
+          variant={timeRemaining && timeRemaining.expired ? "primary" : "secondary"}
           onClick={handleReopen}
           disabled={loading}
           className="mt-3 md:mt-0"
         >
           {loading 
             ? 'Processing...' 
-            : timeRemaining.expired 
+            : timeRemaining && timeRemaining.expired 
               ? 'Reopen Stand' 
               : expiresLaterToday()
                 ? 'Active Until Tonight'
