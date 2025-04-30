@@ -1,8 +1,8 @@
 {
-  "name": "lemonade-stand",
+  "name": "lemonade-map",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://beaux-riel.github.io/Lemonade-stand/",
+  "homepage": "https://beaux-riel.github.io/Lemonade-Map/",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
     "@testing-library/dom": "^10.4.0",
