@@ -2,13 +2,17 @@ import React from "react";
 import { MapPage } from "../components/map";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
+import LemonadeMapLogo from "/images/markers/lemonade-map-logo.png";
 
-/**
- * Revamped Home page component that displays the map of lemonade stands
- * with improved UI/UX and visual appeal
- * @returns {JSX.Element} - Home page component
- */
-const HomePage = () => {
+const featureItems = [
+  "Easily find young entrepreneurs near you",
+  "Real-time updates and locations",
+  "Community reviews and ratings",
+  "Support children learning business skills",
+  "Turn everyday walks into fun adventures",
+];
+
+const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
@@ -45,49 +49,42 @@ const HomePage = () => {
               )}
             </div>
 
+            {/* Why Lemonade Map? */}
             <div className="md:w-1/2 bg-yellow-100 p-6 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-5 shadow-md w-full">
-                <h2 className="text-2xl font-semibold text-lemonade-blue-dark mb-4 flex items-center">
-                  <span className="text-yellow-500 text-3xl mr-2">★</span>
-                  Why Lemonade Map?
-                </h2>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 text-lg mr-2">•</span>
-                    <span className="text-gray-700">
-                      Easily find young entrepreneurs near you
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 text-lg mr-2">•</span>
-                    <span className="text-gray-700">
-                      Real-time updates and locations
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 text-lg mr-2">•</span>
-                    <span className="text-gray-700">
-                      Community reviews and ratings
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 text-lg mr-2">•</span>
-                    <span className="text-gray-700">
-                      Support children learning business skills
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-yellow-500 text-lg mr-2">•</span>
-                    <span className="text-gray-700">
-                      Turn everyday walks into fun adventures
-                    </span>
-                  </li>
-                </ul>
+              <div
+                className="bg-white rounded-lg p-5 shadow-md w-full
+                              flex flex-col md:flex-row items-start"
+              >
+                {/* Text */}
+                <div className="flex-1">
+                  <h2 className="text-2xl font-semibold text-lemonade-blue-dark mb-4 flex items-center">
+                    <span className="text-yellow-500 text-3xl mr-2">★</span>
+                    Why Lemonade Map?
+                  </h2>
+                  <ul className="space-y-3">
+                    {featureItems.map((item) => (
+                      <li key={item} className="flex items-start">
+                        <span className="text-yellow-500 text-lg mr-2">•</span>
+                        <span className="text-gray-700">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Logo */}
+                <div className="mt-6 md:mt-0 md:ml-6 flex-shrink-0">
+                  <img
+                    src={LemonadeMapLogo}
+                    alt="Lemonade Map Logo"
+                    className="w-64 h-64 object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-        {/* Featured Stands Section (optional) */}
+
+        {/* Featured Stands Section */}
         {isAuthenticated && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -102,32 +99,39 @@ const HomePage = () => {
               </Link>
             </div>
             <div className="flex overflow-x-auto pb-4 gap-4 hide-scrollbar">
-              {/* This would be populated dynamically in a real implementation */}
-              <div className="min-w-[260px] bg-white p-4 rounded-lg shadow-md">
-                <div className="h-32 bg-yellow-200 rounded-md mb-3"></div>
-                <h3 className="font-bold">Sarah's Sweet Lemonade</h3>
-                <p className="text-sm text-gray-600">0.8 miles away</p>
-              </div>
-              <div className="min-w-[260px] bg-white p-4 rounded-lg shadow-md">
-                <div className="h-32 bg-yellow-200 rounded-md mb-3"></div>
-                <h3 className="font-bold">Max's Marvelous Drinks</h3>
-                <p className="text-sm text-gray-600">1.2 miles away</p>
-              </div>
-              <div className="min-w-[260px] bg-white p-4 rounded-lg shadow-md">
-                <div className="h-32 bg-yellow-200 rounded-md mb-3"></div>
-                <h3 className="font-bold">Neighborhood Refreshments</h3>
-                <p className="text-sm text-gray-600">1.5 miles away</p>
-              </div>
+              {/* placeholder cards */}
+              {[
+                "Sarah's Sweet Lemonade",
+                "Max's Marvelous Drinks",
+                "Neighborhood Refreshments",
+              ].map((name, i) => (
+                <div
+                  key={i}
+                  className="min-w-[260px] bg-white p-4 rounded-lg shadow-md"
+                >
+                  <div className="h-32 bg-yellow-200 rounded-md mb-3"></div>
+                  <h3 className="font-bold">{name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {i === 0
+                      ? "0.8 miles away"
+                      : i === 1
+                      ? "1.2 miles away"
+                      : "1.5 miles away"}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         )}
+
         {/* Map Section */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
           <div className="h-[120%] rounded-lg overflow-hidden p-4">
             <MapPage mapHeight="100%" />
           </div>
         </div>
-        {/* Community Impact Section */}
+
+        {/* Community Impact */}
         <div className="bg-lemonade-blue-light text-white rounded-xl p-6 mb-8">
           <h2 className="text-2xl font-display font-bold mb-4">
             Our Community Impact
@@ -147,6 +151,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
+
         {/* Call to Action */}
         <div className="bg-yellow-100 rounded-xl p-6 text-center">
           <h2 className="text-2xl font-display font-bold text-lemonade-blue-dark mb-4">
