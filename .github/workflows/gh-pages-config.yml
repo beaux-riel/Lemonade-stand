@@ -36,12 +36,12 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Lemonade Map</title>
-  <meta http-equiv="refresh" content="0;url=/" />
+  <meta http-equiv="refresh" content="0;url=/Lemonade-Map/" />
 </head>
 <body>
   <p>
     If you are not redirected automatically, follow this
-    <a href="/">link to the Lemonade Map application</a>.
+    <a href="/Lemonade-Map/">link to the Lemonade Map application</a>.
   </p>
 </body>
 </html>
@@ -50,12 +50,6 @@ EOF
           
           # Create .nojekyll file to disable Jekyll processing
           touch .nojekyll
-          
-      # Ensure CNAME file exists
-      - name: Verify CNAME file
-        run: |
-          echo "lemonademap.com" > CNAME
-          echo "Created CNAME file with domain: lemonademap.com"
           
       # Commit changes if any were made
       - name: Commit changes

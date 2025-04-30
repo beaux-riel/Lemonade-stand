@@ -22,8 +22,8 @@
     // https://username.github.io/repo-name/one/two?a=b&c=d#qwe becomes
     // https://username.github.io/repo-name/?/one/two&a=b~and~c=d#qwe
     // Otherwise, leave pathSegmentsToKeep as 0.
-    // Since we're using a custom domain, we set this to 0
-    var pathSegmentsToKeep = 0;
+    // For GitHub Pages without a custom domain, set this to 1
+    var pathSegmentsToKeep = 1;
 
     var l = window.location;
     l.replace(
