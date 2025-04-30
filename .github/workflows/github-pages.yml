@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'lemonade-stand/package-lock.json'
+          cache-dependency-path: 'lemonade-map/package-lock.json'
           
       - name: Install dependencies
         run: |
@@ -38,16 +38,16 @@ jobs:
           
       - name: Build (includes sitemap generation)
         run: |
-          cd lemonade-stand
+          cd lemonade-map
           npm run build
         
       # Copy the root index.html redirect file to the dist directory
       - name: Ensure correct index.html
         run: |
           # Make sure the dist directory exists
-          mkdir -p lemonade-stand/dist
+          mkdir -p lemonade-map/dist
           # Copy 404.html to the root of the dist directory
-          cp lemonade-stand/public/404.html lemonade-stand/dist/
+          cp lemonade-map/public/404.html lemonade-map/dist/
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -55,7 +55,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'lemonade-stand/dist'
+          path: 'lemonade-map/dist'
           
   deploy:
     environment:
