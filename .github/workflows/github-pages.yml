@@ -50,23 +50,10 @@ jobs:
           cp lemonade-map/public/404.html lemonade-map/dist/
           # Create CNAME file in the dist directory
           echo "lemonademap.com" > lemonade-map/dist/CNAME
-          # Create root index.html for redirection
-          cat << 'EOF' > lemonade-map/dist/index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Redirecting to Lemonade Map</title>
-  <script>window.location.href = "/Lemonade-map/";</script>
-</head>
-<body>
-  <p>
-    If you are not redirected automatically, follow this
-    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
-  </p>
-</body>
-</html>
-EOF
+          # Create .nojekyll file to disable Jekyll processing
+          touch lemonade-map/dist/.nojekyll
+          # No need for a redirect in index.html since we're using a custom domain with root path
+          # The main application index.html will be used directly
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -106,8 +106,11 @@ jobs:
           # Create CNAME file in the dist directory before deployment
           echo "lemonademap.com" > lemonade-map/dist/CNAME
           
+          # Create or update 404.html in the dist directory
+          cp lemonade-map/public/404.html lemonade-map/dist/404.html
+          
           # Clone the gh-pages branch
-          git clone --single-branch --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp
+          git clone --single-branch --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp || mkdir -p gh-pages-temp
           cd gh-pages-temp
           
           # Create or update CNAME file
@@ -120,25 +123,27 @@ jobs:
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Redirecting to Lemonade Map</title>
-  <script>window.location.href = "/Lemonade-map/";</script>
+  <title>Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/" />
 </head>
 <body>
   <p>
     If you are not redirected automatically, follow this
-    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
+    <a href="/">link to the Lemonade Map application</a>.
   </p>
 </body>
 </html>
 EOF
           fi
           
-          # Commit and push changes
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          git add CNAME index.html
-          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
-          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages
+          # Commit and push changes if gh-pages branch exists
+          if [ -d ".git" ]; then
+            git config user.name "GitHub Actions Bot"
+            git config user.email "actions@github.com"
+            git add CNAME index.html
+            git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
+            git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages || echo "Failed to push to gh-pages branch"
+          fi
 
       - name: Verify GitHub Pages Configuration
         run: |
