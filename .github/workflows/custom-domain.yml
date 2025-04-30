@@ -27,19 +27,33 @@ jobs:
       
       - name: Ensure GitHub Pages files exist
         run: |
-          # Create .nojekyll file to disable Jekyll processing
+          # disable Jekyll
           touch .nojekyll
-          
-          # Create or update index.html if it doesn't exist
-          if [ ! -f "index.html" ]; then
-            cat << 'EOF' > index.html <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Lemonade Map</title><meta http-equiv="refresh" content="0;url=/Lemonade-Map/" /></head><body><p>If you are not redirected automatically, follow this<a href="/Lemonade-Map/">link to the Lemonade Map application</a>.</p></body></html>EOF
-          fi
-          
-          # Copy 404.html if it doesn't exist
-          if [ ! -f "404.html" ]; then
+
+          # create index.html if it doesn't exist
+          if [ ! -f index.html ]; then
+            cat << 'EOF' > index.html
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="utf-8">
+                <title>Lemonade Map</title>
+                <meta http-equiv="refresh" content="0;url=/Lemonade-Map/"/>
+              </head>
+              <body>
+                <p>If you are not redirected automatically, follow this
+                   <a href="/Lemonade-Map/">link to the Lemonade Map application</a>.
+                </p>
+              </body>
+            </html>
+            EOF
+                      fi
+
+          # copy 404.html if missing
+          if [ ! -f 404.html ]; then
             cp ../lemonade-map/public/404.html ./404.html || echo "Could not copy 404.html"
           fi
-          
+
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add index.html .nojekyll 404.html
