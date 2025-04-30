@@ -1,0 +1,61 @@
+name: GitHub Pages Configuration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - gh-pages
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  configure-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+
+      # Verify index.html exists at the root
+      - name: Verify index.html
+        run: |
+          if [ ! -f "index.html" ]; then
+            echo "Creating index.html redirect file"
+            cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/Lemonade-Map/" />
+</head>
+<body>
+  <p>
+    If you are not redirected automatically, follow this
+    <a href="/Lemonade-Map/">link to the Lemonade Map application</a>.
+  </p>
+</body>
+</html>
+EOF
+          fi
+          
+          # Create .nojekyll file to disable Jekyll processing
+          touch .nojekyll
+          
+      # Commit changes if any were made
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add index.html CNAME .nojekyll
+          git commit -m "Update custom domain configuration" || echo "No changes to commit"
+          git push

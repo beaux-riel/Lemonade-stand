@@ -4,29 +4,20 @@ import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-// Get the repository name from environment or package.json homepage
+// Get the base path for deployment
 const getBase = () => {
-  // For GitHub Pages deployment via environment variable
-  if (process.env.GITHUB_REPOSITORY) {
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-    return `/${repo}/`;
-  }
-  
-  // For GitHub Pages deployment via package.json homepage
+  // Check if we're using a custom domain by looking at the CNAME file
   try {
-    const packageJson = require('./package.json');
-    if (packageJson.homepage) {
-      const url = new URL(packageJson.homepage);
-      const pathSegments = url.pathname.split('/').filter(Boolean);
-      if (pathSegments.length > 0) {
-        return `/${pathSegments.join('/')}/`;
-      }
+    const fs = require('fs');
+    if (fs.existsSync('./public/CNAME')) {
+      // For custom domain, use root path
+      return '/';
     }
   } catch (e) {
-    console.warn('Could not parse homepage from package.json:', e);
+    console.warn('Error checking CNAME file:', e);
   }
   
-  // Default for GitHub Pages
+  // Default to repository name for GitHub Pages
   return '/Lemonade-Map/';
 };
 
