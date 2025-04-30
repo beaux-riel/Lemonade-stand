@@ -42,12 +42,32 @@ jobs:
           npm run build
 
       # Copy the root index.html redirect file to the dist directory
-      - name: Ensure correct index.html
+      - name: Ensure correct files
         run: |
           # Make sure the dist directory exists
           mkdir -p lemonade-map/dist
           # Copy 404.html to the root of the dist directory
           cp lemonade-map/public/404.html lemonade-map/dist/
+          # Create CNAME file in the dist directory
+          echo "lemonademap.com" > lemonade-map/dist/CNAME
+          # Create root index.html for redirection
+          cat << 'EOF' > lemonade-map/dist/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/Lemonade-map/">
+  <script>window.location.href = "/Lemonade-map/";</script>
+</head>
+<body>
+  <p>
+    If you are not redirected automatically, follow this
+    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
+  </p>
+</body>
+</html>
+EOF
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
