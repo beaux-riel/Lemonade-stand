@@ -40,7 +40,7 @@ const HomePage: React.FC = () => {
                 </Link>
                 <Link
                   to="/about"
-                  className="bg-lemonade-blue-dark hover:bg-lemonade-blue text-white font-bold py-3 px-6 rounded-lg"
+                  className="bg-lemonade-blue-dark hover:bg-lemonade-blue text-white font-bold py-3 px-6 rounded-lg text-center transition-colors duration-200"
                 >
                   Learn More
                 </Link>
