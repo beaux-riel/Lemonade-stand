@@ -33,7 +33,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          cd lemonade-stand
+          cd lemonade-map
           npm ci
           
       - name: Build (includes sitemap generation)
