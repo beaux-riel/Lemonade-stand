@@ -2,13 +2,12 @@
 
 A full-stack web application for managing lemonade stands and their products. This project allows users to create and manage their own lemonade stands, add products, and view other stands on an interactive map.
 
-![Lemonade Stand Banner](/lemonade-map/public/banner.png)
-![Lemonade Stand Banner](/lemonade-map/public/banner.png)
+![Lemonade Map Banner](/lemonade-map/public/banner.png)
 
 ## Table of Contents
 
 - [Features](#features)
-- [Live Demo](#live-demo)
+- [Live Site](#live-site)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
@@ -67,9 +66,9 @@ A full-stack web application for managing lemonade stands and their products. Th
   - Works on desktop, tablet, and mobile devices
   - Optimized user experience across all screen sizes
 
-## Live Demo
+## Live Site
 
-Visit the live application: [Lemonade Map App](https://beaux-riel.github.io/Lemonade-Map/)
+Visit the live application: [Lemonade Map App](https://lemonademap.com)
 
 ![Lemonade Map App Screenshot](/lemonade-map/public/app_screenshot.png)
 
