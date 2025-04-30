@@ -1,0 +1,47 @@
+name: Configure Custom Domain
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - gh-pages
+    paths:
+      - 'CNAME'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  configure-custom-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+      
+      - name: Ensure CNAME file exists
+        run: |
+          echo "lemonademap.com" > CNAME
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add CNAME
+          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
+          git push
+      
+      - name: Update GitHub Pages settings
+        run: |
+          # This step is informational only as API permissions are limited
+          echo "Please manually verify the GitHub Pages settings in the repository:"
+          echo "1. Go to Settings > Pages"
+          echo "2. Ensure the source is set to 'Deploy from a branch'"
+          echo "3. Ensure the branch is set to 'gh-pages' and the folder is set to '/ (root)'"
+          echo "4. Ensure 'Custom domain' is set to 'lemonademap.com'"
+          echo "5. Ensure 'Enforce HTTPS' is checked"

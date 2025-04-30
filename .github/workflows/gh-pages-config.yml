@@ -27,14 +27,20 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Redirecting to Lemonade Map</title>
-  <script>window.location.href = "./lemonade-map/";</script>
+  <script>window.location.href = "/";</script>
 </head>
 <body>
   <p>
     If you are not redirected automatically, follow this
-    <a href="./lemonade-map/">link to the Lemonade Map application</a>.
+    <a href="/">link to the Lemonade Map application</a>.
   </p>
 </body>
 </html>
 EOF
           fi
+          
+      # Ensure CNAME file exists
+      - name: Verify CNAME file
+        run: |
+          echo "lemonademap.com" > CNAME
+          echo "Created CNAME file with domain: lemonademap.com"

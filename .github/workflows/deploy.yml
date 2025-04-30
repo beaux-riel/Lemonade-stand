@@ -100,6 +100,22 @@ jobs:
           branch: gh-pages
           clean: true
           token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Ensure CNAME file exists in gh-pages branch
+        run: |
+          # Clone the gh-pages branch
+          git clone --single-branch --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp
+          cd gh-pages-temp
+          
+          # Create or update CNAME file
+          echo "lemonademap.com" > CNAME
+          
+          # Commit and push changes
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add CNAME
+          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages
 
       - name: Verify GitHub Pages Configuration
         run: |
