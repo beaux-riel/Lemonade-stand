@@ -129,7 +129,8 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Community Impact */}
+        {/* Community Impact - Introduce once sufficient user base */}
+        {/*
         <div className="bg-lemonade-blue-light text-white rounded-xl p-6 mb-8">
           <h2 className="text-2xl font-display font-bold mb-4">
             Our Community Impact
@@ -148,7 +149,8 @@ const HomePage: React.FC = () => {
               <div>Community Members</div>
             </div>
           </div>
-        </div>
+        </div> 
+        */}
 
         {/* Call to Action */}
         <div className="bg-yellow-100 rounded-xl p-6 text-center">

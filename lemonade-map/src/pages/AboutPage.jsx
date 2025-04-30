@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import LemonadeMapLogo from "/images/markers/lemonade-map-transparent.png";
+import LemonadeMapLogo from "/images/markers/lemonade-map-logo-transparent.png";
 
 const AboutPage = () => {
   const { isAuthenticated } = useAuth();
@@ -96,8 +96,9 @@ const AboutPage = () => {
             About Lemonade Map
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Empowering young entrepreneurs and connecting communities through the 
-            time-honored tradition of lemonade stands and other kid-run businesses.
+            Empowering young entrepreneurs and connecting communities through
+            the time-honored tradition of lemonade stands and other kid-run
+            businesses.
           </p>
         </div>
 
@@ -110,49 +111,64 @@ const AboutPage = () => {
               </h2>
               <div className="prose prose-lg text-gray-700">
                 <p>
-                  At Lemonade Map, we believe that every child has the potential to become 
-                  an entrepreneur. Our mission is to provide a platform that helps kids learn 
-                  business skills while connecting them with their communities.
+                  At Lemonade Map, we believe that every child has the potential
+                  to become an entrepreneur. Our mission is to provide a
+                  platform that helps kids learn business skills while
+                  connecting them with their communities.
                 </p>
                 <p>
-                  Running a lemonade stand is often a child's first business experience. 
-                  It teaches valuable lessons about planning, marketing, customer service, 
-                  and financial management - all in a fun, approachable way.
+                  Running a lemonade stand is often a child's first business
+                  experience. It teaches valuable lessons about planning,
+                  marketing, customer service, and financial management - all in
+                  a fun, approachable way.
                 </p>
                 <p>
-                  By putting these stands on the map, we're helping young entrepreneurs reach 
-                  more customers while giving community members a way to support local kids 
-                  and enjoy refreshing treats!
+                  By putting these stands on the map, we're helping young
+                  entrepreneurs reach more customers while giving community
+                  members a way to support local kids and enjoy refreshing
+                  treats!
                 </p>
               </div>
             </div>
             <div className="md:w-1/2 bg-lemonade-yellow-light p-8 flex items-center justify-center">
               <div className="bg-white rounded-lg p-6 shadow-md w-full">
                 <h3 className="text-2xl font-semibold text-lemonade-blue-dark mb-4 flex items-center">
-                  <span className="text-lemonade-yellow-dark text-3xl mr-2">★</span>
+                  <span className="text-lemonade-yellow-dark text-3xl mr-2">
+                    ★
+                  </span>
                   Why It Matters
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start">
-                    <span className="text-lemonade-yellow-dark text-xl mr-3">•</span>
+                    <span className="text-lemonade-yellow-dark text-xl mr-3">
+                      •
+                    </span>
                     <div>
-                      <span className="font-bold">Entrepreneurship Education:</span>
+                      <span className="font-bold">
+                        Entrepreneurship Education:
+                      </span>
                       <p className="text-gray-700">
-                        Kids learn business fundamentals through hands-on experience
+                        Kids learn business fundamentals through hands-on
+                        experience
                       </p>
                     </div>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-lemonade-yellow-dark text-xl mr-3">•</span>
+                    <span className="text-lemonade-yellow-dark text-xl mr-3">
+                      •
+                    </span>
                     <div>
                       <span className="font-bold">Community Building:</span>
                       <p className="text-gray-700">
-                        Creates connections between neighbors and supports local youth
+                        Creates connections between neighbors and supports local
+                        youth
                       </p>
                     </div>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-lemonade-yellow-dark text-xl mr-3">•</span>
+                    <span className="text-lemonade-yellow-dark text-xl mr-3">
+                      •
+                    </span>
                     <div>
                       <span className="font-bold">Digital Literacy:</span>
                       <p className="text-gray-700">
@@ -161,7 +177,9 @@ const AboutPage = () => {
                     </div>
                   </li>
                   <li className="flex items-start">
-                    <span className="text-lemonade-yellow-dark text-xl mr-3">•</span>
+                    <span className="text-lemonade-yellow-dark text-xl mr-3">
+                      •
+                    </span>
                     <div>
                       <span className="font-bold">Financial Education:</span>
                       <p className="text-gray-700">
@@ -182,8 +200,8 @@ const AboutPage = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             {steps.map((step, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`${step.color} rounded-xl p-6 shadow-playful transform hover:-translate-y-1 transition-transform duration-300`}
               >
                 <div className="text-4xl mb-4">{step.icon}</div>
@@ -211,8 +229,8 @@ const AboutPage = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`${benefit.color} rounded-xl p-6 shadow-lg`}
               >
                 <div className="text-4xl mb-4 text-center">{benefit.icon}</div>
@@ -222,7 +240,9 @@ const AboutPage = () => {
                 <ul className="space-y-2">
                   {benefit.items.map((item, i) => (
                     <li key={i} className="flex items-start">
-                      <span className="text-lemonade-blue-dark text-lg mr-2">✓</span>
+                      <span className="text-lemonade-blue-dark text-lg mr-2">
+                        ✓
+                      </span>
                       <span className="text-gray-800">{item}</span>
                     </li>
                   ))}
@@ -239,12 +259,15 @@ const AboutPage = () => {
               Partner With Us
             </h2>
             <p className="text-xl mb-8 text-center">
-              Help us empower the next generation of entrepreneurs through sponsorships and partnerships.
+              Help us empower the next generation of entrepreneurs through
+              sponsorships and partnerships.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <h3 className="text-2xl font-bold mb-4">Sponsorship Opportunities</h3>
+                <h3 className="text-2xl font-bold mb-4">
+                  Sponsorship Opportunities
+                </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <span className="text-lemonade-yellow text-lg mr-2">•</span>
@@ -264,9 +287,11 @@ const AboutPage = () => {
                   </li>
                 </ul>
               </div>
-              
+
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                <h3 className="text-2xl font-bold mb-4">Benefits for Sponsors</h3>
+                <h3 className="text-2xl font-bold mb-4">
+                  Benefits for Sponsors
+                </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <span className="text-lemonade-yellow text-lg mr-2">•</span>
@@ -287,7 +312,7 @@ const AboutPage = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="text-center">
               <Link
                 to="/contact"
@@ -299,7 +324,8 @@ const AboutPage = () => {
           </div>
         </div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - Introduce once available */}
+        {/*
         <div className="mb-16">
           <h2 className="text-3xl font-display font-bold text-lemonade-blue-dark mb-8 text-center">
             Success Stories
@@ -330,7 +356,8 @@ const AboutPage = () => {
               <div className="font-bold text-lemonade-blue-dark">- The Wilson Family</div>
             </div>
           </div>
-        </div>
+        </div> 
+        */}
 
         {/* Call to Action */}
         <div className="bg-gradient-to-r from-lemonade-yellow to-lemonade-yellow-light rounded-xl p-8 text-center shadow-lg">
@@ -338,8 +365,8 @@ const AboutPage = () => {
             Ready to Join the Lemonade Map Community?
           </h2>
           <p className="text-gray-800 mb-8 max-w-2xl mx-auto text-lg">
-            Whether you're a young entrepreneur, a supportive parent, or a community member, 
-            there's a place for you in our growing network.
+            Whether you're a young entrepreneur, a supportive parent, or a
+            community member, there's a place for you in our growing network.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
