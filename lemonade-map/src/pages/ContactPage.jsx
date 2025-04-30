@@ -103,9 +103,9 @@ const ContactPage = () => {
                   </div>
                   <div className="ml-3">
                     <p className="text-gray-800 font-medium">Location</p>
-                    <p className="text-gray-700">Lemonade Stand Central</p>
-                    <p className="text-gray-700">123 Citrus Avenue</p>
-                    <p className="text-gray-700">Sunshine City, SC 12345</p>
+                    <p className="text-gray-700">Lemonade H/Q</p>
+                    <p className="text-gray-700">4651 Harvie Avenue</p>
+                    <p className="text-gray-700">Powell River, BC V8A 2P4</p>
                   </div>
                 </div>
                 
