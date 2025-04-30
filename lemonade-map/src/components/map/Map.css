@@ -149,9 +149,30 @@
 @media (max-width: 768px) {
   .lemonade-map-container {
     min-height: 300px;
+    width: 100% !important;
+    height: 100% !important;
   }
 
   .lemonade-map-popup .leaflet-popup-content {
     width: 200px !important;
+  }
+  
+  /* Fix for map container on mobile */
+  .leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1;
+  }
+  
+  /* Ensure controls are visible and accessible on mobile */
+  .leaflet-control-container {
+    z-index: 1000;
+  }
+  
+  /* Improve touch targets for mobile */
+  .leaflet-touch .leaflet-control-zoom a {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
   }
 }

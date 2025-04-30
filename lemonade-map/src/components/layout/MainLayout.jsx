@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { signOut } from '../../api/supabaseApi';
@@ -12,6 +12,7 @@ import { signOut } from '../../api/supabaseApi';
 const MainLayout = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const handleLogout = async () => {
     try {
@@ -20,6 +21,10 @@ const MainLayout = ({ children }) => {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+  
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
   
   return (
@@ -39,6 +44,20 @@ const MainLayout = ({ children }) => {
                 className="text-gray-700 hover:text-lemonade-blue-dark transition"
               >
                 Home
+              </Link>
+              
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-lemonade-blue-dark transition"
+              >
+                About
+              </Link>
+              
+              <Link
+                to="/contact"
+                className="text-gray-700 hover:text-lemonade-blue-dark transition"
+              >
+                Contact
               </Link>
 
               {isAuthenticated ? (
@@ -105,7 +124,11 @@ const MainLayout = ({ children }) => {
 
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <button className="text-gray-700 hover:text-lemonade-blue-dark transition">
+              <button 
+                className="text-gray-700 hover:text-lemonade-blue-dark transition p-2"
+                onClick={toggleMobileMenu}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
@@ -113,16 +136,101 @@ const MainLayout = ({ children }) => {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                  {isMobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
                 </svg>
               </button>
             </div>
           </div>
+          
+          {/* Mobile menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden mt-4 pb-2 border-t border-gray-200 pt-2">
+              <nav className="flex flex-col space-y-2">
+                <Link
+                  to="/"
+                  className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Home
+                </Link>
+                
+                <Link
+                  to="/about"
+                  className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                
+                <Link
+                  to="/contact"
+                  className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+                
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/seller/dashboard"
+                      className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/profile"
+                      className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-left w-full text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="text-gray-700 hover:text-lemonade-blue-dark transition py-2 px-1"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 

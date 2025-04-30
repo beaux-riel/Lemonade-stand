@@ -273,7 +273,7 @@ const Map = ({
 
   return (
     <div
-      className={`rounded-xl overflow-hidden shadow-playful ${className}`}
+      className={`rounded-xl overflow-hidden shadow-playful lemonade-map-container ${className}`}
       style={{ height }}
       {...props}
     >
@@ -289,6 +289,9 @@ const Map = ({
         maxZoom={18}
         updateWhenZooming={false}
         updateWhenIdle={true}
+        tap={true} // Enable tap for mobile
+        dragging={true} // Ensure dragging works on mobile
+        touchZoom={true} // Enable touch zoom for mobile
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

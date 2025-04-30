@@ -15,5 +15,6 @@ export { default as Progress } from './Progress';
 export { default as Rating } from './Rating';
 export { default as Tabs } from './Tabs';
 export { TabItem, TabPanel } from './Tabs';
+export { default as TextField } from './TextField';
 export { default as Toggle } from './Toggle';
 export { default as Tooltip } from './Tooltip';
