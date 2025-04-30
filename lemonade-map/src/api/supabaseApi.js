@@ -118,8 +118,9 @@ export const getStands = async () => {
 export const getStandById = async (standId) => {
   const { data, error } = await supabase
     .from("stands")
-    .select("*, products(*)")
+    .select("*, products!inner(*)")
     .eq("id", standId)
+    .eq("products.stand_id", standId)
     .single();
   return { data, error };
 };
@@ -231,15 +232,14 @@ export const getProducts = async (standId) => {
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("stand_id", standId)
-    .eq("is_available", true);
+    .eq("stand_id", standId);
   return { data, error };
 };
 
 export const getAllProducts = async () => {
   const { data, error } = await supabase
     .from("products")
-    .select("*, stands(*)")
+    .select("*, stands!inner(*)")
     .eq("is_available", true)
     .eq("stands.is_active", true);
   return { data, error };
