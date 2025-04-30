@@ -31,22 +31,20 @@ const HomePage: React.FC = () => {
                 putting kids' first businesses on the map!
               </p>
 
-              {!isAuthenticated && (
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <Link
-                    to="/signup"
-                    className="bg-lemonade-yellow hover:bg-yellow-400 text-lemonade-blue-dark font-bold py-3 px-6 rounded-lg text-center transition-colors duration-200"
-                  >
-                    Add Your Stand
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="bg-lemonade-blue-light hover:bg-lemonade-blue text-white font-bold py-3 px-6 rounded-lg text-center transition-colors duration-200"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              )}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <Link
+                  to={isAuthenticated ? "/seller/dashboard" : "/login"}
+                  className="bg-lemonade-yellow hover:bg-yellow-400 text-lemonade-blue-dark font-bold py-3 px-6 rounded-lg text-center transition-colors duration-200"
+                >
+                  Add Your Stand
+                </Link>
+                <Link
+                  to="/about"
+                  className="bg-lemonade-blue-light hover:bg-lemonade-blue text-white font-bold py-3 px-6 rounded-lg text-center transition-colors duration-200"
+                >
+                  Learn More
+                </Link>
+              </div>
             </div>
 
             {/* Why Lemonade Map? */}
@@ -164,7 +162,7 @@ const HomePage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/signup"
+              to={isAuthenticated ? "/seller/dashboard" : "/login"}
               className="bg-lemonade-yellow hover:bg-yellow-400 text-lemonade-blue-dark font-bold py-3 px-6 rounded-lg"
             >
               Add Your Stand
