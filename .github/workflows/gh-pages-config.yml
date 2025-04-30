@@ -6,7 +6,6 @@ on:
     branches:
       - gh-pages
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
   pages: write
@@ -37,7 +36,6 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Redirecting to Lemonade Map</title>
-  <meta http-equiv="refresh" content="0;url=/Lemonade-map/">
   <script>window.location.href = "/Lemonade-map/";</script>
 </head>
 <body>
@@ -62,5 +60,5 @@ EOF
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add index.html CNAME
-          git commit -m "Update GitHub Pages configuration files" || echo "No changes to commit"
+          git commit -m "Update CNAME file for custom domain" || echo "No changes to commit"
           git push

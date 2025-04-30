@@ -42,7 +42,7 @@ jobs:
           npm run build
 
       # Copy the root index.html redirect file to the dist directory
-      - name: Ensure correct files
+      - name: Ensure correct index.html
         run: |
           # Make sure the dist directory exists
           mkdir -p lemonade-map/dist
@@ -57,7 +57,6 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Redirecting to Lemonade Map</title>
-  <meta http-equiv="refresh" content="0;url=/Lemonade-map/">
   <script>window.location.href = "/Lemonade-map/";</script>
 </head>
 <body>
