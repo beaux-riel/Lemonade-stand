@@ -4,15 +4,15 @@ ADD COLUMN IF NOT EXISTS expiration_time TIMESTAMP WITH TIME ZONE;
 
 -- Update existing stands to have an expiration time at midnight of their creation day
 UPDATE public.stands
-SET expiration_time = (DATE_TRUNC('day', created_at) + INTERVAL '1 day')::TIMESTAMP WITH TIME ZONE
+SET expiration_time = (DATE_TRUNC('day', created_at) + INTERVAL '1 day' - INTERVAL '1 second')::TIMESTAMP WITH TIME ZONE
 WHERE expiration_time IS NULL;
 
 -- Create function to set expiration time on new stands to midnight of the current day
 CREATE OR REPLACE FUNCTION set_stand_expiration_time()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Set expiration time to midnight of the current day (next day at 00:00:00)
-  NEW.expiration_time := (DATE_TRUNC('day', NEW.created_at) + INTERVAL '1 day')::TIMESTAMP WITH TIME ZONE;
+  -- Set expiration time to midnight of the current day (23:59:59)
+  NEW.expiration_time := (DATE_TRUNC('day', NEW.created_at) + INTERVAL '1 day' - INTERVAL '1 second')::TIMESTAMP WITH TIME ZONE;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -64,11 +64,11 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION reopen_stand(stand_id UUID)
 RETURNS SETOF stands AS $$
 BEGIN
-  -- Set expiration time to midnight of the current day and reactivate the stand
+  -- Set expiration time to midnight of the current day (23:59:59) and reactivate the stand
   RETURN QUERY
   UPDATE public.stands
   SET 
-    expiration_time = (DATE_TRUNC('day', NOW()) + INTERVAL '1 day')::TIMESTAMP WITH TIME ZONE,
+    expiration_time = (DATE_TRUNC('day', NOW()) + INTERVAL '1 day' - INTERVAL '1 second')::TIMESTAMP WITH TIME ZONE,
     is_active = true
   WHERE id = stand_id
   RETURNING *;
