@@ -4,9 +4,20 @@ import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import { visualizer } from 'rollup-plugin-visualizer';
 
-// Get the base path for GitHub Pages deployment
+// Get the base path for deployment
 const getBase = () => {
-  // Always use the repository name for GitHub Pages
+  // Check if we're using a custom domain by looking at the CNAME file
+  try {
+    const fs = require('fs');
+    if (fs.existsSync('./public/CNAME')) {
+      // For custom domain, use root path
+      return '/';
+    }
+  } catch (e) {
+    console.warn('Error checking CNAME file:', e);
+  }
+  
+  // Default to repository name for GitHub Pages
   return '/Lemonade-Map/';
 };
 

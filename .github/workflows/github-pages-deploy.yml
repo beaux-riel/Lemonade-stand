@@ -50,6 +50,12 @@ jobs:
           
           # Copy 404.html to the dist directory
           cp lemonade-map/public/404.html lemonade-map/dist/404.html || echo "404.html not found"
+          
+          # Copy CNAME file to the dist directory if it exists
+          if [ -f "lemonade-map/public/CNAME" ]; then
+            cp lemonade-map/public/CNAME lemonade-map/dist/CNAME
+            echo "CNAME file copied to dist directory"
+          fi
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.5.0
