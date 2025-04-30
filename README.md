@@ -96,7 +96,6 @@ Visit the live application: [Lemonade Map App](https://lemonademap.com)
 The application follows a modern architecture pattern with a clear separation of concerns:
 
 ![Architecture Diagram](/lemonade-map/public/architecture.png)
-![Architecture Diagram](/lemonade-map/public/architecture.png)
 
 ### Frontend Architecture
 
