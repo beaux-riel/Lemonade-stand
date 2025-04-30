@@ -9,7 +9,18 @@ const getBase = () => {
   // For GitHub Pages deployment via environment variable
   if (process.env.GITHUB_REPOSITORY) {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-    return `/${repo}/`;
+    // Check if we're using a custom domain by looking at the CNAME file
+    try {
+      const fs = require('fs');
+      if (fs.existsSync('./public/CNAME')) {
+        // If CNAME exists, we're using a custom domain, so use root path
+        return '/';
+      }
+      return `/${repo}/`;
+    } catch (e) {
+      console.warn('Error checking CNAME file:', e);
+      return `/${repo}/`;
+    }
   }
   
   // For GitHub Pages deployment via package.json homepage
@@ -17,6 +28,11 @@ const getBase = () => {
     const packageJson = require('./package.json');
     if (packageJson.homepage) {
       const url = new URL(packageJson.homepage);
+      // Check if we're using a custom domain (not github.io)
+      if (!url.hostname.includes('github.io')) {
+        // Custom domain, use root path
+        return '/';
+      }
       const pathSegments = url.pathname.split('/').filter(Boolean);
       if (pathSegments.length > 0) {
         return `/${pathSegments.join('/')}/`;
