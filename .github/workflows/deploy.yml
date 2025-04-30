@@ -31,12 +31,10 @@ jobs:
       - name: Install dependencies
         run: |
           cd lemonade-map
-          cd lemonade-map
           npm ci
 
       - name: Run tests
         run: |
-          cd lemonade-map
           cd lemonade-map
           ./scripts/run-tests.sh
 
@@ -57,20 +55,14 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'lemonade-map/package-lock.json'
-          
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: "lemonade-map/package-lock.json"
 
       - name: Install dependencies
         run: |
-          cd lemonade-map
           cd lemonade-map
           npm ci
 
       - name: Build production bundle
         run: |
-          cd lemonade-map
           cd lemonade-map
           npm run build
 
@@ -78,7 +70,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: lemonade-map/dist
           path: lemonade-map/dist
           retention-days: 7
 
@@ -98,8 +89,6 @@ jobs:
         with:
           name: build-artifacts
           path: lemonade-map/dist
-          
-          path: lemonade-map/dist
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -107,7 +96,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          folder: lemonade-map/dist
           folder: lemonade-map/dist
           branch: gh-pages
           clean: true
