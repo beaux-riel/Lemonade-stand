@@ -13,8 +13,9 @@ const getBase = () => {
     try {
       const fs = require('fs');
       if (fs.existsSync('./public/CNAME')) {
-        // If CNAME exists, we're using a custom domain, so use root path
-        return '/';
+        // Even with a custom domain, we need to use the repository name as the base path
+        // because the assets are referenced with this path
+        return '/Lemonade-map/';
       }
       return `/${repo}/`;
     } catch (e) {
@@ -30,8 +31,9 @@ const getBase = () => {
       const url = new URL(packageJson.homepage);
       // Check if we're using a custom domain (not github.io)
       if (!url.hostname.includes('github.io')) {
-        // Custom domain, use root path
-        return '/';
+        // Even with a custom domain, we need to use the repository name as the base path
+        // because the assets are referenced with this path
+        return '/Lemonade-map/';
       }
       const pathSegments = url.pathname.split('/').filter(Boolean);
       if (pathSegments.length > 0) {
@@ -43,7 +45,7 @@ const getBase = () => {
   }
   
   // For local development or custom domain
-  return '/';
+  return '/Lemonade-map/';
 };
 
 // https://vitejs.dev/config/
