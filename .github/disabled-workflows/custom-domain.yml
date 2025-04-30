@@ -1,0 +1,70 @@
+name: Configure GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - gh-pages
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  configure-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+      
+      - name: Ensure GitHub Pages files exist
+        run: |
+          # Create .nojekyll file to disable Jekyll processing
+          touch .nojekyll
+          
+          # Create or update index.html if it doesn't exist
+          if [ ! -f "index.html" ]; then
+            cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lemonade Map</title>
+  <meta http-equiv="refresh" content="0;url=/Lemonade-Map/" />
+</head>
+<body>
+  <p>
+    If you are not redirected automatically, follow this
+    <a href="/Lemonade-Map/">link to the Lemonade Map application</a>.
+  </p>
+</body>
+</html>
+EOF
+          fi
+          
+          # Copy 404.html if it doesn't exist
+          if [ ! -f "404.html" ]; then
+            cp ../lemonade-map/public/404.html ./404.html || echo "Could not copy 404.html"
+          fi
+          
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add index.html .nojekyll 404.html
+          git commit -m "Update GitHub Pages configuration" || echo "No changes to commit"
+          git push
+      
+      - name: Update GitHub Pages settings
+        run: |
+          # This step is informational only as API permissions are limited
+          echo "Please manually verify the GitHub Pages settings in the repository:"
+          echo "1. Go to Settings > Pages"
+          echo "2. Ensure the source is set to 'Deploy from a branch'"
+          echo "3. Ensure the branch is set to 'gh-pages' and the folder is set to '/ (root)'"

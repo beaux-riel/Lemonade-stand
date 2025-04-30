@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "lemonade-map/package-lock.json"
+
+      - name: Install dependencies
+        run: |
+          cd lemonade-map
+          npm ci
+
+      - name: Build
+        run: |
+          cd lemonade-map
+          npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Prepare files for deployment
+        run: |
+          # Create .nojekyll file to disable Jekyll processing
+          touch lemonade-map/dist/.nojekyll
+          
+          # Copy 404.html to the dist directory
+          cp lemonade-map/public/404.html lemonade-map/dist/404.html || echo "404.html not found"
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          folder: lemonade-map/dist
+          branch: gh-pages
+          clean: true
