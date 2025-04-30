@@ -27,12 +27,12 @@ jobs:
 <head>
   <meta charset="utf-8">
   <title>Redirecting to Lemonade Map</title>
-  <script>window.location.href = "/";</script>
+  <script>window.location.href = "/Lemonade-map/";</script>
 </head>
 <body>
   <p>
     If you are not redirected automatically, follow this
-    <a href="/">link to the Lemonade Map application</a>.
+    <a href="/Lemonade-map/">link to the Lemonade Map application</a>.
   </p>
 </body>
 </html>
