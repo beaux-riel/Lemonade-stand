@@ -14,6 +14,8 @@ import {
 } from '../api/supabaseApi';
 import { StandExpirationInfo, StandStatistics } from '../components/stands';
 import { Button, Alert, Form, Tabs, Modal, Card, LoadingIndicator } from '../components/ui';
+import Map from '../components/map/Map';
+import DraggableMarker from '../components/map/DraggableMarker';
 import logger from '../utils/logger';
 
 /**
@@ -33,6 +35,8 @@ const StandDetailPage = () => {
   const [success, setSuccess] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
   const [editMode, setEditMode] = useState(false);
+  const [showLocationMap, setShowLocationMap] = useState(false);
+  const [mapCenter, setMapCenter] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -87,6 +91,15 @@ const StandDetailPage = () => {
         if (!standData) {
           logger.warn('Stand not found', { standId: id });
           throw new Error('Stand not found. It may have been deleted.');
+        }
+        
+        // Ensure standData is properly formatted
+        if (typeof standData.location_lat === 'string') {
+          standData.location_lat = parseFloat(standData.location_lat);
+        }
+        
+        if (typeof standData.location_lng === 'string') {
+          standData.location_lng = parseFloat(standData.location_lng);
         }
         
         logger.apiResponse(`stands/${id}`, 'GET', { standExists: !!standData }, 200);
@@ -348,6 +361,28 @@ const StandDetailPage = () => {
   // Handle stand expiration extension
   const handleExtendExpiration = (updatedStand) => {
     setStand(updatedStand);
+  };
+  
+  // Handle marker position change
+  const handleMarkerPositionChange = (newPosition) => {
+    setFormData(prev => ({
+      ...prev,
+      location_lat: newPosition[0],
+      location_lng: newPosition[1]
+    }));
+  };
+  
+  // Open location map modal
+  const openLocationMap = () => {
+    if (stand && stand.location_lat && stand.location_lng) {
+      setMapCenter([stand.location_lat, stand.location_lng]);
+    } else if (formData.location_lat && formData.location_lng) {
+      setMapCenter([parseFloat(formData.location_lat), parseFloat(formData.location_lng)]);
+    } else {
+      // Default to a central US location if no coordinates are available
+      setMapCenter([39.8283, -98.5795]);
+    }
+    setShowLocationMap(true);
   };
   
   if (loading && !stand) {
@@ -727,6 +762,20 @@ const StandDetailPage = () => {
                         />
                       </Form.Group>
                     </div>
+                    
+                    <div className="mt-4">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={openLocationMap}
+                        className="w-full flex items-center justify-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                        </svg>
+                        Set Location on Map (Drag & Drop)
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
@@ -865,6 +914,81 @@ const StandDetailPage = () => {
           </div>
         </div>
       </Modal>
+      
+      {/* Location Map Modal */}
+      {showLocationMap && (
+        <Modal
+          isOpen={showLocationMap}
+          onClose={() => setShowLocationMap(false)}
+          title="Adjust Stand Location"
+          size="lg"
+        >
+          <div className="p-6">
+            <p className="mb-4 text-gray-700">
+              Drag the marker to set your stand's exact location. Click "Save Location" when you're done.
+            </p>
+            
+            <div className="h-96 mb-4 rounded-lg overflow-hidden">
+              {mapCenter && (
+                <Map
+                  center={mapCenter}
+                  zoom={15}
+                  height="100%"
+                  showUserLocation={true}
+                >
+                  {/* We're using a custom component here that will be rendered inside the Map */}
+                  <DraggableMarker
+                    position={mapCenter}
+                    onPositionChange={handleMarkerPositionChange}
+                    popupContent={
+                      <div>
+                        <h3 className="font-display text-base">Your Stand Location</h3>
+                        <p className="text-sm">Drag me to adjust!</p>
+                      </div>
+                    }
+                  />
+                </Map>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  value={formData.location_lat}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location_lat: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  value={formData.location_lng}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location_lng: e.target.value }))}
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowLocationMap(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowLocationMap(false)}
+              >
+                Save Location
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

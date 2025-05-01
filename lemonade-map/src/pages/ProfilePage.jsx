@@ -115,6 +115,8 @@ const ProfilePage = () => {
     state: '',
     postalCode: '',
     country: 'United States',
+    apt_suite: '',
+    address_line2: '',
     useForSearch: false
   });
   
@@ -154,6 +156,8 @@ const ProfilePage = () => {
             state: data.state || '',
             postalCode: data.postal_code || '',
             country: data.country || 'United States',
+            apt_suite: data.apt_suite || '',
+            address_line2: data.address_line2 || '',
             useForSearch: data.preferences?.defaultSearchLocation?.useForSearch || false
           });
           
@@ -494,6 +498,30 @@ const ProfilePage = () => {
                       onChange={handleAddressChange}
                       placeholder="123 Main St"
                       error={addressErrors.street}
+                    />
+                  </Form.Group>
+                  
+                  <Form.Group>
+                    <Form.Label htmlFor="apt_suite">Apartment/Suite</Form.Label>
+                    <Form.Input
+                      id="apt_suite"
+                      name="apt_suite"
+                      value={addressData.apt_suite}
+                      onChange={handleAddressChange}
+                      placeholder="Apt 4B"
+                      error={addressErrors.apt_suite}
+                    />
+                  </Form.Group>
+                  
+                  <Form.Group>
+                    <Form.Label htmlFor="address_line2">Address Line 2</Form.Label>
+                    <Form.Input
+                      id="address_line2"
+                      name="address_line2"
+                      value={addressData.address_line2}
+                      onChange={handleAddressChange}
+                      placeholder="Building name, Floor, etc."
+                      error={addressErrors.address_line2}
                     />
                   </Form.Group>
                   

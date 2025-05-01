@@ -79,10 +79,12 @@ export const updateUserAddress = async (userId, addressData) => {
       state: addressData.state,
       postal_code: addressData.postalCode,
       country: addressData.country,
+      apt_suite: addressData.apt_suite,
+      address_line2: addressData.address_line2,
       // Store the full address as a default search location in preferences
       preferences: supabase.utils.toJson({
         defaultSearchLocation: {
-          address: `${addressData.street}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`,
+          address: `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`,
           useForSearch: addressData.useForSearch || false
         }
       })
