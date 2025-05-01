@@ -612,7 +612,8 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </Form>
-            )}
+            </Tabs.Panel>
+            </Tabs>
           </Card.Body>
         </Card>
         
