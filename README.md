@@ -18,6 +18,8 @@ A full-stack web application for managing lemonade stands and their products. Th
   - [Database Schema](#database-schema)
   - [Row Level Security](#row-level-security)
   - [Setting Up Storage Buckets](#setting-up-storage-buckets)
+- [Known Issues and Fixes](#known-issues-and-fixes)
+  - [Stand Deactivation Fix](STAND_DEACTIVATION_FIX.md)
 - [Usage](#usage)
   - [User Guide](#user-guide)
   - [Admin Guide](#admin-guide)
@@ -331,6 +333,16 @@ For administrative tasks, use the Supabase Dashboard:
    - **Table Editor** - View and edit database records
    - **Storage** - Manage uploaded files
    - **Edge Functions** - Monitor and deploy serverless functions
+
+## Known Issues and Fixes
+
+This section documents known issues and their fixes.
+
+### Stand Deactivation Error
+
+**Issue**: Users were experiencing a "stack depth limit exceeded" error when attempting to deactivate a stand.
+
+**Fix**: We've updated the database triggers to prevent recursive calls when deactivating stands. See [Stand Deactivation Fix](STAND_DEACTIVATION_FIX.md) for details.
 
 ## Deployment
 
