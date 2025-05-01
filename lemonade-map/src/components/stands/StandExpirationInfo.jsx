@@ -59,15 +59,16 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
   // Update time remaining every second
   useEffect(() => {
     // Initial calculation
-    setTimeRemaining(calculateTimeRemaining());
+    const initialTimeRemaining = calculateTimeRemaining();
+    setTimeRemaining(initialTimeRemaining);
     
     // Set up timer to update every second
     timerRef.current = setInterval(() => {
       const newTimeRemaining = calculateTimeRemaining();
       setTimeRemaining(newTimeRemaining);
       
-      // If expired, clear the interval
-      if (newTimeRemaining && newTimeRemaining.expired) {
+      // If expired or no time remaining data, clear the interval
+      if ((newTimeRemaining && newTimeRemaining.expired) || !newTimeRemaining) {
         clearInterval(timerRef.current);
       }
     }, 1000);
@@ -156,11 +157,15 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
            now.getFullYear() === expiration.getFullYear();
   };
   
+  // Handle the case where timeRemaining is null
+  const isExpired = timeRemaining?.expired || false;
+  const isCritical = timeRemaining?.critical || false;
+  
   return (
     <div className={`rounded-lg p-4 mb-4 ${
-      timeRemaining.expired 
+      isExpired 
         ? 'bg-red-50 border border-red-200' 
-        : timeRemaining.critical
+        : isCritical
           ? 'bg-orange-50 border border-orange-200'
           : 'bg-blue-50 border border-blue-200'
     }`}>
@@ -189,23 +194,23 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
           <h3 className={`font-medium ${
-            timeRemaining.expired 
+            isExpired 
               ? 'text-red-800' 
-              : timeRemaining.critical
+              : isCritical
                 ? 'text-orange-800'
                 : 'text-blue-800'
           }`}>
             Stand Visibility Status
           </h3>
           
-          {timeRemaining && timeRemaining.expired ? (
+          {isExpired ? (
             <p className="text-red-600">
               This stand has expired and is no longer visible to the public.
             </p>
           ) : (
             <>
               <div className={`flex items-center ${
-                timeRemaining && timeRemaining.critical
+                isCritical
                   ? 'text-orange-600'
                   : 'text-blue-600'
               }`}>
@@ -227,14 +232,14 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
         </div>
         
         <Button
-          variant={timeRemaining && timeRemaining.expired ? "primary" : "secondary"}
+          variant={isExpired ? "primary" : "secondary"}
           onClick={handleReopen}
           disabled={loading}
           className="mt-3 md:mt-0"
         >
           {loading 
             ? 'Processing...' 
-            : timeRemaining && timeRemaining.expired 
+            : isExpired 
               ? 'Reopen Stand' 
               : expiresLaterToday()
                 ? 'Active Until Tonight'
