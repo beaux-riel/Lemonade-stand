@@ -165,9 +165,8 @@ export const getStands = async () => {
 export const getStandById = async (standId) => {
   const { data, error } = await supabase
     .from("stands")
-    .select("*, products!inner(*)")
+    .select("*, products(*)")
     .eq("id", standId)
-    .eq("products.stand_id", standId)
     .single();
   return { data, error };
 };
