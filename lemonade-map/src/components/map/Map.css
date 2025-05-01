@@ -162,6 +162,10 @@
     width: 100% !important;
     height: 100% !important;
     z-index: 1;
+    /* Fix for iOS Safari */
+    position: relative !important;
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
   }
   
   /* Ensure controls are visible and accessible on mobile */
@@ -174,5 +178,44 @@
     width: 36px !important;
     height: 36px !important;
     line-height: 36px !important;
+  }
+  
+  /* Fix for iOS Safari touch events */
+  .leaflet-marker-icon,
+  .leaflet-marker-shadow,
+  .leaflet-control {
+    pointer-events: auto !important;
+  }
+  
+  /* Fix for iOS Safari scrolling issues */
+  .leaflet-pane {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+  
+  /* Increase tap area for markers on mobile */
+  .leaflet-marker-icon {
+    padding: 10px;
+    margin-left: -10px;
+    margin-top: -10px;
+  }
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .leaflet-container {
+    /* Fix for iOS Safari scrolling and panning */
+    cursor: pointer !important;
+    touch-action: pan-x pan-y;
+  }
+  
+  /* Fix for iOS Safari zoom controls */
+  .leaflet-control-zoom {
+    margin-bottom: 20px !important;
+  }
+  
+  /* Fix for iOS Safari popup positioning */
+  .leaflet-popup {
+    margin-bottom: 40px !important;
   }
 }

@@ -13,6 +13,7 @@ import { validateSellerForm, hasErrors } from '../../utils/validation';
 // Initial form state
 const initialFormState = {
   name: '',
+  description: '',
   address: '',
   location_lat: null,
   location_lng: null,
@@ -243,6 +244,22 @@ const SellerRegistrationForm = ({ onSubmit, loading = false }) => {
                 placeholder="Enter your lemonade stand name"
                 error={errors.name}
               />
+            </Form.Group>
+            
+            <Form.Group>
+              <Form.Label htmlFor="description">Stand Description</Form.Label>
+              <Form.Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Describe your lemonade stand (optional)"
+                rows={3}
+                error={errors.description}
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Optional. Tell customers about your stand, its history, or what makes it special.
+              </p>
             </Form.Group>
             
             <Form.Group>

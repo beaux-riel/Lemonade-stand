@@ -70,6 +70,51 @@ export const updateUserProfile = async (userId, updates) => {
   return { data, error };
 };
 
+export const updateUserAddress = async (userId, addressData) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      street: addressData.street,
+      city: addressData.city,
+      state: addressData.state,
+      postal_code: addressData.postalCode,
+      country: addressData.country,
+      // Store the full address as a default search location in preferences
+      preferences: supabase.utils.toJson({
+        defaultSearchLocation: {
+          address: `${addressData.street}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`,
+          useForSearch: addressData.useForSearch || false
+        }
+      })
+    })
+    .eq("id", userId)
+    .select();
+  return { data, error };
+};
+
+export const updateUserPreferences = async (userId, preferences) => {
+  // First get current preferences
+  const { data: currentData, error: fetchError } = await getUserProfile(userId);
+  
+  if (fetchError) {
+    return { error: fetchError };
+  }
+  
+  // Merge new preferences with existing ones
+  const currentPreferences = currentData.preferences || {};
+  const updatedPreferences = { ...currentPreferences, ...preferences };
+  
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      preferences: updatedPreferences
+    })
+    .eq("id", userId)
+    .select();
+  
+  return { data, error };
+};
+
 export const uploadUserAvatar = async (userId, file) => {
   // Get file extension
   const fileExt = file.name.split(".").pop();

@@ -7,6 +7,7 @@ import ProductDetailPage from './ProductDetailPage';
 import NotFoundPage from './NotFoundPage';
 import AboutPage from './AboutPage';
 import ContactPage from './ContactPage';
+import ProfilePage from './ProfilePage';
 
 export {
   HomePage,
@@ -17,5 +18,6 @@ export {
   ProductDetailPage,
   NotFoundPage,
   AboutPage,
-  ContactPage
+  ContactPage,
+  ProfilePage
 };

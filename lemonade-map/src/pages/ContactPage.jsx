@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button, TextField, Alert } from '../components/ui';
+import supabase from '../supabaseClient';
 
 /**
  * Contact page component
@@ -18,6 +19,7 @@ const ContactPage = () => {
     submitted: false,
     success: false,
     message: '',
+    loading: false
   });
 
   const handleChange = (e) => {
@@ -28,7 +30,7 @@ const ContactPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validate form
@@ -37,25 +39,60 @@ const ContactPage = () => {
         submitted: true,
         success: false,
         message: 'Please fill out all required fields.',
+        loading: false
       });
       return;
     }
     
-    // In a real application, you would send this data to a server
-    // For now, we'll just simulate a successful submission
+    // Set loading state
     setFormStatus({
       submitted: true,
-      success: true,
-      message: 'Thank you for your message! We will get back to you soon.',
+      success: false,
+      message: 'Submitting your message...',
+      loading: true
     });
     
-    // Reset form after successful submission
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-    });
+    try {
+      // Submit to Supabase contact_submissions table
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject || null,
+            message: formData.message
+          }
+        ]);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Success
+      setFormStatus({
+        submitted: true,
+        success: true,
+        message: 'Thank you for your message! We will get back to you soon.',
+        loading: false
+      });
+      
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      setFormStatus({
+        submitted: true,
+        success: false,
+        message: 'There was an error submitting your message. Please try again later.',
+        loading: false
+      });
+    }
   };
 
   return (
@@ -215,8 +252,19 @@ const ContactPage = () => {
                     variant="primary"
                     size="lg"
                     className="w-full md:w-auto"
+                    disabled={formStatus.loading}
                   >
-                    Send Message
+                    {formStatus.loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
                   </Button>
                 </div>
               </form>

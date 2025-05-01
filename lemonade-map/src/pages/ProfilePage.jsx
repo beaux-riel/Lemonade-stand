@@ -1,0 +1,611 @@
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Card, 
+  Form, 
+  Button, 
+  Alert, 
+  Avatar, 
+  Tabs, 
+  Toggle,
+  Loader
+} from '../components/ui';
+import { 
+  getUserProfile, 
+  updateUserProfile, 
+  updateUserAddress,
+  uploadUserAvatar,
+  updateUserPreferences
+} from '../api/supabaseApi';
+import { useAuth } from '../contexts/AuthContext';
+import { validateProfileForm, validateAddressForm } from '../utils/validation';
+
+// US States for dropdown
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+  { value: 'DC', label: 'District of Columbia' },
+];
+
+// Countries for dropdown
+const COUNTRIES = [
+  { value: 'United States', label: 'United States' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'Other', label: 'Other' }
+];
+
+/**
+ * User Profile Page
+ */
+const ProfilePage = () => {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
+  const [activeTab, setActiveTab] = useState('personal');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  
+  // Form data
+  const [profileData, setProfileData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    bio: ''
+  });
+  
+  const [addressData, setAddressData] = useState({
+    street: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'United States',
+    useForSearch: false
+  });
+  
+  // Form validation errors
+  const [profileErrors, setProfileErrors] = useState({});
+  const [addressErrors, setAddressErrors] = useState({});
+  
+  // Load user profile data
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/profile' } });
+      return;
+    }
+    
+    const loadUserProfile = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await getUserProfile(user.id);
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        if (data) {
+          // Set profile data
+          setProfileData({
+            full_name: data.full_name || '',
+            email: user.email || '',
+            phone: data.phone || '',
+            bio: data.bio || ''
+          });
+          
+          // Set address data
+          setAddressData({
+            street: data.street || '',
+            city: data.city || '',
+            state: data.state || '',
+            postalCode: data.postal_code || '',
+            country: data.country || 'United States',
+            useForSearch: data.preferences?.defaultSearchLocation?.useForSearch || false
+          });
+          
+          // Set avatar preview if exists
+          if (data.avatar_url) {
+            setAvatarPreview(data.avatar_url);
+          }
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadUserProfile();
+  }, [isAuthenticated, navigate, user]);
+  
+  // Handle profile form changes
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error for this field if it exists
+    if (profileErrors[name]) {
+      setProfileErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+  
+  // Handle address form changes
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error for this field if it exists
+    if (addressErrors[name]) {
+      setAddressErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+  
+  // Handle toggle for using address as search location
+  const handleToggleUseForSearch = (value) => {
+    setAddressData(prev => ({
+      ...prev,
+      useForSearch: value
+    }));
+  };
+  
+  // Handle avatar upload
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validate file type and size
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      setError('Image file is too large. Maximum size is 5MB.');
+      return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+    
+    // Store file for upload
+    setAvatarFile(file);
+    setError(null);
+  };
+  
+  // Handle profile form submission
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    const errors = validateProfileForm(profileData);
+    setProfileErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+    
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      
+      // Update profile
+      const { error: profileError } = await updateUserProfile(user.id, {
+        full_name: profileData.full_name,
+        phone: profileData.phone,
+        bio: profileData.bio
+      });
+      
+      if (profileError) {
+        throw new Error(profileError.message);
+      }
+      
+      // Upload avatar if changed
+      if (avatarFile) {
+        const { error: avatarError } = await uploadUserAvatar(user.id, avatarFile);
+        
+        if (avatarError) {
+          throw new Error(avatarError.message);
+        }
+      }
+      
+      setSuccess('Profile updated successfully!');
+      
+      // Clear avatar file after successful upload
+      setAvatarFile(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Handle address form submission
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    const errors = validateAddressForm(addressData);
+    setAddressErrors(errors);
+    
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+    
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      
+      // Update address
+      const { error: addressError } = await updateUserAddress(user.id, addressData);
+      
+      if (addressError) {
+        throw new Error(addressError.message);
+      }
+      
+      setSuccess('Address updated successfully!');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader size="lg" variant="yellow" message="Loading your profile..." />
+      </div>
+    );
+  }
+  
+  return (
+    <div className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-lemonade-yellow-light to-white">
+      <Helmet>
+        <title>My Profile | Lemonade Map</title>
+        <meta name="description" content="Update your Lemonade Map profile and preferences" />
+      </Helmet>
+      
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-display text-lemonade-blue-dark mb-4">My Lemonade Profile</h1>
+          <div className="w-24 h-2 bg-lemonade-yellow mx-auto rounded-full mb-6"></div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Customize your profile and preferences to get the most out of your Lemonade Map experience!
+          </p>
+        </div>
+        
+        {/* Profile Card with Tabs */}
+        <Card className="shadow-playful-lg overflow-hidden">
+          <div className="bg-lemonade-blue-light p-6 flex flex-col items-center">
+            <div className="relative group">
+              <Avatar 
+                src={avatarPreview} 
+                alt={profileData.full_name || 'User'} 
+                size="xl"
+                className="border-4 border-white shadow-lg"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <label htmlFor="avatar-upload" className="text-white text-sm font-medium cursor-pointer">
+                  Change
+                </label>
+                <input 
+                  id="avatar-upload" 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleAvatarChange}
+                />
+              </div>
+            </div>
+            <h2 className="mt-4 text-2xl font-display text-lemonade-blue-dark">
+              {profileData.full_name || 'Your Profile'}
+            </h2>
+            <p className="text-lemonade-blue-dark opacity-75">{profileData.email}</p>
+          </div>
+          
+          <Tabs
+            tabs={[
+              { id: 'personal', label: 'Personal Info' },
+              { id: 'address', label: 'Address' }
+            ]}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            className="px-6 pt-4"
+          />
+          
+          <Card.Body>
+            {error && (
+              <Alert 
+                type="error" 
+                message={error} 
+                className="mb-6"
+                onClose={() => setError(null)}
+              />
+            )}
+            
+            {success && (
+              <Alert 
+                type="success" 
+                message={success} 
+                className="mb-6"
+                onClose={() => setSuccess(null)}
+              />
+            )}
+            
+            {activeTab === 'personal' && (
+              <Form onSubmit={handleProfileSubmit}>
+                <div className="space-y-6">
+                  <Form.Group>
+                    <Form.Label htmlFor="full_name" required>Full Name</Form.Label>
+                    <Form.Input
+                      id="full_name"
+                      name="full_name"
+                      value={profileData.full_name}
+                      onChange={handleProfileChange}
+                      placeholder="Your full name"
+                      error={profileErrors.full_name}
+                    />
+                  </Form.Group>
+                  
+                  <Form.Group>
+                    <Form.Label htmlFor="email">Email Address</Form.Label>
+                    <Form.Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={profileData.email}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                    <Form.Text>Email cannot be changed. Contact support if needed.</Form.Text>
+                  </Form.Group>
+                  
+                  <Form.Group>
+                    <Form.Label htmlFor="phone">Phone Number</Form.Label>
+                    <Form.Input
+                      id="phone"
+                      name="phone"
+                      value={profileData.phone}
+                      onChange={handleProfileChange}
+                      placeholder="Your phone number (optional)"
+                      error={profileErrors.phone}
+                    />
+                  </Form.Group>
+                  
+                  <Form.Group>
+                    <Form.Label htmlFor="bio">Bio</Form.Label>
+                    <Form.Textarea
+                      id="bio"
+                      name="bio"
+                      value={profileData.bio}
+                      onChange={handleProfileChange}
+                      placeholder="Tell us a bit about yourself..."
+                      rows={4}
+                      error={profileErrors.bio}
+                    />
+                  </Form.Group>
+                  
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <>
+                          <Loader size="sm" variant="white" className="mr-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Profile'
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </Form>
+            )}
+            
+            {activeTab === 'address' && (
+              <Form onSubmit={handleAddressSubmit}>
+                <div className="space-y-6">
+                  <Form.Group>
+                    <Form.Label htmlFor="street">Street Address</Form.Label>
+                    <Form.Input
+                      id="street"
+                      name="street"
+                      value={addressData.street}
+                      onChange={handleAddressChange}
+                      placeholder="123 Main St"
+                      error={addressErrors.street}
+                    />
+                  </Form.Group>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Form.Group>
+                      <Form.Label htmlFor="city">City</Form.Label>
+                      <Form.Input
+                        id="city"
+                        name="city"
+                        value={addressData.city}
+                        onChange={handleAddressChange}
+                        placeholder="Your city"
+                        error={addressErrors.city}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="state">State/Province</Form.Label>
+                      <Form.Select
+                        id="state"
+                        name="state"
+                        value={addressData.state}
+                        onChange={handleAddressChange}
+                        options={US_STATES}
+                        placeholder="Select state"
+                        error={addressErrors.state}
+                      />
+                    </Form.Group>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Form.Group>
+                      <Form.Label htmlFor="postalCode">ZIP/Postal Code</Form.Label>
+                      <Form.Input
+                        id="postalCode"
+                        name="postalCode"
+                        value={addressData.postalCode}
+                        onChange={handleAddressChange}
+                        placeholder="12345"
+                        error={addressErrors.postalCode}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="country">Country</Form.Label>
+                      <Form.Select
+                        id="country"
+                        name="country"
+                        value={addressData.country}
+                        onChange={handleAddressChange}
+                        options={COUNTRIES}
+                        error={addressErrors.country}
+                      />
+                    </Form.Group>
+                  </div>
+                  
+                  <div className="bg-lemonade-yellow-light p-4 rounded-lg border border-lemonade-yellow">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-display text-lemonade-blue-dark text-lg">Use as Default Search Location</h3>
+                        <p className="text-sm text-gray-600">
+                          When enabled, we'll use this address as your default location when searching for lemonade stands.
+                        </p>
+                      </div>
+                      <Toggle
+                        checked={addressData.useForSearch}
+                        onChange={handleToggleUseForSearch}
+                        label=""
+                        srLabel="Use address as default search location"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <>
+                          <Loader size="sm" variant="white" className="mr-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Address'
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </Form>
+            )}
+          </Card.Body>
+        </Card>
+        
+        {/* Fun decorative elements */}
+        <div className="relative mt-12">
+          <div className="absolute -top-16 -left-8 w-16 h-16 text-lemonade-yellow opacity-30 transform rotate-12">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7z"/>
+            </svg>
+          </div>
+          <div className="absolute -bottom-8 -right-8 w-20 h-20 text-lemonade-pink opacity-20 transform -rotate-12">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProfilePage;
