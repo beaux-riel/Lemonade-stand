@@ -163,12 +163,26 @@ export const getStands = async () => {
 };
 
 export const getStandById = async (standId) => {
-  const { data, error } = await supabase
-    .from("stands")
-    .select("*, products(*)")
-    .eq("id", standId)
-    .single();
-  return { data, error };
+  try {
+    if (!standId) {
+      return { data: null, error: new Error('Stand ID is required') };
+    }
+    
+    const { data, error } = await supabase
+      .from("stands")
+      .select("*, products(*)")
+      .eq("id", standId)
+      .single();
+      
+    if (error) {
+      console.error('Error fetching stand by ID:', error);
+    }
+    
+    return { data, error };
+  } catch (err) {
+    console.error('Unexpected error in getStandById:', err);
+    return { data: null, error: err };
+  }
 };
 
 export const getUserStands = async (userId) => {
@@ -275,11 +289,25 @@ export const uploadStandImage = async (standId, userId, file) => {
 
 // Product functions
 export const getProducts = async (standId) => {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("stand_id", standId);
-  return { data, error };
+  try {
+    if (!standId) {
+      return { data: null, error: new Error('Stand ID is required') };
+    }
+    
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("stand_id", standId);
+      
+    if (error) {
+      console.error('Error fetching products for stand:', error);
+    }
+    
+    return { data: data || [], error };
+  } catch (err) {
+    console.error('Unexpected error in getProducts:', err);
+    return { data: [], error: err };
+  }
 };
 
 export const getAllProducts = async () => {

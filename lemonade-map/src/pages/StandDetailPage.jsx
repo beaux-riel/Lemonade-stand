@@ -66,6 +66,7 @@ const StandDetailPage = () => {
     const fetchStandData = async () => {
       try {
         setLoading(true);
+        setError(null); // Clear any previous errors
         logger.info('Fetching stand data', { standId: id });
         
         // Check if user is available
@@ -74,9 +75,7 @@ const StandDetailPage = () => {
             standId: id, 
             userExists: !!user 
           });
-          setError('Authentication error. Please try logging in again.');
-          setLoading(false);
-          return;
+          throw new Error('Authentication error. Please try logging in again.');
         }
         
         // Fetch stand details
@@ -94,21 +93,23 @@ const StandDetailPage = () => {
         }
         
         // Ensure standData is properly formatted
-        if (typeof standData.location_lat === 'string') {
-          standData.location_lat = parseFloat(standData.location_lat);
+        let formattedStandData = { ...standData };
+        
+        if (typeof formattedStandData.location_lat === 'string') {
+          formattedStandData.location_lat = parseFloat(formattedStandData.location_lat) || 0;
         }
         
-        if (typeof standData.location_lng === 'string') {
-          standData.location_lng = parseFloat(standData.location_lng);
+        if (typeof formattedStandData.location_lng === 'string') {
+          formattedStandData.location_lng = parseFloat(formattedStandData.location_lng) || 0;
         }
         
-        logger.apiResponse(`stands/${id}`, 'GET', { standExists: !!standData }, 200);
+        logger.apiResponse(`stands/${id}`, 'GET', { standExists: !!formattedStandData }, 200);
         
         // Check if user is the owner
-        if (standData.owner_id !== user.id) {
+        if (formattedStandData.owner_id !== user.id) {
           logger.warn('Permission denied', { 
             standId: id, 
-            standOwnerId: standData.owner_id, 
+            standOwnerId: formattedStandData.owner_id, 
             userId: user.id 
           });
           throw new Error('You do not have permission to view this stand');
@@ -116,18 +117,18 @@ const StandDetailPage = () => {
         
         logger.info('Stand data loaded successfully', { 
           standId: id, 
-          standName: standData.name,
-          isActive: standData.is_active
+          standName: formattedStandData.name,
+          isActive: formattedStandData.is_active
         });
         
-        setStand(standData);
+        setStand(formattedStandData);
         setFormData({
-          name: standData.name || '',
-          description: standData.description || '',
-          address: standData.address || '',
-          location_lat: standData.location_lat || '',
-          location_lng: standData.location_lng || '',
-          is_active: standData.is_active
+          name: formattedStandData.name || '',
+          description: formattedStandData.description || '',
+          address: formattedStandData.address || '',
+          location_lat: formattedStandData.location_lat || '',
+          location_lng: formattedStandData.location_lng || '',
+          is_active: formattedStandData.is_active
         });
         
         // Fetch products
@@ -136,17 +137,22 @@ const StandDetailPage = () => {
         
         if (productsError) {
           logger.apiError(`products?standId=${id}`, 'GET', productsError);
-          throw new Error(`Failed to load products: ${productsError.message}`);
+          // Don't throw here, just log the error and continue with empty products
+          logger.warn('Failed to load products, continuing with empty products list', { 
+            error: productsError.message 
+          });
+          setProducts([]);
+        } else {
+          logger.apiResponse(`products?standId=${id}`, 'GET', { 
+            productCount: productsData?.length || 0 
+          }, 200);
+          
+          setProducts(productsData || []);
         }
-        
-        logger.apiResponse(`products?standId=${id}`, 'GET', { 
-          productCount: productsData?.length || 0 
-        }, 200);
-        
-        setProducts(productsData || []);
       } catch (err) {
         logger.error('Error fetching stand data', err, { standId: id });
-        setError(err.message);
+        setError(err.message || 'Something went wrong. Please try again.');
+        setStand(null); // Clear stand data on error
       } finally {
         setLoading(false);
       }
@@ -399,7 +405,7 @@ const StandDetailPage = () => {
     );
   }
   
-  if (error && !stand) {
+  if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-6 mb-4">
@@ -410,6 +416,7 @@ const StandDetailPage = () => {
             variant="error" 
             className="mb-6"
             dismissible
+            onDismiss={() => setError(null)}
           >
             {error}
           </Alert>

@@ -77,7 +77,36 @@ function App() {
                         <Route path="dashboard" element={<SellerDashboardPage />} />
                         <Route path="stands/new" element={<SellerRegistrationPage />} />
                         <Route path="stands/:id" element={
-                          <ErrorBoundary>
+                          <ErrorBoundary fallback={(error) => (
+                            <div className="container mx-auto px-4 py-8">
+                              <div className="bg-white rounded-xl shadow-md p-6 mb-4">
+                                <h2 className="text-2xl font-display text-lemonade-blue-dark mb-4">
+                                  Error Loading Stand
+                                </h2>
+                                <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-6">
+                                  <p className="text-red-700 text-sm font-medium">
+                                    {error?.message || 'Something went wrong while loading the stand details.'}
+                                  </p>
+                                </div>
+                                <p className="text-gray-600 mb-6">
+                                  Please try again or return to the dashboard.
+                                </p>
+                                <div className="flex space-x-3">
+                                  <Link to="/seller/dashboard">
+                                    <Button variant="primary">
+                                      Back to Dashboard
+                                    </Button>
+                                  </Link>
+                                  <Button 
+                                    variant="secondary"
+                                    onClick={() => window.location.reload()}
+                                  >
+                                    Try Again
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}>
                             <StandDetailPage />
                           </ErrorBoundary>
                         } />

@@ -269,6 +269,13 @@ const SellerDashboardPage = () => {
                       <Link 
                         to={`/seller/stands/${stand.id}`}
                         className="text-lemonade-blue hover:underline"
+                        onClick={(e) => {
+                          // Prevent default if stand ID is missing
+                          if (!stand.id) {
+                            e.preventDefault();
+                            setError('Cannot manage this stand: Stand ID is missing');
+                          }
+                        }}
                       >
                         Manage →
                       </Link>

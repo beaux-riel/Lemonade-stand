@@ -50,9 +50,14 @@ class ErrorBoundary extends Component {
                 </svg>
               </div>
               <h2 className="text-2xl font-display text-gray-800 mb-2">Something went wrong</h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-4">
                 We're sorry, but an unexpected error occurred. Our team has been notified.
               </p>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-6 text-left">
+                  <p className="text-red-700 text-sm font-medium">Error: {error.message || 'Unknown error'}</p>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-center">
                 <Button 
                   variant="primary"
