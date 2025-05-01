@@ -276,6 +276,7 @@ const SellerDashboardPage = () => {
                             setError('Cannot manage this stand: Stand ID is missing');
                           }
                         }}
+                        state={{ standData: stand }} // Pass stand data to the detail page
                       >
                         Manage →
                       </Link>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   getStandById, 
@@ -25,7 +25,11 @@ import logger from '../utils/logger';
 const StandDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  
+  // Get stand data from location state if available
+  const standDataFromState = location.state?.standData;
   
   // State
   const [stand, setStand] = useState(null);
@@ -78,13 +82,24 @@ const StandDetailPage = () => {
           throw new Error('Authentication error. Please try logging in again.');
         }
         
-        // Fetch stand details
-        logger.apiRequest(`stands/${id}`, 'GET');
-        const { data: standData, error: standError } = await getStandById(id);
-        
-        if (standError) {
-          logger.apiError(`stands/${id}`, 'GET', standError);
-          throw new Error(`Failed to load stand: ${standError.message}`);
+        // Use stand data from state if available, otherwise fetch from API
+        let standData;
+        let standError;
+
+        if (standDataFromState && standDataFromState.id === id) {
+          logger.info('Using stand data from state', { standId: id });
+          standData = standDataFromState;
+        } else {
+          // Fetch stand details
+          logger.apiRequest(`stands/${id}`, 'GET');
+          const response = await getStandById(id);
+          standData = response.data;
+          standError = response.error;
+
+          if (standError) {
+            logger.apiError(`stands/${id}`, 'GET', standError);
+            throw new Error(`Failed to load stand: ${standError.message}`);
+          }
         }
         
         if (!standData) {

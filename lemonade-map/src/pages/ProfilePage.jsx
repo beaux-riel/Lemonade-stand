@@ -383,17 +383,7 @@ const ProfilePage = () => {
             <p className="text-lemonade-blue-dark opacity-75">{profileData.email}</p>
           </div>
           
-          <Tabs
-            tabs={[
-              { id: 'personal', label: 'Personal Info' },
-              { id: 'address', label: 'Address' }
-            ]}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-            className="px-6 pt-4"
-          />
-          
-          <Card.Body>
+          <Card.Body className="px-6 pt-4">
             {error && (
               <Alert 
                 type="error" 
@@ -412,104 +402,112 @@ const ProfilePage = () => {
               />
             )}
             
-            {activeTab === 'personal' && (
-              <Form onSubmit={handleProfileSubmit}>
-                <div className="space-y-6">
-                  <Form.Group>
-                    <Form.Label htmlFor="full_name" required>Full Name</Form.Label>
-                    <Form.Input
-                      id="full_name"
-                      name="full_name"
-                      value={profileData.full_name}
-                      onChange={handleProfileChange}
-                      placeholder="Your full name"
-                      error={profileErrors.full_name}
-                    />
-                  </Form.Group>
-                  
-                  <Form.Group>
-                    <Form.Label htmlFor="email">Email Address</Form.Label>
-                    <Form.Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={profileData.email}
-                      disabled
-                      className="bg-gray-100"
-                    />
-                    <Form.Text>Email cannot be changed. Contact support if needed.</Form.Text>
-                  </Form.Group>
-                  
-                  <Form.Group>
-                    <Form.Label htmlFor="phone">Phone Number</Form.Label>
-                    <Form.Input
-                      id="phone"
-                      name="phone"
-                      value={profileData.phone}
-                      onChange={handleProfileChange}
-                      placeholder="Your phone number (optional)"
-                      error={profileErrors.phone}
-                    />
-                  </Form.Group>
-                  
-                  <Form.Group>
-                    <Form.Label htmlFor="bio">Bio</Form.Label>
-                    <Form.Textarea
-                      id="bio"
-                      name="bio"
-                      value={profileData.bio}
-                      onChange={handleProfileChange}
-                      placeholder="Tell us a bit about yourself..."
-                      rows={4}
-                      error={profileErrors.bio}
-                    />
-                  </Form.Group>
-                  
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      disabled={saving}
-                    >
-                      {saving ? (
-                        <>
-                          <Loader size="sm" variant="white" className="mr-2" />
-                          Saving...
-                        </>
-                      ) : (
-                        'Save Profile'
-                      )}
-                    </Button>
+            <Tabs
+              defaultTab={activeTab === 'address' ? 1 : 0}
+              onChange={(index) => setActiveTab(index === 0 ? 'personal' : 'address')}
+              className="mb-6"
+            >
+              <Tabs.Item>Personal Info</Tabs.Item>
+              <Tabs.Item>Address</Tabs.Item>
+              
+              <Tabs.Panel>
+                <Form onSubmit={handleProfileSubmit}>
+                  <div className="space-y-6">
+                    <Form.Group>
+                      <Form.Label htmlFor="full_name" required>Full Name</Form.Label>
+                      <Form.Input
+                        id="full_name"
+                        name="full_name"
+                        value={profileData.full_name}
+                        onChange={handleProfileChange}
+                        placeholder="Your full name"
+                        error={profileErrors.full_name}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="email">Email Address</Form.Label>
+                      <Form.Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={profileData.email}
+                        disabled
+                        className="bg-gray-100"
+                      />
+                      <Form.Text>Email cannot be changed. Contact support if needed.</Form.Text>
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="phone">Phone Number</Form.Label>
+                      <Form.Input
+                        id="phone"
+                        name="phone"
+                        value={profileData.phone}
+                        onChange={handleProfileChange}
+                        placeholder="Your phone number (optional)"
+                        error={profileErrors.phone}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="bio">Bio</Form.Label>
+                      <Form.Textarea
+                        id="bio"
+                        name="bio"
+                        value={profileData.bio}
+                        onChange={handleProfileChange}
+                        placeholder="Tell us a bit about yourself..."
+                        rows={4}
+                        error={profileErrors.bio}
+                      />
+                    </Form.Group>
+                    
+                    <div className="flex justify-end">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="lg"
+                        disabled={saving}
+                      >
+                        {saving ? (
+                          <>
+                            <Loader size="sm" variant="white" className="mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          'Save Profile'
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Form>
-            )}
-            
-            {activeTab === 'address' && (
-              <Form onSubmit={handleAddressSubmit}>
-                <div className="space-y-6">
-                  <Form.Group>
-                    <Form.Label htmlFor="street">Street Address</Form.Label>
-                    <Form.Input
-                      id="street"
-                      name="street"
-                      value={addressData.street}
-                      onChange={handleAddressChange}
-                      placeholder="123 Main St"
-                      error={addressErrors.street}
-                    />
-                  </Form.Group>
-                  
-                  <Form.Group>
-                    <Form.Label htmlFor="apt_suite">Apartment/Suite</Form.Label>
-                    <Form.Input
-                      id="apt_suite"
-                      name="apt_suite"
-                      value={addressData.apt_suite}
-                      onChange={handleAddressChange}
-                      placeholder="Apt 4B"
-                      error={addressErrors.apt_suite}
+                </Form>
+              </Tabs.Panel>
+              
+              <Tabs.Panel>
+                <Form onSubmit={handleAddressSubmit}>
+                  <div className="space-y-6">
+                    <Form.Group>
+                      <Form.Label htmlFor="street">Street Address</Form.Label>
+                      <Form.Input
+                        id="street"
+                        name="street"
+                        value={addressData.street}
+                        onChange={handleAddressChange}
+                        placeholder="123 Main St"
+                        error={addressErrors.street}
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group>
+                      <Form.Label htmlFor="apt_suite">Apartment/Suite</Form.Label>
+                      <Form.Input
+                        id="apt_suite"
+                        name="apt_suite"
+                        value={addressData.apt_suite}
+                        onChange={handleAddressChange}
+                        placeholder="Apt 4B"
+                        error={addressErrors.apt_suite}
                     />
                   </Form.Group>
                   
