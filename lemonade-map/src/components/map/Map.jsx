@@ -13,6 +13,11 @@ import "leaflet/dist/leaflet.css";
 import { useGeolocation } from "../../contexts/GeolocationContext";
 import { isSecureContext } from "../../services/geolocationService";
 
+// Detect iOS for specific fixes
+L.Browser.safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+L.Browser.iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 // Fix for default marker icons in react-leaflet
 // This is needed because the default markers use relative paths that don't work in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -40,13 +45,29 @@ const createUserLocationIcon = () =>
     popupAnchor: [0, -12],
   });
 
-// Component to handle map view updates
+// Component to handle map view updates and iOS-specific fixes
 const MapViewUpdater = ({ center, zoom }) => {
   const map = useMap();
 
   useEffect(() => {
     if (center) {
       map.setView(center, zoom);
+    }
+    
+    // Apply iOS-specific fixes
+    if (L.Browser.iOS) {
+      // Fix for iOS Safari map rendering issues
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
+      
+      // Fix for iOS momentum scrolling issues
+      const container = map.getContainer();
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          e.stopPropagation();
+        }
+      }, { passive: false });
     }
   }, [center, zoom, map]);
 
@@ -122,9 +143,10 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
       map.locate({
         setView: true,
         maxZoom: 16,
-        enableHighAccuracy: false, // Less battery usage on mobile
-        timeout: 10000, // Timeout after 10 seconds
-        maximumAge: 60000, // Allow cached positions up to 1 minute old
+        enableHighAccuracy: L.Browser.mobile, // Higher accuracy on mobile, especially for iOS
+        timeout: 15000, // Longer timeout for iOS
+        maximumAge: 30000, // Allow cached positions up to 30 seconds old
+        watch: L.Browser.mobile && L.Browser.safari, // Watch mode for iOS Safari
       });
 
       const onLocationFound = (e) => {
@@ -290,8 +312,15 @@ const Map = ({
         updateWhenZooming={false}
         updateWhenIdle={true}
         tap={true} // Enable tap for mobile
-        dragging={true} // Ensure dragging works on mobile
+        dragging={!L.Browser.mobile ? true : true} // Ensure dragging works on mobile
         touchZoom={true} // Enable touch zoom for mobile
+        doubleClickZoom={true}
+        scrollWheelZoom={true}
+        keyboard={true}
+        bounceAtZoomLimits={false} // Prevent bounce effect at zoom limits on iOS
+        // iOS-specific fixes
+        tapTolerance={15} // Increase tap tolerance for iOS
+        wheelDebounceTime={100} // Debounce wheel events
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

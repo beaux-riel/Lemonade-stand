@@ -4,6 +4,7 @@ import Map from './Map';
 import MapControls from './MapControls';
 import StandCard from './StandCard';
 import { Card, Loader } from '../ui';
+import './Map.css'; // Ensure CSS is imported
 
 /**
  * MapView component that combines Map, MapControls, and StandCard
@@ -25,6 +26,16 @@ const MapView = ({
   // Get user's location on initial load
   useEffect(() => {
     if (navigator.geolocation) {
+      // Check if running on iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      
+      const options = {
+        enableHighAccuracy: isIOS, // Higher accuracy on iOS
+        timeout: isIOS ? 15000 : 10000, // Longer timeout for iOS
+        maximumAge: 30000
+      };
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -45,7 +56,8 @@ const MapView = ({
             // Default to New York City if no stands
             setMapCenter([40.7128, -74.0060]);
           }
-        }
+        },
+        options
       );
     }
   }, []);

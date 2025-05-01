@@ -35,6 +35,7 @@ const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const SellerRegistrationPage = lazy(() => import('./components/forms/SellerRegistrationPage'));
 const ComponentShowcase = lazy(() => import('./components/ComponentShowcase'));
 const SupabaseTest = lazy(() => import('./components/SupabaseTest'));
@@ -68,6 +69,10 @@ function App() {
                       <Route path="/contact" element={<ContactPage />} />
                       
                       {/* Protected routes */}
+                      <Route path="/profile" element={<ProtectedRoute />}>
+                        <Route index element={<ProfilePage />} />
+                      </Route>
+                      
                       <Route path="/seller" element={<ProtectedRoute />}>
                         <Route path="dashboard" element={<SellerDashboardPage />} />
                         <Route path="stands/new" element={<SellerRegistrationPage />} />

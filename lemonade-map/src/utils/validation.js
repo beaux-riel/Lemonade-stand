@@ -3,6 +3,98 @@
  */
 
 /**
+ * Validate profile form data
+ * 
+ * @param {Object} formData - The profile form data to validate
+ * @returns {Object} - Object with errors for each field
+ */
+export const validateProfileForm = (formData) => {
+  const errors = {};
+
+  // Validate full name
+  if (!formData.full_name) {
+    errors.full_name = 'Full name is required';
+  } else if (formData.full_name.length < 2) {
+    errors.full_name = 'Full name must be at least 2 characters';
+  } else if (formData.full_name.length > 50) {
+    errors.full_name = 'Full name must be less than 50 characters';
+  }
+
+  // Validate phone (optional)
+  if (formData.phone && !/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im.test(formData.phone)) {
+    errors.phone = 'Please enter a valid phone number';
+  }
+
+  // Validate bio (optional)
+  if (formData.bio && formData.bio.length > 500) {
+    errors.bio = 'Bio must be less than 500 characters';
+  }
+
+  return errors;
+};
+
+/**
+ * Validate address form data
+ * 
+ * @param {Object} addressData - The address form data to validate
+ * @returns {Object} - Object with errors for each field
+ */
+export const validateAddressForm = (addressData) => {
+  const errors = {};
+
+  // All fields are optional, but if provided, they should be valid
+  
+  // Validate street
+  if (addressData.street && addressData.street.length < 5) {
+    errors.street = 'Please enter a valid street address';
+  }
+
+  // Validate city
+  if (addressData.city && addressData.city.length < 2) {
+    errors.city = 'Please enter a valid city';
+  }
+
+  // Validate state
+  if (addressData.state && addressData.state.length < 2) {
+    errors.state = 'Please select a valid state';
+  }
+
+  // Validate postal code
+  if (addressData.postalCode) {
+    // US postal code validation
+    if (addressData.country === 'United States' && !/^\d{5}(-\d{4})?$/.test(addressData.postalCode)) {
+      errors.postalCode = 'Please enter a valid US ZIP code';
+    }
+    // Canadian postal code validation
+    else if (addressData.country === 'Canada' && !/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(addressData.postalCode)) {
+      errors.postalCode = 'Please enter a valid Canadian postal code';
+    }
+    // Generic validation for other countries
+    else if (addressData.postalCode.length < 3 || addressData.postalCode.length > 10) {
+      errors.postalCode = 'Please enter a valid postal code';
+    }
+  }
+
+  // If useForSearch is true, require all address fields
+  if (addressData.useForSearch) {
+    if (!addressData.street) {
+      errors.street = 'Street is required when using as search location';
+    }
+    if (!addressData.city) {
+      errors.city = 'City is required when using as search location';
+    }
+    if (!addressData.state) {
+      errors.state = 'State is required when using as search location';
+    }
+    if (!addressData.postalCode) {
+      errors.postalCode = 'Postal code is required when using as search location';
+    }
+  }
+
+  return errors;
+};
+
+/**
  * Validate seller form data
  * 
  * @param {Object} formData - The form data to validate
