@@ -94,7 +94,20 @@ export const filterStandsByDistance = (stands, maxDistance) => {
     return stands;
   }
 
-  return stands.filter(stand => 
-    stand.distance !== null && stand.distance <= maxDistance
-  );
+  return stands.filter(stand => {
+    const { distance, location_lat, location_lng } = stand;
+
+    // If a numeric distance exists, filter by it
+    if (typeof distance === 'number') {
+      return distance <= maxDistance;
+    }
+
+    // If distance is missing but coordinates are present, include it
+    if (location_lat != null && location_lng != null) {
+      return true;
+    }
+
+    // Otherwise, exclude
+    return false;
+  });
 };

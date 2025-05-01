@@ -1,6 +1,6 @@
 import React from 'react';
 import { render as rtlRender } from '@testing-library/react';
-import { MemoryRouter as Router } from 'react-router-dom';
+import { MemoryRouter as Router } from 'react-router';
 import { AuthProvider } from './contexts/AuthContext';
 import { StandProvider } from './contexts/StandContext';
 import { GeolocationProvider } from './contexts/GeolocationContext';

@@ -12,7 +12,8 @@ const LOG_LEVELS = {
 };
 
 // Current environment
-const isProduction = import.meta.env.PROD;
+// const isProduction = import.meta.env.PROD;
+const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * Format log message with timestamp and additional context
