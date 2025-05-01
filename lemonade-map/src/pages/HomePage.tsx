@@ -3,6 +3,7 @@ import { MapPage } from "../components/map";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import LemonadeMapLogo from "/images/markers/lemonade-map-logo.png";
+import { LoadingIndicator } from "../components/ui";
 
 const featureItems = [
   "Easily find young entrepreneurs near you",
@@ -13,7 +14,7 @@ const featureItems = [
 ];
 
 const HomePage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, initializing } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
@@ -83,19 +84,28 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Featured Stands Section */}
-        {isAuthenticated && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-display font-bold text-lemonade-blue-dark">
-                Featured Stands Near You
-              </h2>
-              <Link
-                to="/stands"
-                className="text-lemonade-blue hover:text-lemonade-blue-dark font-medium"
-              >
-                View All →
-              </Link>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-display font-bold text-lemonade-blue-dark">
+              Featured Stands Near You
+            </h2>
+            <Link
+              to="/stands"
+              className="text-lemonade-blue hover:text-lemonade-blue-dark font-medium"
+            >
+              View All →
+            </Link>
+          </div>
+          
+          {initializing ? (
+            <div className="flex justify-center py-8">
+              <LoadingIndicator 
+                size="md" 
+                variant="yellow" 
+                message="Loading featured stands..." 
+              />
             </div>
+          ) : isAuthenticated ? (
             <div className="flex overflow-x-auto pb-4 gap-4 hide-scrollbar">
               {/* placeholder cards */}
               {[
@@ -119,8 +129,20 @@ const HomePage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-yellow-50 rounded-lg p-6 text-center">
+              <p className="text-gray-700 mb-4">
+                Sign in to see featured stands in your area!
+              </p>
+              <Link
+                to="/login"
+                className="inline-block bg-lemonade-yellow hover:bg-yellow-400 text-lemonade-blue-dark font-bold py-2 px-4 rounded-lg"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* Map Section */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
