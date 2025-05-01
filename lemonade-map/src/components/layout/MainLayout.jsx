@@ -10,7 +10,7 @@ import { signOut } from '../../api/supabaseApi';
  * @returns {JSX.Element} - Main layout component
  */
 const MainLayout = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, initializing } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -60,7 +60,11 @@ const MainLayout = ({ children }) => {
                 Contact
               </Link>
 
-              {isAuthenticated ? (
+              {initializing ? (
+                <div className="flex items-center">
+                  <div className="animate-pulse bg-gray-300 h-8 w-20 rounded"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <>
                   <Link
                     to="/seller/dashboard"
@@ -184,7 +188,11 @@ const MainLayout = ({ children }) => {
                   Contact
                 </Link>
                 
-                {isAuthenticated ? (
+                {initializing ? (
+                  <div className="py-2 px-1">
+                    <div className="animate-pulse bg-gray-300 h-8 w-20 rounded"></div>
+                  </div>
+                ) : isAuthenticated ? (
                   <>
                     <Link
                       to="/seller/dashboard"

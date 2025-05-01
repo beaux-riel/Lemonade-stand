@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { LoadingIndicator } from '../ui';
 
 /**
  * ProtectedRoute component that redirects to login if user is not authenticated
@@ -9,24 +10,29 @@ import { useAuth } from '../../contexts/AuthContext';
  * @returns {JSX.Element} - Protected route component
  */
 const ProtectedRoute = ({ redirectPath = '/login' }) => {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading, initializing, user } = useAuth();
   const location = useLocation();
   
   // Log authentication state for debugging
   useEffect(() => {
     console.log('ProtectedRoute - Auth State:', { 
       isAuthenticated, 
-      loading, 
+      loading,
+      initializing,
       path: location.pathname,
       user: user ? 'User exists' : 'No user'
     });
-  }, [isAuthenticated, loading, location.pathname, user]);
+  }, [isAuthenticated, loading, initializing, location.pathname, user]);
   
   // Show loading state while auth is being checked
-  if (loading) {
+  if (initializing || loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div data-testid="loading-spinner" className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lemonade-blue"></div>
+        <LoadingIndicator 
+          size="md" 
+          variant="blue" 
+          message="Checking authentication..." 
+        />
       </div>
     );
   }

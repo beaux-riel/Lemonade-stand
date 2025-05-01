@@ -43,7 +43,7 @@ const SupabaseTest = lazy(() => import('./components/SupabaseTest'));
 // Loading fallback component
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
-    <LoadingIndicator size="lg" variant="yellow" message="Loading application..." />
+    <LoadingIndicator size="lg" variant="yellow" message="Loading content..." />
   </div>
 );
 

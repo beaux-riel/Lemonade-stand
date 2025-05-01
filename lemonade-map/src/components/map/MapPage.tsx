@@ -6,6 +6,7 @@ import { ResponsiveMapLayout } from "../layout";
 import { useGeolocation } from "../../contexts/GeolocationContext";
 import { useStands } from "../../contexts/StandContext";
 import { useNearbyStands } from "../../contexts/NearbyStandsContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Lazy load components that aren't needed immediately
 const StandListSidebar = lazy(() => import("./StandListSidebar"));
@@ -22,9 +23,10 @@ interface MapPageProps {
 const MapPage: React.FC<MapPageProps> = ({
   mapHeight = "calc(100vh - 200px)",
 }) => {
-  const { stands, loading, error: standsError } = useStands();
+  const { stands, loading: standsLoading, error: standsError } = useStands();
   const { location, getLocation, error: locationError } = useGeolocation();
   const { nearbyStands } = useNearbyStands();
+  const { initializing: authInitializing } = useAuth();
 
   const [selectedStand, setSelectedStand] = useState<any>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([
@@ -33,6 +35,9 @@ const MapPage: React.FC<MapPageProps> = ({
   const [mapZoom, setMapZoom] = useState<number>(13);
   const [activeTab, setActiveTab] = useState<"all" | "nearby">("all");
   const [error, setError] = useState<string | null>(null);
+
+  // Determine if we're in a loading state
+  const loading = standsLoading || authInitializing;
 
   // Sync context errors
   useEffect(() => {

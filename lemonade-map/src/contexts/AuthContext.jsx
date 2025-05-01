@@ -2,7 +2,6 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getCurrentUser, getSession } from '../api/supabaseApi';
 import supabase from '../supabaseClient';
 import logger from '../utils/logger';
-import { LoadingIndicator } from '../components/ui';
 
 // Create the context
 export const AuthContext = createContext(null);
@@ -110,24 +109,13 @@ export const AuthProvider = ({ children }) => {
     session,
     loading,
     error,
+    initializing,
     setError,
     isAuthenticated: !!user,
     clearError: () => setError(null)
   };
 
-  // Show a full-screen loader during initial authentication
-  if (initializing) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingIndicator 
-          size="lg" 
-          variant="blue" 
-          message="Authenticating..." 
-        />
-      </div>
-    );
-  }
-
+  // Render children immediately instead of showing a full-screen loader
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
