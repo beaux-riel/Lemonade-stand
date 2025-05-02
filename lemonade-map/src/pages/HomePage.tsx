@@ -83,7 +83,8 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Featured Stands Section */}
+        {/* Featured Stands Section - TODO */}
+        {/*
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-display font-bold text-lemonade-blue-dark">
@@ -107,7 +108,7 @@ const HomePage: React.FC = () => {
             </div>
           ) : isAuthenticated ? (
             <div className="flex overflow-x-auto pb-4 gap-4 hide-scrollbar">
-              {/* placeholder cards */}
+              // placeholder cards
               {[
                 "Sarah's Sweet Lemonade",
                 "Max's Marvelous Drinks",
@@ -143,10 +144,11 @@ const HomePage: React.FC = () => {
             </div>
           )}
         </div>
+              */}
 
         {/* Map Section */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
-          <div className="h-[120%] rounded-lg overflow-hidden p-4">
+          <div className="h-[100%] rounded-lg overflow-hidden p-4">
             <MapPage mapHeight="100%" />
           </div>
         </div>
