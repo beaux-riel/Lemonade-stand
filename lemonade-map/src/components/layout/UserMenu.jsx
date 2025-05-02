@@ -26,7 +26,6 @@ const UserMenu = () => {
         <span className="mr-1">
           {user?.user_metadata?.full_name || user?.email}
         </span>
-        <svg …>…</svg>
       </button>
 
       {open && (
