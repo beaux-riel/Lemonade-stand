@@ -85,6 +85,7 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
   const [accuracy, setAccuracy] = useState(null);
   const map = useMap();
   const locationCircleRef = useRef(null);
+  const lastNotifiedPositionRef = useRef(null);
   const { location, getLocation } = useGeolocation();
 
   // Memoize the icon creation
@@ -115,9 +116,20 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
   
   // Separate useEffect for notifying parent to prevent infinite loops
   useEffect(() => {
-    if (position && onUserLocationFound) { // Use position instead of location to avoid circular dependency
+    if (position && onUserLocationFound && showUserLocation) {
+      // Only notify parent once when position is first set or when it changes significantly
+      // This prevents infinite loops of re-centering and re-zooming
       const latlng = { lat: position[0], lng: position[1] };
-      onUserLocationFound(latlng);
+      
+      // Only notify if position has changed significantly (more than 10 meters)
+      // or if this is the first time we're notifying
+      if (!lastNotifiedPositionRef.current || 
+          Math.abs(lastNotifiedPositionRef.current.lat - latlng.lat) > 0.0001 || 
+          Math.abs(lastNotifiedPositionRef.current.lng - latlng.lng) > 0.0001) {
+        
+        lastNotifiedPositionRef.current = latlng;
+        onUserLocationFound(latlng);
+      }
     }
   }, [position, showUserLocation, onUserLocationFound]);
   
