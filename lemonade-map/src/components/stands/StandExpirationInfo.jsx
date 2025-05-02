@@ -20,9 +20,21 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
   const calculateTimeRemaining = () => {
     if (!stand.expiration_time) return null;
     
+    // If stand is inactive, return expired status
+    if (stand.is_active === false) {
+      return { expired: true, timeString: 'Inactive' };
+    }
+    
     const now = new Date();
     const expiration = new Date(stand.expiration_time);
-    const diffMs = expiration - now;
+    
+    // Ensure we're using the same timezone for both dates
+    // by converting expiration time to local timezone
+    const localExpiration = new Date(
+      expiration.getTime() + (expiration.getTimezoneOffset() * 60000)
+    );
+    
+    const diffMs = localExpiration - now;
     
     // If already expired
     if (diffMs <= 0) {
@@ -62,6 +74,11 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
     const initialTimeRemaining = calculateTimeRemaining();
     setTimeRemaining(initialTimeRemaining);
     
+    // Don't set up timer if stand is inactive or expired
+    if (stand.is_active === false || (initialTimeRemaining && initialTimeRemaining.expired)) {
+      return;
+    }
+    
     // Set up timer to update every second
     timerRef.current = setInterval(() => {
       const newTimeRemaining = calculateTimeRemaining();
@@ -79,7 +96,7 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [stand.expiration_time]);
+  }, [stand.expiration_time, stand.is_active]);
   
   // Handle reopening an expired stand
   const handleReopen = async () => {
@@ -136,12 +153,17 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
   // Format the expiration date to show date and time
   const formatExpirationDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString(undefined, {
+    // Adjust for timezone to ensure consistent display
+    const localDate = new Date(
+      date.getTime() + (date.getTimezoneOffset() * 60000)
+    );
+    return localDate.toLocaleString(undefined, {
       weekday: 'short',
       month: 'short', 
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
+      timeZoneName: 'short' // Show timezone to avoid confusion
     });
   };
   
@@ -152,9 +174,14 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
     const now = new Date();
     const expiration = new Date(stand.expiration_time);
     
-    return now.getDate() === expiration.getDate() && 
-           now.getMonth() === expiration.getMonth() && 
-           now.getFullYear() === expiration.getFullYear();
+    // Adjust for timezone to ensure consistent comparison
+    const localExpiration = new Date(
+      expiration.getTime() + (expiration.getTimezoneOffset() * 60000)
+    );
+    
+    return now.getDate() === localExpiration.getDate() && 
+           now.getMonth() === localExpiration.getMonth() && 
+           now.getFullYear() === localExpiration.getFullYear();
   };
   
   // Handle the case where timeRemaining is null
@@ -205,7 +232,9 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
           
           {isExpired ? (
             <p className="text-red-600">
-              This stand has expired and is no longer visible to the public.
+              {stand.is_active === false 
+                ? "This stand is currently inactive and is not visible to the public."
+                : "This stand has expired and is no longer visible to the public."}
             </p>
           ) : (
             <>
@@ -239,11 +268,13 @@ const StandExpirationInfo = ({ stand, onExtend }) => {
         >
           {loading 
             ? 'Processing...' 
-            : isExpired 
-              ? 'Reopen Stand' 
-              : expiresLaterToday()
-                ? 'Active Until Tonight'
-                : 'Active Until Midnight'
+            : stand.is_active === false
+              ? 'Activate Stand'
+              : isExpired 
+                ? 'Reopen Stand' 
+                : expiresLaterToday()
+                  ? 'Active Until Tonight'
+                  : 'Active Until Midnight'
           }
         </Button>
       </div>
