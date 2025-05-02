@@ -61,12 +61,22 @@ const MapPage: React.FC<MapPageProps> = ({
     setMapZoom(13);
   };
 
-  // Center map on user location if changed
+  // Center map on user location if changed significantly
   const handleUserLocationFound = (latlng: { lat: number; lng: number }) => {
-    if (
-      latlng &&
-      (mapCenter[0] !== latlng.lat || mapCenter[1] !== latlng.lng)
-    ) {
+    if (!latlng) return;
+    
+    // Only update map center if:
+    // 1. This is the first location update (initial centering)
+    // 2. The user has explicitly requested to center on their location
+    // 3. The location has changed significantly (more than ~100 meters)
+    const isSignificantChange = 
+      Math.abs(mapCenter[0] - latlng.lat) > 0.001 || 
+      Math.abs(mapCenter[1] - latlng.lng) > 0.001;
+      
+    // Use a ref to track if this is the first location update
+    const isFirstLocationUpdate = !location;
+    
+    if (isFirstLocationUpdate || isSignificantChange) {
       setMapCenter([latlng.lat, latlng.lng]);
     }
   };
