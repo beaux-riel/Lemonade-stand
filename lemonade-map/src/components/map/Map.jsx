@@ -281,7 +281,7 @@ StandMarker.propTypes = {
  */
 const Map = ({
   stands = [],
-  center = [40.7128, -74.006], // Default to New York City
+  center = [49.2827, 123.1207], // Default to Vancouver, BC
   zoom = 13,
   height = "500px",
   showUserLocation = true,
@@ -307,8 +307,8 @@ const Map = ({
         // Add performance optimizations for mobile
         preferCanvas={true}
         attributionControl={false}
-        minZoom={5}
-        maxZoom={18}
+        minZoom={2}
+        maxZoom={50}
         updateWhenZooming={false}
         updateWhenIdle={true}
         tap={true} // Enable tap for mobile
