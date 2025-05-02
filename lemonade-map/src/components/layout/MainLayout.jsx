@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { signOut } from '../../api/supabaseApi';
-
+import UserMenu from './UserMenu';
 /**
  * Main layout component with header and footer
  * @param {Object} props - Component props
@@ -72,41 +72,7 @@ const MainLayout = ({ children }) => {
                   >
                     Dashboard
                   </Link>
-                  <div className="relative group">
-                    <button className="flex items-center text-gray-700 hover:text-lemonade-blue-dark transition">
-                      <span className="mr-1">
-                        {user?.user_metadata?.full_name || user?.email}
-                      </span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
+                    <UserMenu />
                 </>
               ) : (
                 <>
