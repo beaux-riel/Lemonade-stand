@@ -5,6 +5,7 @@ import ProductCard from './ProductCard';
 import StandCard from './StandCard';
 import { filterStandsByDistance } from '../../utils/distance';
 import { formatDistance, getProximityDescription } from '../../services/geolocationService';
+import { getProducts } from '../../api/supabaseApi';
 
 /**
  * StandListSidebar component for displaying and filtering lemonade stands
@@ -50,48 +51,31 @@ const StandListSidebar = ({
     setFilteredStands(result);
   }, [stands, maxDistance, searchTerm, userLocation]);
 
-  // Simulate fetching products when a stand is selected
+  // Fetch products from Supabase when a stand is selected
   useEffect(() => {
     if (selectedStand) {
       setLoadingProducts(true);
       setProductError(null);
       
-      // Simulate API call delay
-      const timer = setTimeout(() => {
-        // In a real app, this would be an API call to fetch products
-        // For now, we'll use sample data
-        const sampleProducts = [
-          {
-            id: `${selectedStand.id}-1`,
-            name: 'Classic Lemonade',
-            description: 'Our signature lemonade made with fresh lemons and organic sugar.',
-            price: 2.99,
-            image_url: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            is_available: true
-          },
-          {
-            id: `${selectedStand.id}-2`,
-            name: 'Strawberry Lemonade',
-            description: 'Classic lemonade infused with fresh strawberries.',
-            price: 3.49,
-            image_url: 'https://images.unsplash.com/photo-1497534446932-c925b458314e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            is_available: true
-          },
-          {
-            id: `${selectedStand.id}-3`,
-            name: 'Blueberry Mint Lemonade',
-            description: 'A refreshing blend of lemonade with blueberries and fresh mint.',
-            price: 3.99,
-            image_url: 'https://images.unsplash.com/photo-1556881286-fc6915169721?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-            is_available: false
+      const fetchProducts = async () => {
+        try {
+          const { data, error } = await getProducts(selectedStand.id);
+          
+          if (error) {
+            console.error('Error fetching products:', error);
+            setProductError('Failed to load products. Please try again later.');
+          } else {
+            setProducts(data || []);
           }
-        ];
-        
-        setProducts(sampleProducts);
-        setLoadingProducts(false);
-      }, 1000);
+        } catch (err) {
+          console.error('Unexpected error fetching products:', err);
+          setProductError('An unexpected error occurred. Please try again later.');
+        } finally {
+          setLoadingProducts(false);
+        }
+      };
       
-      return () => clearTimeout(timer);
+      fetchProducts();
     } else {
       setProducts([]);
     }
