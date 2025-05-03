@@ -143,7 +143,7 @@ const ProfilePage = () => {
     city: '',
     state: '',
     postalCode: '',
-    country: 'United States',
+    country: 'Canada',
     apt_suite: '',
     address_line2: '',
     useForSearch: false
@@ -199,7 +199,7 @@ const ProfilePage = () => {
             city: data.city || '',
             state: data.state || '',
             postalCode: data.postal_code || '',
-            country: data.country || 'United States',
+            country: data.country || 'Canada',
             apt_suite: data.apt_suite || '',
             address_line2: data.address_line2 || '',
             useForSearch: data.preferences?.defaultSearchLocation?.useForSearch || false
