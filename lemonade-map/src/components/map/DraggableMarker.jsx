@@ -22,8 +22,16 @@ const DraggableMarker = ({
   useEffect(() => {
     if (position && position[0] && position[1]) {
       setMarkerPosition(position);
+      
+      // If this is the initial position (first render), center the map on it
+      if (markerRef.current === null) {
+        // This will run once when the marker is first created
+        map.flyTo(position, map.getZoom(), {
+          duration: 0.5
+        });
+      }
     }
-  }, [position]);
+  }, [position, map]);
 
   // Handle marker drag events
   const eventHandlers = {
@@ -39,12 +47,7 @@ const DraggableMarker = ({
     },
   };
 
-  // Center map on marker when it's created
-  useEffect(() => {
-    if (markerPosition && markerPosition[0] && markerPosition[1]) {
-      map.setView(markerPosition, map.getZoom());
-    }
-  }, []);
+  // We've moved the initial centering logic to the position update effect above
 
   return (
     <Marker

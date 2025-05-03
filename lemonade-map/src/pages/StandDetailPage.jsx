@@ -1003,7 +1003,11 @@ const StandDetailPage = () => {
               </Button>
               <Button
                 variant="primary"
-                onClick={() => setShowLocationMap(false)}
+                onClick={() => {
+                  // Actually save the location by keeping the form data
+                  // The form data is already updated by handleMarkerPositionChange
+                  setShowLocationMap(false);
+                }}
               >
                 Save Location
               </Button>
