@@ -300,6 +300,7 @@ const Map = ({
   onStandClick,
   onUserLocationFound,
   className = "",
+  children,
   ...props
 }) => {
   // Memoize the stands array to prevent unnecessary re-renders
@@ -358,6 +359,9 @@ const Map = ({
             onStandClick={onStandClick}
           />
         ))}
+        
+        {/* Render children components (like DraggableMarker) */}
+        {children}
       </MapContainer>
     </div>
   );
@@ -382,6 +386,7 @@ Map.propTypes = {
   onStandClick: PropTypes.func,
   onUserLocationFound: PropTypes.func,
   className: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export default Map;
