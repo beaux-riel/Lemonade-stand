@@ -22,28 +22,34 @@ L.Browser.iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
 // This is needed because the default markers use relative paths that don't work in React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: null,
-  iconUrl: null,
-  shadowUrl: null,
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
 // Custom lemonade stand marker icon
-const createLemonadeIcon = () =>
-  new L.Icon({
-    iconUrl: "/images/markers/lemonade-marker.svg",
+const createLemonadeIcon = () => {
+  // Get the base URL from the window location
+  const baseUrl = window.location.origin;
+  return new L.Icon({
+    iconUrl: `${baseUrl}/images/markers/lemonade-marker.svg`,
     iconSize: [40, 48],
     iconAnchor: [20, 48],
     popupAnchor: [0, -48],
   });
+};
 
 // Custom user location marker icon
-const createUserLocationIcon = () =>
-  new L.Icon({
-    iconUrl: "/images/markers/user-location.svg",
+const createUserLocationIcon = () => {
+  // Get the base URL from the window location
+  const baseUrl = window.location.origin;
+  return new L.Icon({
+    iconUrl: `${baseUrl}/images/markers/user-location.svg`,
     iconSize: [24, 24],
     iconAnchor: [12, 12],
     popupAnchor: [0, -12],
   });
+};
 
 // Component to handle map view updates and iOS-specific fixes
 const MapViewUpdater = ({ center, zoom }) => {
