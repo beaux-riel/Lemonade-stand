@@ -86,6 +86,35 @@ const COUNTRIES = [
   { value: 'Other', label: 'Other' }
 ];
 
+// Canadian provinces
+const CANADA_PROVINCES = [
+  { value: 'AB', label: 'Alberta' },
+  { value: 'BC', label: 'British Columbia' },
+  { value: 'MB', label: 'Manitoba' },
+  { value: 'NB', label: 'New Brunswick' },
+  { value: 'NL', label: 'Newfoundland and Labrador' },
+  { value: 'NS', label: 'Nova Scotia' },
+  { value: 'NT', label: 'Northwest Territories' },
+  { value: 'NU', label: 'Nunavut' },
+  { value: 'ON', label: 'Ontario' },
+  { value: 'PE', label: 'Prince Edward Island' },
+  { value: 'QC', label: 'Quebec' },
+  { value: 'SK', label: 'Saskatchewan' },
+  { value: 'YT', label: 'Yukon' },
+];
+
+// Australian states and territories
+const AUSTRALIAN_STATES = [
+  { value: 'ACT', label: 'Australian Capital Territory' },
+  { value: 'NSW', label: 'New South Wales' },
+  { value: 'NT', label: 'Northern Territory' },
+  { value: 'QLD', label: 'Queensland' },
+  { value: 'SA', label: 'South Australia' },
+  { value: 'TAS', label: 'Tasmania' },
+  { value: 'VIC', label: 'Victoria' },
+  { value: 'WA', label: 'Western Australia' },
+];
+
 /**
  * User Profile Page
  */
@@ -119,6 +148,21 @@ const ProfilePage = () => {
     address_line2: '',
     useForSearch: false
   });
+
+  // Determine state/province options based on selected country
+  const getStateOptions = (country) => {
+    switch (country) {
+      case 'United States':
+        return US_STATES;
+      case 'Canada':
+        return CANADA_PROVINCES;
+      case 'Australia':
+        return AUSTRALIAN_STATES;
+      default:
+        return [];
+    }
+  };
+  const stateOptions = getStateOptions(addressData.country);
   
   // Form validation errors
   const [profileErrors, setProfileErrors] = useState({});
@@ -543,8 +587,8 @@ const ProfilePage = () => {
                         name="state"
                         value={addressData.state}
                         onChange={handleAddressChange}
-                        options={US_STATES}
-                        placeholder="Select state"
+                        options={stateOptions}
+                        placeholder="Select state/province"
                         error={addressErrors.state}
                       />
                     </Form.Group>
