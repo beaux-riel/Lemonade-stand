@@ -56,6 +56,7 @@ const MapViewUpdater = ({ center, zoom }) => {
   const map = useMap();
   const previousCenterRef = useRef(center);
   const previousZoomRef = useRef(zoom);
+  const initialRenderRef = useRef(true);
 
   useEffect(() => {
     // Only update the view if center or zoom has changed significantly
@@ -66,12 +67,17 @@ const MapViewUpdater = ({ center, zoom }) => {
     
     const zoomChanged = zoom !== previousZoomRef.current;
     
-    if (centerChanged || zoomChanged) {
-      if (center) {
-        map.setView(center, zoom, { animate: true });
-        previousCenterRef.current = center;
-        previousZoomRef.current = zoom;
-      }
+    // Only update the view on initial render or when explicitly changed by user interaction
+    // This prevents the map from resetting when location updates come in
+    if ((initialRenderRef.current || (centerChanged && !map.isUserInteraction)) && center) {
+      map.setView(center, zoom, { animate: true });
+      previousCenterRef.current = center;
+      previousZoomRef.current = zoom;
+      initialRenderRef.current = false;
+    } else if (zoomChanged) {
+      // If only the zoom changed (not the center), update just the zoom
+      map.setZoom(zoom, { animate: true });
+      previousZoomRef.current = zoom;
     }
     
     // Apply iOS-specific fixes
@@ -142,12 +148,19 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
       const latlng = { lat: position[0], lng: position[1] };
       
       // Only notify if this is the first time we're getting a location
+      // or if the location has changed significantly (more than ~100 meters)
       if (!lastNotifiedPositionRef.current) {
         lastNotifiedPositionRef.current = latlng;
         onUserLocationFound(latlng);
+      } else if (
+        Math.abs(lastNotifiedPositionRef.current.lat - latlng.lat) > 0.001 || 
+        Math.abs(lastNotifiedPositionRef.current.lng - latlng.lng) > 0.001
+      ) {
+        // Only update the reference, but don't call onUserLocationFound
+        // This prevents the map from re-centering on location updates
+        lastNotifiedPositionRef.current = latlng;
+        // We intentionally don't call onUserLocationFound here
       }
-      // We intentionally don't update on subsequent location changes
-      // This prevents the map from constantly re-centering
     }
   }, [position, showUserLocation, onUserLocationFound]);
   
@@ -352,6 +365,22 @@ const Map = ({
         // iOS-specific fixes
         tapTolerance={15} // Increase tap tolerance for iOS
         wheelDebounceTime={100} // Debounce wheel events
+        whenCreated={(mapInstance) => {
+          // Add a flag to track user interaction with the map
+          mapInstance.isUserInteraction = false;
+          
+          // Add event listeners to detect user interaction
+          mapInstance.on('dragstart', () => { mapInstance.isUserInteraction = true; });
+          mapInstance.on('zoomstart', () => { mapInstance.isUserInteraction = true; });
+          
+          // Reset the flag after a delay when user interaction ends
+          const resetInteractionFlag = () => {
+            setTimeout(() => { mapInstance.isUserInteraction = false; }, 1000);
+          };
+          
+          mapInstance.on('dragend', resetInteractionFlag);
+          mapInstance.on('zoomend', resetInteractionFlag);
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
