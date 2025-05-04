@@ -107,30 +107,18 @@ export const updateUserAddress = async (userId, addressData) => {
       }
     };
     
-    // Check if the apt_suite and address_line2 columns exist in the users table
-    const { data: columnsData, error: columnsError } = await supabase
-      .rpc('get_table_columns', { table_name: 'users' })
-      .catch(() => ({ data: null, error: null })); // Silently fail if the function doesn't exist
-    
-    // Prepare the update object with required fields
+    // Prepare the update object with all address fields
     const updateObj = {
       street: sanitizedAddressData.street,
       city: sanitizedAddressData.city,
       state: sanitizedAddressData.state,
       postal_code: sanitizedAddressData.postal_code,
       country: sanitizedAddressData.country,
+      apt_suite: sanitizedAddressData.apt_suite,
+      address_line2: sanitizedAddressData.address_line2,
       // Store the preferences as a JSON object
       preferences: updatedPreferences
     };
-    
-    // Only include apt_suite and address_line2 if the columns exist or if we couldn't check
-    if (!columnsData || columnsData.some(col => col.column_name === 'apt_suite')) {
-      updateObj.apt_suite = sanitizedAddressData.apt_suite;
-    }
-    
-    if (!columnsData || columnsData.some(col => col.column_name === 'address_line2')) {
-      updateObj.address_line2 = sanitizedAddressData.address_line2;
-    }
     
     // Update the user record
     const { data, error } = await supabase
@@ -142,15 +130,50 @@ export const updateUserAddress = async (userId, addressData) => {
     if (error) {
       console.error("Error updating user address:", error);
       
-      // If the error might be related to missing columns, provide a more helpful message
+      // If the error might be related to missing columns, run the add_address_columns function
       if (error.message && (error.message.includes('apt_suite') || error.message.includes('address_line2'))) {
-        return { 
-          data: null, 
-          error: {
-            ...error,
-            message: "Address update failed. The database may be missing required columns. Please contact the administrator to run the add_address_columns.sql script."
+        // Try to add the missing columns
+        try {
+          // First try to execute the add_column_if_not_exists function
+          await supabase.rpc('add_column_if_not_exists', { 
+            table_name: 'users', 
+            column_name: 'apt_suite', 
+            column_type: 'text' 
+          });
+          
+          await supabase.rpc('add_column_if_not_exists', { 
+            table_name: 'users', 
+            column_name: 'address_line2', 
+            column_type: 'text' 
+          });
+          
+          // Try the update again after adding the columns
+          const { data: retryData, error: retryError } = await supabase
+            .from("users")
+            .update(updateObj)
+            .eq("id", userId)
+            .select();
+            
+          if (retryError) {
+            return { 
+              data: null, 
+              error: {
+                ...retryError,
+                message: "Address update failed after attempting to add missing columns. Please contact the administrator."
+              }
+            };
           }
-        };
+          
+          return { data: retryData, error: null };
+        } catch (addColumnError) {
+          return { 
+            data: null, 
+            error: {
+              ...error,
+              message: "Address update failed. The database is missing required columns. Please contact the administrator to run the add_address_columns.sql script."
+            }
+          };
+        }
       }
       
       return { data: null, error };
