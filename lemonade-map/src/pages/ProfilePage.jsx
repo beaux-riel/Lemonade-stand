@@ -144,7 +144,7 @@ const ProfilePage = () => {
     street: '',
     city: '',
     state: '',
-    postalCode: '',
+    postal_code: '',
     country: 'Canada',
     apt_suite: '',
     address_line2: '',
@@ -200,7 +200,7 @@ const ProfilePage = () => {
             street: data.street || '',
             city: data.city || '',
             state: data.state || '',
-            postalCode: data.postal_code || '',
+            postal_code: data.postal_code || '',
             country: data.country || 'Canada',
             apt_suite: data.apt_suite || '',
             address_line2: data.address_line2 || '',
@@ -642,14 +642,14 @@ const ProfilePage = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Form.Group>
-                      <Form.Label htmlFor="postalCode">ZIP/Postal Code</Form.Label>
+                      <Form.Label htmlFor="postal_code">ZIP/Postal Code</Form.Label>
                       <Form.Input
-                        id="postalCode"
-                        name="postalCode"
-                        value={addressData.postalCode}
+                        id="postal_code"
+                        name="postal_code"
+                        value={addressData.postal_code}
                         onChange={handleAddressChange}
                         placeholder="12345"
-                        error={addressErrors.postalCode}
+                        error={addressErrors.postal_code}
                       />
                     </Form.Group>
                     
