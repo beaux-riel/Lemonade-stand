@@ -19,7 +19,7 @@ export const GeolocationProvider = ({ children }) => {
   const [watchId, setWatchId] = useState(null);
   const [permissionStatus, setPermissionStatus] = useState('unknown'); // 'unknown', 'granted', 'denied', 'prompt'
 
-  // Initialize location on mount
+  // Initialize location on mount - only once
   useEffect(() => {
     // Check for geolocation permission
     if (navigator.permissions && navigator.permissions.query) {
@@ -32,7 +32,7 @@ export const GeolocationProvider = ({ children }) => {
             setPermissionStatus(result.state);
           };
           
-          // If permission is granted, get location
+          // If permission is granted, get location once
           if (result.state === 'granted') {
             getLocation();
           }

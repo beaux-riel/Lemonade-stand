@@ -164,7 +164,7 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
     }
   }, [position, showUserLocation, onUserLocationFound]);
   
-  // Use Leaflet's locate method as a fallback - optimized to reduce unnecessary work
+  // Use Leaflet's locate method as a fallback - only once at startup
   useEffect(() => {
     if (!showUserLocation) {
       if (locationCircleRef.current) {
@@ -180,16 +180,16 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
       return;
     }
 
-    // If we don't have a location from context, try to get it using Leaflet
-    if (!location) {
-      // Use a more efficient locate method for mobile
+    // If we don't have a location from context, try to get it using Leaflet - only once
+    if (!location && !position) {
+      // Use a more efficient locate method for mobile - without watch mode
       map.locate({
         setView: true,
         maxZoom: 16,
         enableHighAccuracy: L.Browser.mobile, // Higher accuracy on mobile, especially for iOS
         timeout: 15000, // Longer timeout for iOS
-        maximumAge: 30000, // Allow cached positions up to 30 seconds old
-        watch: L.Browser.mobile && L.Browser.safari, // Watch mode for iOS Safari
+        maximumAge: 300000, // Allow cached positions up to 5 minutes old
+        watch: false, // Disable watch mode to prevent continuous updates
       });
 
       const onLocationFound = (e) => {
@@ -236,7 +236,7 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
         locationCircleRef.current = null;
       }
     };
-  }, [map, showUserLocation, onUserLocationFound, location, getLocation]);
+  }, [map, showUserLocation, location, position, getLocation]);
 
   // Only render the marker if we have a position
   return position ? (

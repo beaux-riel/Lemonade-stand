@@ -100,7 +100,7 @@ export const getCurrentLocation = (useFallback = true) => {
         {
           enableHighAccuracy: false, // Reduced accuracy to prevent constant updates
           timeout: 10000,
-          maximumAge: 300000 // 5 minutes - use cached location for longer to reduce updates
+          maximumAge: 600000 // 10 minutes - use cached location for much longer to reduce updates
         }
       );
     } catch (e) {
@@ -136,9 +136,10 @@ export const watchLocation = (callback, useFallback = true) => {
   try {
     let hasReceivedLocation = false;
     
-    // Use a debounce mechanism to prevent too frequent updates
+    // Use a much more aggressive throttling to prevent frequent updates
+    // This is now set to 30 seconds minimum between updates
     let lastUpdateTime = 0;
-    const MIN_UPDATE_INTERVAL = 5000; // 5 seconds minimum between updates
+    const MIN_UPDATE_INTERVAL = 30000; // 30 seconds minimum between updates
     
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
@@ -175,7 +176,7 @@ export const watchLocation = (callback, useFallback = true) => {
       {
         enableHighAccuracy: false, // Reduced accuracy to prevent constant updates
         timeout: 10000,
-        maximumAge: 60000 // 1 minute - use cached location for longer
+        maximumAge: 300000 // 5 minutes - use cached location for much longer
       }
     );
     
