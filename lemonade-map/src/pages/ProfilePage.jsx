@@ -127,6 +127,8 @@ const ProfilePage = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [addressError, setAddressError] = useState(null);
+  const [addressSuccess, setAddressSuccess] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   
@@ -355,19 +357,32 @@ const ProfilePage = () => {
     
     try {
       setSaving(true);
-      setError(null);
-      setSuccess(null);
+      setAddressError(null);
+      setAddressSuccess(null);
       
-      // Update address
-      const { error: addressError } = await updateUserAddress(user.id, addressData);
+      // Update address and preferences
+      const { data, error: addressError } = await updateUserAddress(user.id, addressData);
       
       if (addressError) {
         throw new Error(addressError.message);
       }
       
-      setSuccess('Address updated successfully!');
+      // Update preferences with useForSearch value
+      const preferences = {
+        defaultSearchLocation: {
+          useForSearch: addressData.useForSearch
+        }
+      };
+      
+      const { error: preferencesError } = await updateUserPreferences(user.id, preferences);
+      
+      if (preferencesError) {
+        throw new Error(preferencesError.message);
+      }
+      
+      setAddressSuccess('Address and preferences updated successfully!');
     } catch (err) {
-      setError(err.message);
+      setAddressError(err.message);
     } finally {
       setSaving(false);
     }
@@ -448,7 +463,14 @@ const ProfilePage = () => {
             
             <Tabs
               defaultTab={activeTab === 'address' ? 1 : 0}
-              onChange={(index) => setActiveTab(index === 0 ? 'personal' : 'address')}
+              onChange={(index) => {
+                setActiveTab(index === 0 ? 'personal' : 'address');
+                // Clear error/success messages when switching tabs
+                setError(null);
+                setSuccess(null);
+                setAddressError(null);
+                setAddressSuccess(null);
+              }}
               className="mb-6"
             >
               <Tabs.Item>Personal Info</Tabs.Item>
@@ -529,6 +551,24 @@ const ProfilePage = () => {
               </Tabs.Panel>
               
               <Tabs.Panel>
+                {addressError && (
+                  <Alert 
+                    type="error" 
+                    message={addressError} 
+                    className="mb-6"
+                    onClose={() => setAddressError(null)}
+                  />
+                )}
+                
+                {addressSuccess && (
+                  <Alert 
+                    type="success" 
+                    message={addressSuccess} 
+                    className="mb-6"
+                    onClose={() => setAddressSuccess(null)}
+                  />
+                )}
+                
                 <Form onSubmit={handleAddressSubmit}>
                   <div className="space-y-6">
                     <Form.Group>
