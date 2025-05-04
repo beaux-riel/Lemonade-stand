@@ -4,7 +4,7 @@ This directory contains scripts to fix the issue with user addresses not being s
 
 ## Problem
 
-The user address data was not being saved to Supabase because the database table was missing the `apt_suite` and `address_line2` fields that the frontend code was trying to use.
+The user address data was not being saved to Supabase because the database table was missing the `apt_suite` and `address_line2` fields that the frontend code was trying to use. This caused address updates to fail silently.
 
 ## Solution
 
