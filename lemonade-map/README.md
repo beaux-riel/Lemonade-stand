@@ -1,4 +1,4 @@
-# Lemonade Stand Application
+# Lemonade Map Application
 
 A web application for managing lemonade stands and their products. This project uses React for the frontend and Supabase for the backend.
 
