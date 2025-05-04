@@ -367,22 +367,28 @@ const ProfilePage = () => {
         throw new Error(addressError.message);
       }
       
-      // Update preferences with useForSearch value
-      const preferences = {
-        defaultSearchLocation: {
-          useForSearch: addressData.useForSearch
+      // Update preferences with useForSearch value is now handled in updateUserAddress
+      // No need for a separate call to updateUserPreferences
+      
+      setAddressSuccess('Address updated successfully!');
+      
+      // Scroll to the success message
+      setTimeout(() => {
+        const successAlert = document.querySelector('.address-success-alert');
+        if (successAlert) {
+          successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      };
-      
-      const { error: preferencesError } = await updateUserPreferences(user.id, preferences);
-      
-      if (preferencesError) {
-        throw new Error(preferencesError.message);
-      }
-      
-      setAddressSuccess('Address and preferences updated successfully!');
+      }, 100);
     } catch (err) {
       setAddressError(err.message);
+      
+      // Scroll to the error message
+      setTimeout(() => {
+        const errorAlert = document.querySelector('.address-error-alert');
+        if (errorAlert) {
+          errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     } finally {
       setSaving(false);
     }
@@ -555,7 +561,7 @@ const ProfilePage = () => {
                   <Alert 
                     type="error" 
                     message={addressError} 
-                    className="mb-6"
+                    className="mb-6 address-error-alert"
                     onClose={() => setAddressError(null)}
                   />
                 )}
@@ -564,7 +570,7 @@ const ProfilePage = () => {
                   <Alert 
                     type="success" 
                     message={addressSuccess} 
-                    className="mb-6"
+                    className="mb-6 address-success-alert"
                     onClose={() => setAddressSuccess(null)}
                   />
                 )}
