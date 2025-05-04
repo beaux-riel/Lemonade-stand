@@ -3,19 +3,24 @@
 
 -- Function to add a column if it doesn't exist
 CREATE OR REPLACE FUNCTION add_column_if_not_exists(
-  table_name text,
-  column_name text,
-  column_type text
+  _table_name  text,
+  _column_name text,
+  _column_type text
 ) RETURNS void AS $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1
-    FROM information_schema.columns
-    WHERE table_name = add_column_if_not_exists.table_name
-    AND column_name = add_column_if_not_exists.column_name
+      FROM information_schema.columns AS c
+     WHERE c.table_schema = 'public'
+       AND c.table_name   = _table_name
+       AND c.column_name  = _column_name
   ) THEN
-    EXECUTE format('ALTER TABLE %I ADD COLUMN %I %s', 
-                  table_name, column_name, column_type);
+    EXECUTE format(
+      'ALTER TABLE public.%I ADD COLUMN IF NOT EXISTS %I %s',
+      _table_name,
+      _column_name,
+      _column_type
+    );
   END IF;
 END;
 $$ LANGUAGE plpgsql;
