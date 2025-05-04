@@ -54,10 +54,24 @@ const createUserLocationIcon = () => {
 // Component to handle map view updates and iOS-specific fixes
 const MapViewUpdater = ({ center, zoom }) => {
   const map = useMap();
+  const previousCenterRef = useRef(center);
+  const previousZoomRef = useRef(zoom);
 
   useEffect(() => {
-    if (center) {
-      map.setView(center, zoom);
+    // Only update the view if center or zoom has changed significantly
+    // This prevents constant re-rendering when small GPS fluctuations occur
+    const centerChanged = center && (!previousCenterRef.current || 
+      Math.abs(previousCenterRef.current[0] - center[0]) > 0.0005 || 
+      Math.abs(previousCenterRef.current[1] - center[1]) > 0.0005);
+    
+    const zoomChanged = zoom !== previousZoomRef.current;
+    
+    if (centerChanged || zoomChanged) {
+      if (center) {
+        map.setView(center, zoom, { animate: true });
+        previousCenterRef.current = center;
+        previousZoomRef.current = zoom;
+      }
     }
     
     // Apply iOS-specific fixes
@@ -123,19 +137,17 @@ const UserLocationMarker = memo(({ showUserLocation, onUserLocationFound }) => {
   // Separate useEffect for notifying parent to prevent infinite loops
   useEffect(() => {
     if (position && onUserLocationFound && showUserLocation) {
-      // Only notify parent once when position is first set or when it changes significantly
-      // This prevents infinite loops of re-centering and re-zooming
+      // Only notify parent ONCE when position is first set
+      // This prevents continuous re-centering and re-zooming
       const latlng = { lat: position[0], lng: position[1] };
       
-      // Only notify if position has changed significantly (more than 10 meters)
-      // or if this is the first time we're notifying
-      if (!lastNotifiedPositionRef.current || 
-          Math.abs(lastNotifiedPositionRef.current.lat - latlng.lat) > 0.0001 || 
-          Math.abs(lastNotifiedPositionRef.current.lng - latlng.lng) > 0.0001) {
-        
+      // Only notify if this is the first time we're getting a location
+      if (!lastNotifiedPositionRef.current) {
         lastNotifiedPositionRef.current = latlng;
         onUserLocationFound(latlng);
       }
+      // We intentionally don't update on subsequent location changes
+      // This prevents the map from constantly re-centering
     }
   }, [position, showUserLocation, onUserLocationFound]);
   

@@ -36,13 +36,19 @@ const MapView = ({
         maximumAge: 30000
       };
       
+      // Use a ref to track if we've already set the initial position
+      // to prevent multiple updates
+      const hasSetInitialPosition = React.useRef(false);
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setUserPosition([latitude, longitude]);
           
-          // If no stands are selected, center map on user's location
-          if (!selectedStand) {
+          // Only set the map center once on initial load
+          // and only if no stands are selected
+          if (!selectedStand && !hasSetInitialPosition.current) {
+            hasSetInitialPosition.current = true;
             setMapCenter([latitude, longitude]);
           }
         },

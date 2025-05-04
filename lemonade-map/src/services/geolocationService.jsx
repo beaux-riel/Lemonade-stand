@@ -98,9 +98,9 @@ export const getCurrentLocation = (useFallback = true) => {
           }
         },
         {
-          enableHighAccuracy: true,
+          enableHighAccuracy: false, // Reduced accuracy to prevent constant updates
           timeout: 10000,
-          maximumAge: 60000 // 1 minute
+          maximumAge: 300000 // 5 minutes - use cached location for longer to reduce updates
         }
       );
     } catch (e) {
@@ -136,15 +136,25 @@ export const watchLocation = (callback, useFallback = true) => {
   try {
     let hasReceivedLocation = false;
     
+    // Use a debounce mechanism to prevent too frequent updates
+    let lastUpdateTime = 0;
+    const MIN_UPDATE_INTERVAL = 5000; // 5 seconds minimum between updates
+    
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         hasReceivedLocation = true;
-        callback({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          isFallback: false
-        });
+        
+        // Implement time-based throttling for location updates
+        const now = Date.now();
+        if (now - lastUpdateTime > MIN_UPDATE_INTERVAL) {
+          lastUpdateTime = now;
+          callback({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            isFallback: false
+          });
+        }
       },
       (error) => {
         // Log the error but don't throw it to avoid breaking the app
@@ -163,9 +173,9 @@ export const watchLocation = (callback, useFallback = true) => {
         }
       },
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false, // Reduced accuracy to prevent constant updates
         timeout: 10000,
-        maximumAge: 30000 // 30 seconds
+        maximumAge: 60000 // 1 minute - use cached location for longer
       }
     );
     

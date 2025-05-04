@@ -90,8 +90,17 @@ export const GeolocationProvider = ({ children }) => {
     }
     
     try {
+      // Track the last update time to prevent too frequent state updates
+      let lastUpdateTime = 0;
+      const MIN_UPDATE_INTERVAL = 5000; // 5 seconds minimum between updates
+      
       const id = watchLocation((newLocation) => {
-        setLocation(newLocation);
+        // Only update state if significant time has passed since last update
+        const now = Date.now();
+        if (now - lastUpdateTime > MIN_UPDATE_INTERVAL) {
+          lastUpdateTime = now;
+          setLocation(newLocation);
+        }
       });
       setWatchId(id);
     } catch (err) {
