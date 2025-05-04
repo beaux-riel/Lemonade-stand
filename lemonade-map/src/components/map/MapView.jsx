@@ -23,8 +23,17 @@ const MapView = ({
   const [mapZoom, setMapZoom] = useState(13);
   const [userPosition, setUserPosition] = useState(null);
   
-  // Get user's location on initial load
+  // Get user's location ONCE on initial load
   useEffect(() => {
+    // Use a ref to track if we've already set the initial position
+    // to prevent multiple updates
+    const hasSetInitialPosition = React.useRef(false);
+    
+    // Only proceed if we haven't already set the position
+    if (hasSetInitialPosition.current) {
+      return;
+    }
+    
     if (navigator.geolocation) {
       // Check if running on iOS
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
@@ -33,12 +42,8 @@ const MapView = ({
       const options = {
         enableHighAccuracy: isIOS, // Higher accuracy on iOS
         timeout: isIOS ? 15000 : 10000, // Longer timeout for iOS
-        maximumAge: 30000
+        maximumAge: 300000 // 5 minutes - use cached location for longer
       };
-      
-      // Use a ref to track if we've already set the initial position
-      // to prevent multiple updates
-      const hasSetInitialPosition = React.useRef(false);
       
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -62,9 +67,24 @@ const MapView = ({
             // Default to New York City if no stands
             setMapCenter([40.7128, -74.0060]);
           }
+          
+          // Mark as set even if it failed
+          hasSetInitialPosition.current = true;
         },
         options
       );
+    } else {
+      // Mark as set if geolocation is not available
+      hasSetInitialPosition.current = true;
+      
+      // Default to a central location if geolocation is not available
+      if (!mapCenter && stands.length > 0) {
+        // Use the first stand's location as default
+        setMapCenter([stands[0].location_lat, stands[0].location_lng]);
+      } else if (!mapCenter) {
+        // Default to New York City if no stands
+        setMapCenter([40.7128, -74.0060]);
+      }
     }
   }, []);
   
