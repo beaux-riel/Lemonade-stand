@@ -71,42 +71,86 @@ export const updateUserProfile = async (userId, updates) => {
 };
 
 export const updateUserAddress = async (userId, addressData) => {
-  // First get current preferences to preserve any existing preferences
-  const { data: currentData, error: fetchError } = await getUserProfile(userId);
-  
-  if (fetchError) {
-    return { error: fetchError };
-  }
-  
-  // Create the full address string
-  const fullAddress = `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`;
-  
-  // Merge with existing preferences or create new preferences object
-  const currentPreferences = currentData?.preferences || {};
-  const updatedPreferences = {
-    ...currentPreferences,
-    defaultSearchLocation: {
-      address: fullAddress,
-      useForSearch: addressData.useForSearch || false
+  try {
+    // First get current preferences to preserve any existing preferences
+    const { data: currentData, error: fetchError } = await getUserProfile(userId);
+    
+    if (fetchError) {
+      return { error: fetchError };
     }
-  };
-  
-  const { data, error } = await supabase
-    .from("users")
-    .update({
+    
+    // Create the full address string
+    const fullAddress = `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`;
+    
+    // Merge with existing preferences or create new preferences object
+    const currentPreferences = currentData?.preferences || {};
+    const updatedPreferences = {
+      ...currentPreferences,
+      defaultSearchLocation: {
+        address: fullAddress,
+        useForSearch: addressData.useForSearch || false
+      }
+    };
+    
+    // Check if the apt_suite and address_line2 columns exist in the users table
+    const { data: columnsData, error: columnsError } = await supabase
+      .rpc('get_table_columns', { table_name: 'users' })
+      .catch(() => ({ data: null, error: null })); // Silently fail if the function doesn't exist
+    
+    // Prepare the update object with required fields
+    const updateObj = {
       street: addressData.street,
       city: addressData.city,
       state: addressData.state,
       postal_code: addressData.postalCode,
       country: addressData.country,
-      apt_suite: addressData.apt_suite,
-      address_line2: addressData.address_line2,
       // Store the preferences as a JSON object
       preferences: updatedPreferences
-    })
-    .eq("id", userId)
-    .select();
-  return { data, error };
+    };
+    
+    // Only include apt_suite and address_line2 if the columns exist or if we couldn't check
+    if (!columnsData || columnsData.some(col => col.column_name === 'apt_suite')) {
+      updateObj.apt_suite = addressData.apt_suite || '';
+    }
+    
+    if (!columnsData || columnsData.some(col => col.column_name === 'address_line2')) {
+      updateObj.address_line2 = addressData.address_line2 || '';
+    }
+    
+    // Update the user record
+    const { data, error } = await supabase
+      .from("users")
+      .update(updateObj)
+      .eq("id", userId)
+      .select();
+      
+    if (error) {
+      console.error("Error updating user address:", error);
+      
+      // If the error might be related to missing columns, provide a more helpful message
+      if (error.message && (error.message.includes('apt_suite') || error.message.includes('address_line2'))) {
+        return { 
+          data: null, 
+          error: {
+            ...error,
+            message: "Address update failed. The database may be missing required columns. Please contact the administrator to run the add_address_columns.sql script."
+          }
+        };
+      }
+      
+      return { data: null, error };
+    }
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error("Unexpected error in updateUserAddress:", err);
+    return { 
+      data: null, 
+      error: { 
+        message: "An unexpected error occurred while updating your address. Please try again later." 
+      } 
+    };
+  }
 };
 
 export const updateUserPreferences = async (userId, preferences) => {
