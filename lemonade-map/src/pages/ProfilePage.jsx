@@ -195,7 +195,7 @@ const ProfilePage = () => {
             bio: data.bio || ''
           });
           
-          // Set address data
+          // Set address data with proper null/undefined handling
           setAddressData({
             street: data.street || '',
             city: data.city || '',
