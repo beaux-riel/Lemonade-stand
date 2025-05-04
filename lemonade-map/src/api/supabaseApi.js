@@ -71,6 +71,26 @@ export const updateUserProfile = async (userId, updates) => {
 };
 
 export const updateUserAddress = async (userId, addressData) => {
+  // First get current preferences to preserve any existing preferences
+  const { data: currentData, error: fetchError } = await getUserProfile(userId);
+  
+  if (fetchError) {
+    return { error: fetchError };
+  }
+  
+  // Create the full address string
+  const fullAddress = `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`;
+  
+  // Merge with existing preferences or create new preferences object
+  const currentPreferences = currentData?.preferences || {};
+  const updatedPreferences = {
+    ...currentPreferences,
+    defaultSearchLocation: {
+      address: fullAddress,
+      useForSearch: addressData.useForSearch || false
+    }
+  };
+  
   const { data, error } = await supabase
     .from("users")
     .update({
@@ -81,13 +101,8 @@ export const updateUserAddress = async (userId, addressData) => {
       country: addressData.country,
       apt_suite: addressData.apt_suite,
       address_line2: addressData.address_line2,
-      // Store the full address as a default search location in preferences
-      preferences: supabase.utils.toJson({
-        defaultSearchLocation: {
-          address: `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`,
-          useForSearch: addressData.useForSearch || false
-        }
-      })
+      // Store the preferences as a JSON object
+      preferences: updatedPreferences
     })
     .eq("id", userId)
     .select();
