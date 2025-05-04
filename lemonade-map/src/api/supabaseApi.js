@@ -84,7 +84,7 @@ export const updateUserAddress = async (userId, addressData) => {
       street: addressData.street || '',
       city: addressData.city || '',
       state: addressData.state || '',
-      postalCode: addressData.postalCode || '',
+      postal_code: addressData.postal_code || '',
       country: addressData.country || 'Canada',
       apt_suite: addressData.apt_suite || '',
       address_line2: addressData.address_line2 || '',
@@ -94,7 +94,7 @@ export const updateUserAddress = async (userId, addressData) => {
     // Create the full address string only if we have the minimum required fields
     let fullAddress = '';
     if (sanitizedAddressData.street && sanitizedAddressData.city && sanitizedAddressData.state) {
-      fullAddress = `${sanitizedAddressData.street}${sanitizedAddressData.apt_suite ? `, ${sanitizedAddressData.apt_suite}` : ''}${sanitizedAddressData.address_line2 ? `, ${sanitizedAddressData.address_line2}` : ''}, ${sanitizedAddressData.city}, ${sanitizedAddressData.state} ${sanitizedAddressData.postalCode}, ${sanitizedAddressData.country}`;
+      fullAddress = `${sanitizedAddressData.street}${sanitizedAddressData.apt_suite ? `, ${sanitizedAddressData.apt_suite}` : ''}${sanitizedAddressData.address_line2 ? `, ${sanitizedAddressData.address_line2}` : ''}, ${sanitizedAddressData.city}, ${sanitizedAddressData.state} ${sanitizedAddressData.postal_code}, ${sanitizedAddressData.country}`;
     }
     
     // Merge with existing preferences or create new preferences object
@@ -117,7 +117,7 @@ export const updateUserAddress = async (userId, addressData) => {
       street: sanitizedAddressData.street,
       city: sanitizedAddressData.city,
       state: sanitizedAddressData.state,
-      postal_code: sanitizedAddressData.postalCode,
+      postal_code: sanitizedAddressData.postal_code,
       country: sanitizedAddressData.country,
       // Store the preferences as a JSON object
       preferences: updatedPreferences
