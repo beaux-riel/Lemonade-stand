@@ -79,8 +79,23 @@ export const updateUserAddress = async (userId, addressData) => {
       return { error: fetchError };
     }
     
-    // Create the full address string
-    const fullAddress = `${addressData.street}${addressData.apt_suite ? `, ${addressData.apt_suite}` : ''}${addressData.address_line2 ? `, ${addressData.address_line2}` : ''}, ${addressData.city}, ${addressData.state} ${addressData.postalCode}, ${addressData.country}`;
+    // Ensure all address fields have at least empty string values to prevent null/undefined issues
+    const sanitizedAddressData = {
+      street: addressData.street || '',
+      city: addressData.city || '',
+      state: addressData.state || '',
+      postalCode: addressData.postalCode || '',
+      country: addressData.country || 'Canada',
+      apt_suite: addressData.apt_suite || '',
+      address_line2: addressData.address_line2 || '',
+      useForSearch: addressData.useForSearch || false
+    };
+    
+    // Create the full address string only if we have the minimum required fields
+    let fullAddress = '';
+    if (sanitizedAddressData.street && sanitizedAddressData.city && sanitizedAddressData.state) {
+      fullAddress = `${sanitizedAddressData.street}${sanitizedAddressData.apt_suite ? `, ${sanitizedAddressData.apt_suite}` : ''}${sanitizedAddressData.address_line2 ? `, ${sanitizedAddressData.address_line2}` : ''}, ${sanitizedAddressData.city}, ${sanitizedAddressData.state} ${sanitizedAddressData.postalCode}, ${sanitizedAddressData.country}`;
+    }
     
     // Merge with existing preferences or create new preferences object
     const currentPreferences = currentData?.preferences || {};
@@ -88,7 +103,7 @@ export const updateUserAddress = async (userId, addressData) => {
       ...currentPreferences,
       defaultSearchLocation: {
         address: fullAddress,
-        useForSearch: addressData.useForSearch || false
+        useForSearch: sanitizedAddressData.useForSearch
       }
     };
     
@@ -99,22 +114,22 @@ export const updateUserAddress = async (userId, addressData) => {
     
     // Prepare the update object with required fields
     const updateObj = {
-      street: addressData.street,
-      city: addressData.city,
-      state: addressData.state,
-      postal_code: addressData.postalCode,
-      country: addressData.country,
+      street: sanitizedAddressData.street,
+      city: sanitizedAddressData.city,
+      state: sanitizedAddressData.state,
+      postal_code: sanitizedAddressData.postalCode,
+      country: sanitizedAddressData.country,
       // Store the preferences as a JSON object
       preferences: updatedPreferences
     };
     
     // Only include apt_suite and address_line2 if the columns exist or if we couldn't check
     if (!columnsData || columnsData.some(col => col.column_name === 'apt_suite')) {
-      updateObj.apt_suite = addressData.apt_suite || '';
+      updateObj.apt_suite = sanitizedAddressData.apt_suite;
     }
     
     if (!columnsData || columnsData.some(col => col.column_name === 'address_line2')) {
-      updateObj.address_line2 = addressData.address_line2 || '';
+      updateObj.address_line2 = sanitizedAddressData.address_line2;
     }
     
     // Update the user record
