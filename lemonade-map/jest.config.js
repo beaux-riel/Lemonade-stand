@@ -18,13 +18,17 @@ module.exports = {
     "^../../App$": "<rootDir>/src/__mocks__/App.jsx",
     "^./App$": "<rootDir>/src/__mocks__/App.jsx",
     "^react-leaflet$": "<rootDir>/node_modules/react-leaflet/react-leaflet.js",
-    "^leaflet$": "<rootDir>/node_modules/leaflet/dist/leaflet.js"
+    "^leaflet$": "<rootDir>/node_modules/leaflet/dist/leaflet.js",
+    "^../services/geolocationService$": "<rootDir>/src/services/__mocks__/geolocationService.jsx",
+    "^../../services/geolocationService$": "<rootDir>/src/services/__mocks__/geolocationService.jsx"
   },
   // Handle import.meta.env
   globals: {
     "import.meta": {
       env: {
-        BASE_URL: "/"
+        BASE_URL: "/",
+        DEV: true,
+        PROD: false
       }
     }
   },

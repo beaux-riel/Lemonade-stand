@@ -15,8 +15,8 @@ import { calculateDistance, sortStandsByDistance, filterStandsByDistance } from 
  * @returns {boolean} - Whether the current context is secure
  */
 export const isSecureContext = () => {
-  // In development, we'll consider all contexts secure to allow geolocation to work
-  if (import.meta.env.DEV) {
+  // In development or test environment, we'll consider all contexts secure to allow geolocation to work
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     return true;
   }
   
